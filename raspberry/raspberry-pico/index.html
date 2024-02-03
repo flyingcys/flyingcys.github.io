@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>轻松玩转树莓派pico - 燕十三的嵌入式之旅</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">燕十三的嵌入式之旅</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">主页</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../about/" class="nav-link">关于我</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../IoT/" class="nav-link">IoT</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../riscv-v/" class="nav-link">RISC-V</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../rt-thread/" class="nav-link">RT-Thread</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Linux <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../linux/arm/arm/" class="dropdown-item">ARM</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">RISC-V</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v1</a>
+</li>
+            
+<li>
+    <a href="../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v2</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">raspberry <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../1.md" class="dropdown-item">raspberry</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">轻松玩转树莓派pico</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../tools/" class="nav-link">Tools</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../../linux/risc-v/milk-v/milk-v-duo2/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#pico" class="nav-link">一、树莓派pico新手上路</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1" class="nav-link">1、开发板介绍</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2" class="nav-link">2、芯片介绍</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#3" class="nav-link">3、环境搭建</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#4example" class="nav-link">4、编译example</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#5example" class="nav-link">5、运行example</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#pico_1" class="nav-link">二、创建自己的pico工程项目</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#windowsubuntuvscode-c" class="nav-link">三、Windows+Ubuntu虚拟机模式下VSCode C语言开发环境搭建</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1vscode" class="nav-link">1、VSCode下载与安装</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2vscode" class="nav-link">2、VSCode基础插件安装</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#3ssh" class="nav-link">3、SSH连接与配置</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#4ssh" class="nav-link">4、SSH免密登录</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#5pico" class="nav-link">5、Pico编译</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#ubuntudebug" class="nav-link">四、Ubuntu下在线debug环境搭建</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1openocd" class="nav-link">1、openocd编译安装</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2picoprobe" class="nav-link">2、Picoprobe编译与连接</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#3openocdgdb" class="nav-link">3、手工运行openocd和gdb</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#4vscode" class="nav-link">4、VSCode在线调试</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#freertos" class="nav-link">五、FreeRTOS体验</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1_1" class="nav-link">1、项目创建</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2freertos" class="nav-link">2、下载FreeRTOS内核源代码</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#3_1" class="nav-link">3、编译</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#4" class="nav-link">4、运行</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#pico-project-generator" class="nav-link">六、pico-project-generator使用</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1_2" class="nav-link">1、命令行运行</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2_1" class="nav-link">2、可视化配置</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#pico_2" class="nav-link">七、让Pico跑个分</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1coremark" class="nav-link">1、CoreMark介绍</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2coremark" class="nav-link">2、CoreMark适配</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#define-use_clock-1" class="nav-link">define USE_CLOCK     1</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#define-main_has_noargc-1" class="nav-link">define MAIN_HAS_NOARGC 1</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#define-seed_method-seed_volatile" class="nav-link">define SEED_METHOD SEED_VOLATILE</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#define-iterations-10000coremark10scoremark" class="nav-link">define ITERATIONS 10000，由于CoreMark必须要运行超过10s，如果coremark在运行过程中提示出错，须将此参数改大。</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#3_2" class="nav-link">3、跑分</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="pico">一、树莓派pico新手上路</h1>
+<h2 id="1">1、开发板介绍</h2>
+<p>树莓派-Pico是树莓派基金会推出的第一款微控制器领域的树莓派低成本开发板，售价仅为 4 美元，它包括 RP2040、2MB 闪存和一个支持 1.8-5.5V 输入电压的电源芯片。RP2040 是树莓派开发的全新芯片。
+官网详细介绍：<a href="https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html">https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html</a>
+<img alt="pico_board" src="/img/raspberry_pico/get_start/pico_board.png" /></p>
+<p>RP2040有三个主要设计目标：
+1. 高性能，尤其是整数工作负载
+2. 灵活的 I/O，使我们可以与几乎所有外部设备进行通讯
+3. 低成本，以消除进入壁垒
+我们最终获得了一个功能强大的芯片，Die 面积仅为 2 平方毫米，采用 40 nm工艺，封装尺寸为 7×7 mm QFN-56 封装中。</p>
+<h2 id="2">2、芯片介绍</h2>
+<p>RP2040具有以下功能：
+- 双核 Arm Cortex-M0+ 处理器，工作主频为 133MHz
+- 264K 片上 SRAM 
+- 通过专用 QSPI 总线支持最高 16MB 的片外闪存
+- DMA控制器
+- 内插器和整数除法器外设
+- 30 个 GPIO 引脚，其中4个可用作模拟输入
+- 2 个 UART，2 个 SPI 控制器和 2 个 I2C 控制器
+- 16×PWM 通道
+- 1 个 USB 1.1 控制器和 PHY，具有主机和设备支持
+- 8 路可编程的 IO（PIO）状态机，允许用户自定义和设计通信接口
+- 支持快速的低功耗模式切换
+- 具有 UF2 支持的 USB 大容量存储启动模式，支持拖放式编程
+- RP2040 具有两个快速内核和大量片上 RAM，是机器学习应用程序的绝佳平台</p>
+<p><img alt="pico_gpio" src="/img/raspberry_pico/get_start/pico_gpio.png" /></p>
+<h2 id="3">3、环境搭建</h2>
+<p>树莓派官方基于 RP2040 提供了完整的 C SDK、MicroPython、Fuzix 系统，适合不同级别的玩家，可玩性非常高。
+推荐新手上路使用 C SDK 和 Ubuntu 系统，官方 C SDK 采用 CMake 构建体系，熟悉之后操作也较简单，可应用的 demo 也较多。
+先确定Ubuntu系统下是否已经安装 CMake、python 、git 等常用工具，如果没有可使用如下命令安装</p>
+<pre><code class="language-shell">$ sudo apt install git cmake python3
+</code></pre>
+<ol>
+<li>sdk/example下载：</li>
+</ol>
+<pre><code class="language-shell">$ git clone --recursive https://github.com/raspberrypi/pico-sdk
+$ git clone --recursive https://github.com/raspberrypi/pico-examples
+</code></pre>
+<ol>
+<li>
+<p>文档下载地址：</p>
+</li>
+<li>
+<p><a href="https://datasheets.raspberrypi.org/pico/raspberry-pi-pico-c-sdk.pdf">https://datasheets.raspberrypi.org/pico/raspberry-pi-pico-c-sdk.pdf</a></p>
+</li>
+<li><a href="https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf">https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf</a></li>
+</ol>
+<p>更多资料可在：
+<a href="https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html">https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html</a> 查询</p>
+<ol>
+<li>
+<p>交叉编译器安装：
+可使用以下 2 种方法，推荐方式 2，灵活性较高</p>
+</li>
+<li>
+<p>自动安装</p>
+</li>
+</ol>
+<pre><code class="language-shell">$ sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+</code></pre>
+<ul>
+<li>手工安装
+交叉编译器下载，地址：<a href="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2">https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2</a></li>
+</ul>
+<p>下载完成后，在 ubuntu 命令行下解压 <code>/opt</code> 目录下，或使用 <code>wget</code> 下载。</p>
+<pre><code class="language-shell">$ wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+$ sudo tar xvf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 -C /opt
+</code></pre>
+<p>解压成功后，编辑 <code>/etc/environment</code> 文件，在文件末尾加上:</p>
+<pre><code class="language-shell">:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin
+</code></pre>
+<p>并运行souce命令使修改生效。</p>
+<pre><code class="language-shell">$ source /etc/environment
+</code></pre>
+<h2 id="4example">4、编译example</h2>
+<ol>
+<li>Pico 采用 sdk 和应用分离方式，编译应用前需先配置 <code>Pico SDK</code> 路径，进入<code>pico-example</code>目录，配置输入如下命令设置 <code>PICO_SDK</code> 路径，路径请根据个人情况修改：</li>
+</ol>
+<pre><code class="language-shell">$ export PICO_SDK_PATH=/home/share/samba/pico/pico-sdk
+</code></pre>
+<ol>
+<li>生成 makefile：按照 cmake 的习惯，在根目录下创建build目录，并在build目录下输入 <code>cmake ..</code> 命令，生成 <code>makefile</code>。</li>
+</ol>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build &amp;&amp; cmake ..
+</code></pre>
+<p>如果按照上面的流程正常操作，会出现如下成功提示。</p>
+<pre><code class="language-shell">PICO_SDK_PATH is /home/share/samba/pico/pico-sdk
+PICO platform is rp2040.
+-- The C compiler identification is GNU 10.2.1
+-- The CXX compiler identification is GNU 10.2.1
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc
+Build type is Release
+Defaulting PICO target board to pico since not specified.
+Using board configuration from /home/share/samba/pico/pico-sdk/src/boards/include/boards/pico.h
+-- Found Python3: /usr/bin/python3.8 (found version &quot;3.8.10&quot;) found components: Interpreter
+TinyUSB available at /home/share/samba/pico/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040; enabling build support for USB.
+cyw43-driver available at /home/share/samba/pico/pico-sdk/lib/cyw43-driver
+lwIP available at /home/share/samba/pico/pico-sdk/lib/lwip
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/share/samba/pico/pico-examples/build
+</code></pre>
+<ol>
+<li>在 build 目录下输入 <code>make</code> 命令生成可执行文件。</li>
+</ol>
+<p>耐心等待几分钟，会在 build 目录下生成所有 example 的可执行文件，其中 uf2 后缀文件为 Pico 特有的 USB 存储器模式下可执行文件。</p>
+<ol>
+<li>
+<p>FAQ</p>
+</li>
+<li>
+<p>错误1：未配置 PICO_SDK 路径</p>
+</li>
+</ol>
+<pre><code class="language-shell">CMake Error at pico_sdk_import.cmake:55 (message):
+  SDK location was not specified.  Please set PICO_SDK_PATH or set
+  PICO_SDK_FETCH_FROM_GIT to on to fetch from git.
+Call Stack (most recent call first):
+  CMakeLists.txt:4 (include)
+
+
+-- Configuring incomplete, errors occurred!
+</code></pre>
+<ul>
+<li>错误2：未配置交叉编译器</li>
+</ul>
+<pre><code class="language-shell">PICO_SDK_PATH is /home/share/samba/pico/pico-sdk
+PICO platform is rp2040.
+CMake Error at /home/share/samba/pico/pico-sdk/cmake/preload/toolchains/find_compiler.cmake:28 (message):
+  Compiler 'arm-none-eabi-gcc' not found, you can specify search path with
+  &quot;PICO_TOOLCHAIN_PATH&quot;.
+Call Stack (most recent call first):
+  /home/share/samba/pico/pico-sdk/cmake/preload/toolchains/pico_arm_gcc.cmake:20 (pico_find_compiler)
+  /usr/share/cmake-3.16/Modules/CMakeDetermineSystem.cmake:93 (include)
+  CMakeLists.txt:6 (project)
+
+
+CMake Error: CMake was unable to find a build program corresponding to &quot;Unix Makefiles&quot;.  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.
+CMake Error: CMAKE_C_COMPILER not set, after EnableLanguage
+CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage
+CMake Error: CMAKE_ASM_COMPILER not set, after EnableLanguage
+-- Configuring incomplete, errors occurred!
+</code></pre>
+<h2 id="5example">5、运行example</h2>
+<p>Pico 开发板提供了一个按钮和一个 LED，该按钮可在引导时进入 USB 大容量存储模式（也可作为常规输入）。在该模式下我们可以直接将可执行文件拖入该 USB 大容量存储器中，Pico 即会自动重启进入运行模式。
+1. 按住按钮，同时通过 USB 连接至 PC，可在 PC 上发现一个 RPI-RP2 的磁盘。
+<img alt="pico_disk" src="/img/raspberry_pico/get_start/pico_disk.png" /></p>
+<blockquote>
+<p>每次进入 USB 大容量存储模式后，自动清空存储文件，进入默认状态。</p>
+</blockquote>
+<p><img alt="pico_rp2" src="/img/raspberry_pico/get_start/pico_rp2.png" /></p>
+<ol>
+<li>当前运行的 example 如 blink，可执行文件位于 pico-examples/build/blink 目录下。</li>
+<li>拖动 blink 文件至 RPI-RP2 磁盘下，传输完成后 Pico 会自动重启。</li>
+<li>开发板上 LED 指示灯开始闪烁，example 正常运行。</li>
+</ol>
+<h1 id="pico_1">二、创建自己的pico工程项目</h1>
+<p>新手上路一文中我们编译的应用是官方提供的 example，官方一次性将所有的 example 全部编译出来了。</p>
+<p>那我们自己应该如何来创建自己的工程项目呢？ 官方提供的 <a href="https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf">getting-started-with-pico.pdf</a> 文档 <code>Chapter 8. Creating your own Project</code> 中详细介绍了相关流程。本文按照该流程完成项目创建，并成功完成从串口输出 <code>Hello world!</code></p>
+<ol>
+<li>创建项目目录，如 <code>pico_user_project</code></li>
+<li>创建源文件 hello_world.c 并编辑输入：</li>
+</ol>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+
+int main()
+{
+    setup_default_uart();
+    while(1) {
+        printf(&quot;Hello World!\r\n&quot;);
+        sleep_ms(1000);
+    }
+    return 0;
+}
+</code></pre>
+<ol>
+<li>从 pico-sdk/external 目录下复制 pico_sdk_import.cmake 文件至 pico_user_project 根目录下</li>
+<li>创建 CMakeLists.txt 文件并编辑输入：</li>
+</ol>
+<pre><code class="language-c">cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+project(hello_world C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+pico_sdk_init()
+
+add_executable(hello_world
+    hello_world.c
+)
+
+pico_add_extra_outputs(hello_world)
+target_link_libraries(hello_world pico_stdlib)
+</code></pre>
+<ol>
+<li>按照新手上路一文，在命令行中依次输入：</li>
+<li>设置 PICO_SDK_PATH：</li>
+</ol>
+<pre><code class="language-shell">$ export PICO_SDK_PATH=/home/share/samba/pico/pico-sdk
+</code></pre>
+<ul>
+<li>生成 Makefile 文件：</li>
+</ul>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build &amp;&amp; cmake ..
+</code></pre>
+<ul>
+<li>编译：make</li>
+</ul>
+<p>一切正常的话，会在 build 目录下生成 hello_world.uf2 文件，按照新手上路一文对应步骤，将该文件下载到 Pico 中， 在 UART0 上每隔 1000ms 输出一串</p>
+<pre><code class="language-shell">Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+</code></pre>
+<p>UART0默认管脚分布如下：</p>
+<table>
+<thead>
+<tr>
+<th>UART0_TX</th>
+<th>GP0</th>
+<th>Pin1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UART0_RX</td>
+<td>GP1</td>
+<td>Pin2</td>
+</tr>
+<tr>
+<td>GND</td>
+<td></td>
+<td>Pin3</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>CMakeLists.txt文件pico相关解析:</li>
+</ol>
+<pre><code class="language-c">include(pico_sdk_import.cmake)                #导入pico_sdk_import.cmake
+pico_sdk_init()                               #定义在pico_sdk_import.cmake中的宏，等同于add_subdirectory(${PICO_SDK_PATH} pico-sdk)   
+pico_add_extra_outputs(hello_world)           #用于生成uf2文件，否则只会生成elf文件
+</code></pre>
+<h1 id="windowsubuntuvscode-c">三、Windows+Ubuntu虚拟机模式下VSCode C语言开发环境搭建</h1>
+<p>工欲善其事，必先利其器。之前的介绍的 Pico 流程都是通过命令行编译，没有进行更深入的介绍，本文将介绍 Pico 的 VSCode-C 语言开发环境搭建与配置。</p>
+<p>VS Code 全称 Visual Studio Code，是微软研发的一款免费、开源的轻量级代码编辑器，支持语法高亮、智能代码补全、自定义热键、括号匹配、代码片段、代码对比等特性。软件跨平台，可在 Win、Mac 以及 Linux桌面上安装运行。内置了对 JavaScript、TypeScript 和 Node.js 的支持，同时可通过插件支持包括 C/C++、C#、Java、Python、PHP、Go 等几乎所有编程语言。</p>
+<p>嵌入式开发进行交叉编译，较多采用 GCC 编译器，从事嵌入式开发又无法完全脱离 Windows 系统，所以较多开发方式采用的是 Windows 主机 + VMware 安装 Ubuntu 虚拟机的开发方式。在 Windows 下编辑代码，在 Linux 下编译代码。</p>
+<p>本文通过 VSCode 提供的一系列插件，搭建C语言开发/交叉编译环境。</p>
+<h2 id="1vscode">1、VSCode下载与安装</h2>
+<p>在 VSCode 官网 <a href="https://code.visualstudio.com/#alt-downloads">https://code.visualstudio.com/#alt-downloads</a> 选择对应的操作系统进行下载，当前开发模式选择的是 Windows 操作系统。</p>
+<p><img alt="vscode_download" src="/img/raspberry_pico/ubuntu_develop/vscode_download.png" /></p>
+<p>安装完成后，点击桌面上的 Visual Studio Code 即可运行。</p>
+<p><img alt="vscode" src="/img/raspberry_pico/ubuntu_develop/vscode.png" /></p>
+<h2 id="2vscode">2、VSCode基础插件安装</h2>
+<p>就像大多数 IDE一样，VSCode 也有一个扩展和主题市场，包含了数以千计质量不同的插件。可在 VSCode “扩展”/“Extensions” 页面中选择需要的插件。
+<img alt="vscode_addin" src="/img/raspberry_pico/ubuntu_develop/vscode_addin.png" /></p>
+<p>下面推荐几款C/C++开发中常用的插件：</p>
+<ol>
+<li>Remote-SSH (Microsoft)：当前开发模式下必须安装</li>
+</ol>
+<p>允许您使用任何带有SSH服务器的远程计算机作为开发环境。
+安装完插件之后，VSCode 就具备了连接远程主机的能力。在左下角有个符号 &gt;&lt; ，点击它就能选择连接哪个远程主机。连接上了之后，会重新开一个窗口，左下角也会显示。 </p>
+<p><img alt="vscode_ssh" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh.png" /></p>
+<p>这里顺便提一下，微软一共发布了三款远程连接的插件：
+- Remote - Containers
+- Remote - SSH
+- Remote - WSL</p>
+<p>名字上也很容易区分，就是支持连接容器，SSH 主机，WSL 子系统。</p>
+<p>安装完成后VSCode会增加“远程资源管理器”</p>
+<p><img alt="vscode_export" src="/img/raspberry_pico/ubuntu_develop/vscode_export.png" /></p>
+<ol>
+<li>C/C++ (Microsoft)：C语言开发必须安装
+该插件对以下工具功能增强</li>
+<li>跳转到定义；</li>
+<li>代码自动补全；</li>
+<li>查找代码引用；</li>
+<li>
+<p>列举 symbols；</p>
+</li>
+<li>
+<p>CMake(twxs)：在VSCode上支持CMake语法，打开/编写CMakeLists文件关键字提示</p>
+</li>
+<li>CMake Tools (Microsoft)：CMake编译工具条</li>
+<li>Python(Microsoft)：在VSCode上支持Python语法及调试</li>
+<li>Serial Monitor (Microsoft)：串口收发插件，可在VSCode全流程搞定嵌入式开发、调试</li>
+</ol>
+<p>这几个插件基本上都是 Microsoft 官方出的，质量有保障。其他插件可以根据个人开发习惯安装（我没安装其他的。。。装多了会导致 VSCode 每次打开加载时间过长），这几个插件基本可以满足日常 C、Python 开发需要。</p>
+<p>VSCode 插件默认的安装位置是C:\Users\用户名.vscode\extensions，下载成功的插件都在该目录下。</p>
+<h2 id="3ssh">3、SSH连接与配置</h2>
+<p>上一节讲到VSCode插件Remote-SSH可支持连接SSH主机，这样就可以通过安装在Windows下的VSCode，使用SSH连接至Linux主机，进行各种Linux命令操作。</p>
+<p>VSCode安装完成后，需要进行以下配置：
+1. Ubuntu下安装ssh-server及编译工具，输入命令：</p>
+<pre><code class="language-shell">$ sudo apt install -y net-tools openssh-server
+</code></pre>
+<ol>
+<li>获取Ubuntu的ip地址，输入命令：</li>
+</ol>
+<pre><code class="language-shell">$ ifconfig
+</code></pre>
+<p>记录下对应的IP地址
+<img alt="vscode_ssh_ip" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_ip.png" /></p>
+<ol>
+<li>打开VSCode远程资源管理器，在“REMOTE”-&gt;“SSH”一栏中点击“+”</li>
+</ol>
+<p><img alt="vscode_ssh_add" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_add.png" /></p>
+<ol>
+<li>
+<p>输入Ubuntu的IP，并按回车键进入下一步
+<img alt="vscode_ssh_enter" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_enter.png" /></p>
+</li>
+<li>
+<p>选择c:\Users\用户名.ssh\config作为ssh配置文件
+<img alt="vscode_ssh_config" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_config.png" /></p>
+</li>
+<li>
+<p>依次输入如下内容并保存：</p>
+</li>
+<li>Host：Ubuntu 对应 IP 地址</li>
+<li>HostName：可自定义为 Host 对应的名字，如 Ubuntu-20.04</li>
+<li>
+<p>User：Ubuntu 对应的用户登录名
+<img alt="vscode_ssh_config2" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_config2.png" /></p>
+</li>
+<li>
+<p>连接远程主机
+<img alt="vscode_ssh_connect" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_connect.png" /></p>
+</li>
+<li>
+<p>选择远程主机类型
+<img alt="vscode_ssh_linux" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_linux.png" /></p>
+</li>
+<li>
+<p>输入远程主机登录密码，密码为Ubuntu对应登录用户的密码
+<img alt="vscode_ssh_password" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_password.png" /></p>
+</li>
+</ol>
+<p>按照以上流程即可登录Ubuntu主机了。
+<img alt="vscode_ssh_connect2" src="/img/raspberry_pico/ubuntu_develop/vscode_ssh_connect2.png" /></p>
+<ol>
+<li>在终端中切换到对应的目录，并输入code .即可打开对应目录，在资源管理器中看到该目录结构。
+<img alt="vscode_folder" src="/img/raspberry_pico/ubuntu_develop/vscode_folder.png" /></li>
+</ol>
+<h2 id="4ssh">4、SSH免密登录</h2>
+<p>依照步骤3完成SSH连接配置后，每次打开VSCode都要输入密码，是不是觉得有些麻烦。。。接下来我们配置SSH免密登录。</p>
+<ol>
+<li>在 Windows 下打开 PowerShell，并输入<code>ssh-keygen -t rsa</code>
+<img alt="powershell" src="/img/raspberry_pico/ubuntu_develop/powershell.png" /></li>
+</ol>
+<p>按照提示，一路回车到结束</p>
+<p>在用户目录c:\Users\用户名.ssh（.ssh为隐藏目录）下已经生成了ida_rsa.pub文件，将该文件复制至ubuntu下。
+<img alt="ida_rsa" src="/img/raspberry_pico/ubuntu_develop/ida_rsa.png" /></p>
+<p>如何复制文件到Ubuntu下？
+- 使用samba方式，可参考：https://blog.csdn.net/flyingcys/article/details/50673167?spm=1001.2014.3001.5501
+- 使用共享文件夹方式，可参考：
+https://blog.csdn.net/flyingcys/article/details/63686254?spm=1001.2014.3001.5502</p>
+<ol>
+<li>
+<p>在Ubuntu命令行下也执行ssh-keygen -t rsa，流程同Windows。</p>
+</li>
+<li>
+<p>在Ubuntu下执行</p>
+</li>
+</ol>
+<pre><code class="language-shell">$ cat id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+</code></pre>
+<p>再次打开VSCode远程资源管理器，点击对应的host，就不需要输入密码了。</p>
+<h2 id="5pico">5、Pico编译</h2>
+<p>参考前文“之一、新手上路”，搭建Pico交叉编译环境，并在终端中输入：</p>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build
+$ cmake .. &amp;&amp; make -j4
+</code></pre>
+<p>完成编译
+<img alt="vscode_pico_make" src="/img/raspberry_pico/ubuntu_develop/vscode_pico_make.png" /></p>
+<h1 id="ubuntudebug">四、Ubuntu下在线debug环境搭建</h1>
+<p>按照前文之一、新手上路一文中的 Pico 固件更新方式（uf2文件格式），在正式开发过程中需要不断修改代码/更新固件，这种固件更新方式会感觉开发效率有些低。Pico 开发板芯片为RP2040，ARM-Cortex-M0 架构，官方开发板上留有 SWD 接口，那是不是可以在线 debug 呢？答案是肯定的。</p>
+<p>官方文档：<a href="https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf">https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf</a> 中有详细相关流程介绍。
+官方文档中提供了2种在线debug方式：
+- 方式1：树莓派作为主机，同时也作为 openocd 的仿真器，对 Pico 开发板进行固定烧录、在线 debug。
+- 方式2：使用1个专门的 Pico 开发板，作为 Picoprobe，对另外一个目标 Pico 板进行 debug</p>
+<p>本文使用的是方式2，相关操作主机是在 Ubuntu 下进行。</p>
+<p>另外，JLink 也支持 Pico 在线调试，但对应的要求会相对更高。要求如下：
+- J-Link software V7.64e or later
+- J-Link HW revision 11 or later (J-Link EDU Mini and J-Trace PRO V1 or later also supported)
+- SEGGER Embedded Studio for ARM V6.30 or later</p>
+<p>对比后，JLink 对应的硬件成本也比官方文档提供的方案高很多。
+JLink 操作 Pico 相关文档，可在 <a href="https://wiki.segger.com/Raspberry_Pi_Pico">https://wiki.segger.com/Raspberry_Pi_Pico</a> 页面查看。</p>
+<p>本文所有操作流程均来源于 getting-started-with-pico.pdf 一文，只是将对应流程进行针对性的梳理。涉及到的章节有：
+- Chapter 5. Flash Programming with SWD
+- Chapter 6. Debugging with SWD
+- Chapter 7. Using Visual Studio Code 
+- Appendix A: Using Picoprobe </p>
+<h2 id="1openocd">1、openocd编译安装</h2>
+<p>raspberry-pico 运行的 openocd 非标准版本，是经过 raspberry 团队修改过的版本，支持双核 debug 运行
+1. 安装依赖</p>
+<pre><code class="language-shell">$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get -y install automake autoconf build-essential texinfo libtool libftdi-dev libusb-1.0-0-dev pkg-config
+</code></pre>
+<ol>
+<li>下载</li>
+</ol>
+<pre><code class="language-shell">$ git clone https://github.com/raspberrypi/openocd.git --recursive --branch rp2040 --depth=1
+</code></pre>
+<ol>
+<li>编译
+在命令行下，依次执行：</li>
+</ol>
+<pre><code class="language-shell">$ cd openocd
+$ ./bootstrap
+$ ./configure --enable-picoprobe
+$ make -j4
+$ sudo make install
+</code></pre>
+<p>sudo apt-get install -y libhidapi-dev
+--enable-cmsis-dap</p>
+<p>https://www.raspberrypi.com/documentation/microcontrollers/debug-probe.html</p>
+<p>问题1：
+在运行 <code>./configure --enable-picoprobe</code> 过程中可能会出现如下错误，该问题是由于pkg-config未安装。</p>
+<pre><code class="language-shell">$ ./configure: line 4520: syntax error near unexpected token `0.23'
+$ ./configure: line 4520: `PKG_PROG_PKG_CONFIG(0.23)'
+</code></pre>
+<p>使用如下命令安装：</p>
+<pre><code class="language-shell">$ sudo apt install -y pkg-config
+</code></pre>
+<p>问题2：</p>
+<pre><code class="language-SHELL">configure: error: libusb-1.x is required for the Raspberry Pi Pico Probe
+</code></pre>
+<p>使用如下命令安装：</p>
+<pre><code class="language-shell">$ sudo apt install -y libusb-1.0-0-dev
+</code></pre>
+<p>安装完成后，在命令行下输入确定安装是否完成，安装成功则会显示版本信息。</p>
+<pre><code class="language-shell">$ openocd -v
+Open On-Chip Debugger 0.11.0-g4f2ae61-dirty (2022-11-09-22:06)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+
+</code></pre>
+<ol>
+<li>安装GDB
+在命令行下输入：</li>
+</ol>
+<pre><code class="language-shell">$ sudo apt install -y gdb-multiarch
+</code></pre>
+<p>安装完成后，确认是否安装成功；在命令行中输入：</p>
+<pre><code class="language-shell">$ gdb-multiarch
+
+正常安装会显示如下日志：
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04.1) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type &quot;show copying&quot; and &quot;show warranty&quot; for details.
+This GDB was configured as &quot;x86_64-linux-gnu&quot;.
+Type &quot;show configuration&quot; for configuration details.
+For bug reporting instructions, please see:
+&lt;http://www.gnu.org/software/gdb/bugs/&gt;.
+Find the GDB manual and other documentation resources online at:
+    &lt;http://www.gnu.org/software/gdb/documentation/&gt;.
+
+For help, type &quot;help&quot;.
+Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;.
+(gdb) 
+</code></pre>
+<h2 id="2picoprobe">2、Picoprobe编译与连接</h2>
+<p>Picoprobe 支持 swd 和 uart，可以实现在线 debug 的同时实现串口日志输出、串口通讯等功能。Picoprobe 也是通过 Pico（RP2040）实现，相关内容可查看 Appendix A: Using Picoprobe 一章。
+1. 下载、编译</p>
+<pre><code class="language-shell">$ git clone --recursive https://github.com/raspberrypi/picoprobe.git
+</code></pre>
+<p>该仓库下有 freertos 和 CMSIS_5 子模块，子模块未下载会编译出错。</p>
+<pre><code class="language-shell">$ cd picoprobe 
+$ mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make -j4
+</code></pre>
+<p>编译完成后，会在build目录下生成 <code>picoprobe.uf2</code></p>
+<p><img alt="pico_probe" src="/img/raspberry_pico/ubuntu-debug/pico_probe.png" /></p>
+<p>按照前文之一、新手上路一文中更新固件的方式，将 picoprobe.uf2 更新至作为 Picoprobe 的开发板中。</p>
+<ol>
+<li>开发板连接
+按照如下方式连接：
+<img alt="pico_connect" src="/img/raspberry_pico/ubuntu-debug/pico_connect.png" /></li>
+</ol>
+<p>PicoA作为Picoprobe，PicoB作为真实debug开发板
+Pico A GND -&gt; Pico B GND
+Pico A GP2 -&gt; Pico B SWCLK
+Pico A GP3 -&gt; Pico B SWDIO
+Pico A GP4/UART1 TX -&gt; Pico B GP1/UART0 RX
+Pico A GP5/UART1 RX -&gt; Pico B GP0/UART0 TX 
+Pico A VSYS -&gt; Pico B VSYS 
+这样就可以直接用1个usb接口，同时使用swd和uart功能</p>
+<ol>
+<li>Picoprobe连接至Linux
+由于我是通过 vmware+ubuntu 的开发方式，USB设备默认连接到了 Windows 主机，需要手工按照“虚拟机”-&gt;“可移动设备”-&gt;“Picoprobe”-&gt;“连接”，将 Picoprobe 连接到 Ubuntu 下。
+<img alt="pico_vmware" src="/img/raspberry_pico/ubuntu-debug/pico_vmware.png" /></li>
+</ol>
+<p>在ubuntu下可通过通过 <code>dmesg | grep usb</code> 命令查看是否加载成功。
+<img alt="ubuntu_usb" src="/img/raspberry_pico/ubuntu-debug/ubuntu_usb.png" /></p>
+<p>注：每次加载成功后，需要设置一下usb权限；在命令行下输入：</p>
+<pre><code class="language-shell">$ sudo chmod -R 777 /dev/bus/usb/
+</code></pre>
+<p>否则在运行中会出现如下错误：</p>
+<pre><code class="language-shell">Error: libusb_open() failed with LIBUSB_ERROR_ACCESS
+Error: Failed to open or find the device
+Error: Can't find a picoprobe device! Please check device connections and permissions.
+</code></pre>
+<h2 id="3openocdgdb">3、手工运行openocd和gdb</h2>
+<p>openocd不仅可以用来在线debug，同时也可以用来烧录固件。
+1. 烧录固件
+在命令行下输入：</p>
+<pre><code class="language-shell">$ cd pico-examples/build/hello_world/serial
+$ openocd -f interface/picoprobe.cfg -f target/rp2040.cfg -c &quot;program hello_serial.elf verify reset exit&quot;
+</code></pre>
+<p>其中 cfg 文件位于：/usr/local/share/openocd/scripts/interface 目录下
+即可进行固件烧录。</p>
+<ol>
+<li>在线debug
+(1)在命令行下输入：</li>
+</ol>
+<pre><code class="language-shell">openocd -f interface/picoprobe.cfg -f target/rp2040.cfg -s tcl 
+</code></pre>
+<p>正常启动openocd，显示日志如下：</p>
+<pre><code class="language-shell">Open On-Chip Debugger 0.11.0-g228ede4-dirty (2022-11-23-18:24)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+Info : only one transport option; autoselect 'swd'
+adapter speed: 5000 kHz
+
+Info : Hardware thread awareness created
+Info : Hardware thread awareness created
+Info : RP2040 Flash Bank Command
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : clock speed 5000 kHz
+Info : SWD DPIDR 0x0bc12477
+Info : SWD DLPIDR 0x00000001
+Info : SWD DPIDR 0x0bc12477
+Info : SWD DLPIDR 0x10000001
+Info : rp2040.core0: hardware has 4 breakpoints, 2 watchpoints
+Info : rp2040.core1: hardware has 4 breakpoints, 2 watchpoints
+Info : starting gdb server for rp2040.core0 on 3333
+Info : Listening on port 3333 for gdb connections
+</code></pre>
+<p>（2）同时在另一命令终端中输入：</p>
+<pre><code class="language-shell">$ $ cd pico-examples/build/hello_world/serial 
+gdb-multiarch hello_serial.elf
+(gdb)： 
+</code></pre>
+<p>在正常显示(gdb) 后输入：<code>target remote localhost:3333</code>
+然后就可以输入<code>b main</code> 等 gdb 指令，即可进行手工 debug。</p>
+<h2 id="4vscode">4、VSCode在线调试</h2>
+<p>使用手工运行 openocd 和 gdb，对 gdb 熟悉度要求很高，我们可以借助 VSCode 相关功能进行可视化在线调试，无须再次手工输入一堆命令。</p>
+<p>相关内容可以查看 Chapter 7. Using Visual Studio Code 一章。
+1. 插件安装
+- C/C++：用于 C/C++ 语法支持，跳转，运行和调试功能
+- CMake：用于 CMake语法支持
+- Cmake Tools：让 VSCode 提供各种 CMake 编译相关的小工具，包括在底部状态栏显示一些快捷工具
+- Cortex-Debug：用来 debug ARM cortex-M 系列单片机</p>
+<ol>
+<li>插件配置
+VSCode运行和调试功能依赖C/C++插件和工程目录下的.vscode目录下相关.json文件配置。pico-examples工程提供了对应的配置文件。</li>
+</ol>
+<p>在命令行下输入：</p>
+<pre><code class="language-shell">$ cd pico-examples
+$ mkdir .vscode
+$ cp ide/vscode/launch-raspberrypi-swd.json .vscode/launch.json
+$ cp ide/vscode/settings.json .vscode/settings.json
+</code></pre>
+<p>由于我用的是Picoprobe，默认的lauch.json使用的是raspberrypi-swd模式，完成以上操作后，我们需要修改一下launch.json，将</p>
+<pre><code class="language-json"> &quot;configFiles&quot;: [
+                &quot;interface/raspberrypi-swd.cfg&quot;,
+                &quot;target/rp2040.cfg&quot;
+            ],
+</code></pre>
+<p>修改为：</p>
+<pre><code class="language-json"> &quot;configFiles&quot;: [
+                &quot;interface/picoprobe.cfg&quot;,
+                &quot;target/rp2040.cfg&quot;
+            ],
+</code></pre>
+<p>"configFiles"配置项为Cortex-Debug插件对应的相关配置文件。</p>
+<ol>
+<li>Debug
+点击VSCode的“运行和调试功能”按钮，点击“debug”按钮，VSCode会将当前目录下多个可执行人文件全部列出，让我们选择需要运行的目标文件。</li>
+<li>
+<p>选择对应elf文件
+<img alt="ubuntu_debug" src="/img/raspberry_pico/ubuntu-debug/ubuntu_debug.png" /></p>
+</li>
+<li>
+<p>在线运行
+VSCode会对当前工程下修改的文件做一次编译，编译没有错误后，调用openocd将选择后的elf下载至pico开发板，然后调用gdb，并跳转到main函数。
+<img alt="debug_run" src="/img/raspberry_pico/ubuntu-debug/debug_run.png" /></p>
+</li>
+</ol>
+<p>点击右上角调试按钮，即可运行对应功能，分别对应“全速运行”、“运行至断点”、“单步调试”等功能。</p>
+<ul>
+<li>debug过程中的相关信息查看
+可通过“变量”、“监视”、“调用堆栈”、“断点”功能，查看代码运行过程中的相关值。
+同时也可以通过Cortex-Debug插件对应的rp2040.svd文件提供的相关信息，查看“CORTEX PERIPHERALS”、“CORTEX REGISTERS”、“PERIPHERALS”等功能实时查看RP2040在运行过程中的状态，用于快速定位问题。
+<img alt="debug-view" src="/img/raspberry_pico/ubuntu-debug/debug-view.png" /></li>
+</ul>
+<h1 id="freertos">五、FreeRTOS体验</h1>
+<p>树莓派 Pico 开发板片上主芯片为 RP2040 单片机，双核 Arm Cortex-M0+ 处理器，工作主频为 133MHz，264K 片上SRAM，和 2MByteFlash。</p>
+<p>这么大的 RAM 和 Flash 资源，不跑一下 RTOS 操作系统实在有些可惜，这次就先体验一下 FreeRTOS，也为后续项目做一些准备。</p>
+<h2 id="1_1">1、项目创建</h2>
+<ol>
+<li>按照前文 “之二、创建自己的pico工程项目” 一文创建 pico_freertos_project 项目。</li>
+</ol>
+<p>创建 pico-freertos.c，并输入：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+
+int main()
+{
+    setup_default_uart();
+    while(1) {
+        printf(&quot;Hello World!\r\n&quot;);
+        sleep_ms(1000);
+    }
+    return 0;
+}
+</code></pre>
+<ol>
+<li>创建项目CMakeLists.txt</li>
+</ol>
+<pre><code class="language-cmake">cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+project(PICO_FREERTOS_PROJECT C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+pico_sdk_init()
+
+add_executable(PICO_FREERTOS_PROJECT
+    pico-freertos.c
+)
+
+pico_add_extra_outputs(PICO_FREERTOS_PROJECT)
+target_link_libraries(PICO_FREERTOS_PROJECT pico_stdlib)
+</code></pre>
+<ol>
+<li>在项目pico_freertos_project目录下依次输入：</li>
+</ol>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make
+</code></pre>
+<p>测试是否可以正常编译</p>
+<h2 id="2freertos">2、下载FreeRTOS内核源代码</h2>
+<ol>
+<li>源码下载，在命令行中输入：</li>
+</ol>
+<pre><code class="language-shell">$ git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel FreeRTOS/FreeRTOS-Kernel
+</code></pre>
+<p>下载完成后，可看到项目目录下会出现 FreeRTOS/FreeRTOS-Kernel 两级目录。
+其中：
+- FreeRTOS 目录用于存放项目需要与 RTOS 相关的一些文件
+- FreeRTOS-Kernel 目录为 FreeRTOS 内核源码</p>
+<ol>
+<li>
+<p>在 FreeRTOS 目录下新建 include 目录，复制 FreeRTOSConfig.h 至 include 目录下。</p>
+</li>
+<li>
+<p>在 FreeRTOS 目录下下新增 CMakeLists.txt，不使用 FreeRTOS 自带的 CMake 脚本。
+在CMakeLists.txt中输入：</p>
+</li>
+</ol>
+<pre><code class="language-c">add_library(FreeRTOS STATIC
+    FreeRTOS-Kernel/event_groups.c
+    FreeRTOS-Kernel/list.c
+    FreeRTOS-Kernel/queue.c
+    FreeRTOS-Kernel/stream_buffer.c
+    FreeRTOS-Kernel/tasks.c
+    FreeRTOS-Kernel/timers.c
+    FreeRTOS-Kernel/portable/GCC/ARM_CM0/port.c
+    FreeRTOS-Kernel/portable/MemMang/heap_4.c
+)
+
+target_include_directories(FreeRTOS PUBLIC include FreeRTOS-Kernel/include FreeRTOS-Kernel/portable/GCC/ARM_CM0)
+</code></pre>
+<p>Pico开发板上芯片为 RP2040，Cortex-M0 双核，当前只使用单核，使用 portable/GCC/ARM_CM0 下的适配文件。</p>
+<ol>
+<li>修改pico-freertos.c文件</li>
+</ol>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+
+#include &quot;FreeRTOS.h&quot;
+#include &quot;task.h&quot;
+
+void vTaskCode( void * pvParameters )
+{
+    /* The parameter value is expected to be 1 as 1 is passed in the
+    pvParameters value in the call to xTaskCreate() below. 
+    configASSERT( ( ( uint32_t ) pvParameters ) == 1 );
+    */
+
+    const uint LED_PIN = PICO_DEFAULT_LED_PIN;
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    
+    for( ;; )
+    {
+        printf(&quot;Hello World!\r\n&quot;);
+        vTaskDelay(500);
+        gpio_put(LED_PIN, 1);
+        vTaskDelay(500);
+        gpio_put(LED_PIN, 0);
+    }
+}
+
+int main()
+{
+    setup_default_uart();
+
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+    /* Create the task, storing the handle. */
+    xReturned = xTaskCreate(
+                    vTaskCode,       /* Function that implements the task. */
+                    &quot;Blinky task&quot;,   /* Text name for the task. */
+                    512,             /* Stack size in words, not bytes. */
+                    ( void * ) 1,    /* Parameter passed into the task. */
+                    tskIDLE_PRIORITY,/* Priority at which the task is created. */
+                    &amp;xHandle );   
+
+    vTaskStartScheduler();
+    
+    return 0;
+}
+</code></pre>
+<ol>
+<li>修改 pico_freertos_project 项目下的 CMakeLists.txt</li>
+</ol>
+<pre><code class="language-c">pico_add_extra_outputs(PICO_FREERTOS_PROJECT)
+target_link_libraries(PICO_FREERTOS_PROJECT pico_stdlib FreeRTOS cmsis_core)
+
+add_subdirectory(FreeRTOS)
+</code></pre>
+<h2 id="3_1">3、编译</h2>
+<p>在项目 pico_freertos_project 目录下依次输入：</p>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make
+</code></pre>
+<h2 id="4">4、运行</h2>
+<ol>
+<li>根据 <a href="">之四、Ubuntu下在线debug环境搭建</a> 流程，搭建完成 Pico VSCode 可视化在线 debug 环境。</li>
+<li>在线运行：
+特别注意，需要先设置一下 USB 权限，否则会运行失败。</li>
+</ol>
+<pre><code class="language-shell">$ sudo chmod -R 777 /dev/bus/usb/
+</code></pre>
+<p><img alt="pico_freertos" src="/img/raspberry_pico/freertos/pico_freertos.png" /></p>
+<p>可以看到 Pico 开发板上的 LED 指示灯以 500ms 亮/ 500ms 灭的频率循环。</p>
+<h1 id="pico-project-generator">六、pico-project-generator使用</h1>
+<p>之前几个项目，都是通过 copy 老项目的 CMakeLists.txt 方式来编译项目，今天来体验一下树莓派官方提供的工具 pico-project-generator。</p>
+<p>pico-project-generator 是树莓派官方出的 Pico C SDK 项目的自动生成工具，该工具可以通过配置，自动生成编译所需的 CMake 文件、example 文件、VSCodeIDE 配置文件等。工具同时也支持命令行和可视化配置。</p>
+<p>该工具使用 Python3 和 tkinter 编写而成，可以在 <a href="https://github.com/raspberrypi/pico-project-generator">https://github.com/raspberrypi/pico-project-generator</a> 下载。如当前电脑系统未安装 tkinter，Linux可通过sudo apt-get install -y python3-tk 命令安装。</p>
+<h2 id="1_2">1、命令行运行</h2>
+<p>在命令行中输入 <code>./pico_project.py --help</code> 可以获取工具命令行参数及对应参数使用说明。</p>
+<pre><code class="language-shell">$ ./pico_project.py --help
+usage: pico_project.py [-h] [-t TSV] [-o OUTPUT] [-x] [-l] [-c] [-f FEATURE] [-over] [-b] [-g] [-p PROJECT] [-r]
+                       [-uart] [-nouart] [-usb] [-cpp] [-cpprtti] [-cppex] [-d DEBUGGER] [-board BOARDTYPE] [-bl]
+                       [-cp CPATH]
+                       [name]
+
+Pico Project generator
+
+positional arguments:
+  name                  Name of the project
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t TSV, --tsv TSV     Select an alternative pico_configs.tsv file
+  -o OUTPUT, --output OUTPUT
+                        Set an alternative CMakeList.txt filename
+  -x, --examples        Add example code for the Pico standard library
+  -l, --list            List available features
+  -c, --configs         List available project configuration items
+  -f FEATURE, --feature FEATURE
+                        Add feature to generated project
+  -over, --overwrite    Overwrite any existing project AND files
+  -b, --build           Build after project created
+  -g, --gui             Run a GUI version of the project generator
+  -p PROJECT, --project PROJECT
+                        Generate projects files for IDE. Options are: vscode
+  -r, --runFromRAM      Run the program from RAM rather than flash
+  -uart, --uart         Console output to UART (default)
+  -nouart, --nouart     Disable console output to UART
+  -usb, --usb           Console output to USB (disables other USB functionality
+  -cpp, --cpp           Generate C++ code
+  -cpprtti, --cpprtti   Enable C++ RTTI (Uses more memory)
+  -cppex, --cppexceptions
+                        Enable C++ exceptions (Uses more memory)
+  -d DEBUGGER, --debugger DEBUGGER
+                        Select debugger (0 = SWD, 1 = PicoProbe)
+  -board BOARDTYPE, --boardtype BOARDTYPE
+                        Select board type (see --boardlist for available boards)
+  -bl, --boardlist      List available board types
+  -cp CPATH, --cpath CPATH
+                        Override default VSCode compiler path
+
+</code></pre>
+<p>可以看到-g 或者--gui参数可以运行可视化配置，接下来重点介绍一下可视化配置工具。</p>
+<h2 id="2_1">2、可视化配置</h2>
+<p>运行 <code>./pico_project.py --gui</code> 启动可视化工具
+<img alt="pico_project_generator" src="/img/raspberry_pico/project_generato/pico_project_generator.png" /></p>
+<ul>
+<li>Project Name：项目名称，创建的文件夹名称和CMake项目名都为该名称。</li>
+<li>Location：项目存储位置</li>
+<li>Board Type：可以选择不同的开发板类型</li>
+<li>Library Options：选择当前项目需要的对应RP2040芯片外设，选中对应能力后，会在CMakeLists.txt文件的target_link_libraries中加入外设能力；如选中SPI则会自动加入hardware_spi。</li>
+<li>Console Options：选择通过串口输入日志还是USB</li>
+<li>Code Options：这个配置选项最多，点击Advanced还有更多。我常用的有“Add example for Pico library” 和“Run from RAM”，其他的功能后面继续发掘。
+选中“Run from RAM”， 会在项目目录下的CMakeLists.txt中添加以下语句，代码运行在RAM中 </li>
+</ul>
+<pre><code># no_flash means the target is to run from RAM
+pico_set_binary_type(testtt2 no_flash)
+</code></pre>
+<ul>
+<li>Build Options：选中“Run build after generation”会自动编译一次当前生成的项目。</li>
+<li>IDE Options：选中“Create VSCode Project”，选中使用SWD还是PicoProbe。</li>
+</ul>
+<p><img alt="pico_project_generator2" src="/img/raspberry_pico/project_generato/pico_project_generator2.png" /></p>
+<p>配置完成后点击OK，工具自动会运行，如果没有配置PICO_SDK_PATH和toolchain环境变量会报错。</p>
+<p><img alt="pico_project_generator3" src="/img/raspberry_pico/project_generato/pico_project_generator3.png" /></p>
+<p><img alt="pico_project_generator4" src="/img/raspberry_pico/project_generato/pico_project_generator4.png" /></p>
+<p>点击OK之后，如配置中选中了“Run build after generation”，会自动运行编译。</p>
+<p><img alt="pico_project_generator5" src="/img/raspberry_pico/project_generato/pico_project_generator5.png" /></p>
+<p>编译成功后，我们来看一下文件夹下有些啥？
+<img alt="pico_project_generator6" src="/img/raspberry_pico/project_generato/pico_project_generator6.png" /></p>
+<p>pico-project-generator 工具把编译需要的相关文件 CMakeLists.txt 和 pico_sdk_import.cmake 都已经自动创建了，比手工创建项目方便多了。</p>
+<h1 id="pico_2">七、让Pico跑个分</h1>
+<h2 id="1coremark">1、CoreMark介绍</h2>
+<p>CoreMark是一个综合基准，用于测量嵌入式系统中使用的中央处理器(CPU)的性能。代码用C编写，包含以下算法：列表处理(增删改查和排序)、矩阵操作(公共矩阵操作)、状态机(确定输入流是否包含有效数字)和CRC（Cyclic redundancy check 循环冗余校验）。目前 CoreMark已迅速成为测量与比较处理器性能的业界基准测试。</p>
+<p>为了确保编译器在编译时不会预先计算结果，程序的每次计算均会即时得到一项数据，而此
+数据不会再编译时被得到。另外，在计时中，所有的代码均为基准自身的代码，而不是调用库中的代码。</p>
+<p>测试标准是在配置参数的组合下单位时间内运行的CoreMark程序次数（单位：CoreMark/MHz），该数字值越大则说明测试的性能越好。</p>
+<p>eembc官网 <a href="https://www.eembc.org/coremark/scores.php">https://www.eembc.org/coremark/scores.php</a>
+有各种CPU进行CoreMark测试后的数据可以查阅比对。不同编译器及编译器优化等级对应的coremark得分都不一样。</p>
+<p>CoreMark官网：<a href="https://www.eembc.org">https://www.eembc.org</a>
+源码下载地址：<a href="https://github.com/eembc/coremark">https://github.com/eembc/coremark</a></p>
+<h2 id="2coremark">2、CoreMark适配</h2>
+<p>使用前文《pico-project-generator使用》生成的项目，将CoreMark代码下载至项目文件夹下。下载完成后，可以看到以下源文件在根目录下，其他文件夹都是针对不同平台的适配文件。
+- core_list_join.c
+- core_main.c
+- core_matrix.c
+- core_state.c
+- core_util.c
+- coremark.h
+- barebones目录：裸机环境下需要修改的适配文件
+- posix目录：cygwin、linux、freebsd、macos、rtems等操作系统都采用这个适配文件
+- simple目录：基本移植需要修改的适配文件</p>
+<p>posix 目录是为支持 posix 平台实现，如 Linux。这次coremark基于FreeRTOS操作系统下进行，使用posix下的文件进行修改工作量较少。同时posix适配可通过修改MULTITHREAD宏进行多核并行运行。RP2040芯片是双核 Cortex-M0+ 芯片，但本次只使用单核测试，也为后续做双核coremark测试做准备。
+适配文件主要是修改posix目录下的core_portme.c和core_portme.h。
+1. 添加 FreeRTOS 相关文件
+参照前文 <a href="">FreeRTOS体验</a> 一文，添加FreeRTOS相关文件，并可正常运行。</p>
+<ol>
+<li>添加coremark相关文件
+主要涉及CMakeLists.txt的add_executable加入coremark对应的c文件，target_include_directories加入对应.h路径。</li>
+</ol>
+<pre><code class="language-cmake">add_executable(pico_coremark pico_coremark.c 
+  FreeRTOS-Kernel/event_groups.c
+  FreeRTOS-Kernel/list.c
+  FreeRTOS-Kernel/queue.c
+  FreeRTOS-Kernel/tasks.c
+  FreeRTOS-Kernel/timers.c
+  FreeRTOS-Kernel/portable/GCC/ARM_CM0/port.c
+  FreeRTOS-Kernel/portable/MemMang/heap_4.c
+  coremark/core_list_join.c
+  coremark/core_main.c
+  coremark/core_matrix.c
+  coremark/core_state.c
+  coremark/core_util.c
+  coremark/posix/core_portme.c
+)
+
+target_include_directories(pico_coremark PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  ${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-Kernel/include
+  ${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-Kernel/portable/GCC/ARM_CM0
+  ${CMAKE_CURRENT_LIST_DIR}/coremark
+  ${CMAKE_CURRENT_LIST_DIR}/coremark/posix
+)
+</code></pre>
+<ol>
+<li>修改core_portme.h
+在core_portme.h头文件中加入：</li>
+<li>
+<h1 id="define-use_clock-1">define USE_CLOCK     1</h1>
+</li>
+<li>
+<h1 id="define-main_has_noargc-1">define MAIN_HAS_NOARGC 1</h1>
+</li>
+<li>
+<h1 id="define-seed_method-seed_volatile">define SEED_METHOD SEED_VOLATILE</h1>
+</li>
+<li>
+<h1 id="define-iterations-10000coremark10scoremark">define ITERATIONS 10000，由于CoreMark必须要运行超过10s，如果coremark在运行过程中提示出错，须将此参数改大。</h1>
+</li>
+<li>设定memory模式：我选择的是使用FreeRTOS的堆，添加#define MEM_METHOD MEM_MALLOC</li>
+<li>指定编译参数：#define FLAGS_STR"-O3"，根据当前编译优化参数写入</li>
+<li>指定存储相关参数：#define MEM_LOCATION "code in flash, data on heap"</li>
+<li>我们在适配中要使用到FreeRTOS相关接口，加入相关头文件</li>
+</ol>
+<pre><code class="language-c">#include &quot;FreeRTOS.h&quot;
+#include &quot;task.h&quot;
+</code></pre>
+<ul>
+<li>
+<p>其他参数使用默认设置</p>
+</li>
+<li>
+<p>修改core_portme.c</p>
+</li>
+<li>修改MEM_METHOD == MEM_MALLOC下对应malloc、free函数实现。</li>
+<li>修改portable_malloc函数内malloc为pvPortMalloc</li>
+<li>修改portable_free函数内malloc为pvPortFree</li>
+</ul>
+<pre><code class="language-c">/* Function: portable_malloc
+        Provide malloc() functionality in a platform specific way.
+*/
+void *
+portable_malloc(size_t size)
+{
+    return pvPortMalloc(size);
+}
+/* Function: portable_free
+        Provide free() functionality in a platform specific way.
+*/
+void
+portable_free(void *p)
+{
+    vPortFree(p);
+}
+</code></pre>
+<ul>
+<li>修改USE_CLOCK使能后计时相关接口为FreeRTOS提供的函数</li>
+</ul>
+<pre><code class="language-c">#define NSECS_PER_SEC              configTICK_RATE_HZ
+#define CORETIMETYPE               TickType_t
+#define GETMYTIME(_t)              (*_t = xTaskGetTickCount())
+</code></pre>
+<p>因 CoreMark 所要求最短测试时间为 10s，为获得有效的测试结果，需修改 core_portme.h 中关于 ITERATIONS 的定义。
+修改 COMPILER_FLAGS，此处优化等级-Ofast，调试等级-g3</p>
+<h2 id="3_2">3、跑分</h2>
+<ol>
+<li>修改core_mian.c
+由于pico默认有main函数，进入main函数进行硬件初始化，FreeRTOS任务创建等工作。core_main.c中也定义了main函数，重定义了，修改core_main.c中的main为coremark_main，并通过创建的task，在task中调用coremark_main，以免main函数栈空间不够运行失败。
+代码如下：</li>
+</ol>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;FreeRTOS.h&quot;
+#include &quot;task.h&quot;
+
+// UART defines
+// By default the stdout UART is `uart0`, so we will use the second one
+#define UART_ID uart1
+#define BAUD_RATE 9600
+
+// Use pins 4 and 5 for UART1
+// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+
+// GPIO defines
+// Example uses GPIO 2
+#define GPIO 2
+
+void vTaskCode( void * pvParameters )
+{
+    /* The parameter value is expected to be 1 as 1 is passed in the
+    pvParameters value in the call to xTaskCreate() below. 
+    configASSERT( ( ( uint32_t ) pvParameters ) == 1 );
+    */
+   extern void coremark_main();
+   coremark_main();
+
+    const uint LED_PIN = PICO_DEFAULT_LED_PIN;
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    
+    for( ;; )
+    {
+        vTaskDelay(500);
+        gpio_put(LED_PIN, 1);
+        vTaskDelay(500);
+        gpio_put(LED_PIN, 0);
+    }
+}
+
+int main()
+{
+    stdio_init_all();
+    
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+    /* Create the task, storing the handle. */
+    xReturned = xTaskCreate(
+                    vTaskCode,       /* Function that implements the task. */
+                    &quot;Blinky task&quot;,   /* Text name for the task. */
+                    512,             /* Stack size in words, not bytes. */
+                    ( void * ) 1,    /* Parameter passed into the task. */
+                    tskIDLE_PRIORITY,/* Priority at which the task is created. */
+                    &amp;xHandle );   
+
+    vTaskStartScheduler();
+    return 0;
+}
+</code></pre>
+<ol>
+<li>
+<p>测速跑分
+Pico默认工作频率为133MHz，代码通过QSPI运行在外部Flash上。</p>
+</li>
+<li>
+<p>Debug编译模式下：</p>
+</li>
+</ol>
+<pre><code class="language-shell">2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 63178
+Total time (secs): 63.178000
+Iterations/Sec   : 158.282947
+Iterations       : 10000
+Compiler version : GCC10.2.1 20201103 (release)
+Compiler flags   : -O0
+Memory location  : code in flash, data on heap
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x988c
+Correct operation validated. See README.md for run and reporting rules.
+CoreMark 1.0 : 158.282947 / GCC10.2.1 20201103 (release) -O0 / code in flash, data on heap
+</code></pre>
+<ul>
+<li>Release编译模式下：</li>
+</ul>
+<pre><code class="language-shell">2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 42558
+Total time (secs): 42.558000
+Iterations/Sec   : 234.973448
+Iterations       : 10000
+Compiler version : GCC10.2.1 20201103 (release)
+Compiler flags   : -O3
+Memory location  : code in flash, data on heap
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x988c
+Correct operation validated. See README.md for run and reporting rules.
+CoreMark 1.0 : 234.973448 / GCC10.2.1 20201103 (release) -O3 / code in flash, data on heap
+</code></pre>
+<ol>
+<li>跑分结果</li>
+<li>Debug 模式下 coremark 为 1.18CoreMark/MHz</li>
+<li>Release 模式下 1.75CoreMark/MHz</li>
+<li>Debug 和 Release 编译模式运行速度有一定的差距。</li>
+</ol></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

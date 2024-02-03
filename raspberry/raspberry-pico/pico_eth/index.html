@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>轻松玩转树莓派Pico 有线网络接入 - 燕十三的嵌入式之旅</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">燕十三的嵌入式之旅</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../../.." class="nav-link">主页</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../about/" class="nav-link">关于我</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../IoT/" class="nav-link">IoT</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../riscv-v/" class="nav-link">RISC-V</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../rt-thread/" class="nav-link">RT-Thread</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Linux <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../linux/arm/arm/" class="dropdown-item">ARM</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">RISC-V</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v1</a>
+</li>
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v2</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">raspberry <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../1.md" class="dropdown-item">raspberry</a>
+</li>
+                                    
+<li>
+    <a href="../" class="dropdown-item">轻松玩转树莓派pico</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../tools/" class="nav-link">Tools</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#enc28j60" class="nav-link">ENC28J60 共有七条指令</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<!--more-->
+
+<p>上文体验了FreeRTOS在Pico上运行，现在大家都在说万物互联的时代，也该让Pico连接上网了。
+现在单片机想要使用以太网，通常有以下方式：
+MCU内部集成MAC控制器，外部接一个以太网PHY芯片。类似芯片有STM32Fxx7系列。
+MCU内部没有MAC控制，则需要外接MAC芯片和PHY芯片，可以使用2个芯片或者集成在同一个芯片内。</p>
+<p>Pico发布的时候没有自带联网能力，后期发布了Pico-W可通过WiFi联网。Pico有SPI接口，我们可以通过SPI口外扩有线以太网芯片，让Pico增加上网能力。</p>
+<p>常用的SPI接口的以太网芯片有ENC28J60，ENC28J60，单颗芯片内部集成了10M以太网MAC和PHY，提供SPI接口用来和MCU通讯</p>
+<p>本文简单介绍enc28j60，然后通过spi驱动enc28j60，并适配lwip协议栈，将pico连接上网络，可ping通。</p>
+<p>ENC28J60 的功能是从 IP 层拿数据并发送出去，或者将收到的数据送给 IP 层
+ENC28J60 中有三种类型的存储器：
+•控制寄存器
+•以太网缓冲器
+• PHY 寄存器</p>
+<p>控 制 寄 存 器 类 存 储 器 包 含 控 制 寄 存 器 （ Control
+Register， CR） 。它们用于进行 ENC28J60 的配置、控
+制和状态获取。 可以通过 SPI 接口直接读写这些控制寄
+存器。 
+以太网缓冲器中包含一个供以太网控制器使用的发送和
+接收存储空间。 主控制器可以使用 SPI 接口对该存储空
+间的容量进行编程。 只可以通过读缓冲器和写缓冲器
+SPI 指令来访问以太网缓冲器 。</p>
+<p>PHY 寄存器用于进行 PHY 模块的配置、控制和状态获
+取。 不可以通过 SPI 接口直接访问这些寄存器，只可通
+过 MAC 中的 MII （Media Independent Interface）访问
+这些寄存器 。</p>
+<p><img alt="1" src="/img/raspberry_pico/eth/1.png" /></p>
+<p>其中 MCU 可以通过 SPI 接口，使用指令来直接读写 控制寄存器 和 以太网缓冲器。但是不可以通过 SPI 接口直接访问 PHY 寄存器，只可以通过 MAC 中的 MII 访问这些寄存器。</p>
+<p><img alt="2" src="/img/raspberry_pico/eth/2.png" /></p>
+<p>控制寄存器存储空间分为四个存储区，可用 ECON1 寄存器中的存储区选择位 BSEL1:BSEL0 进行选择。
+在操作寄存器之前必须选中正确的bank。
+每个存储区都是 32 字节长，可以用 5 位地址值进行寻址。
+所有存储区的最后五个单元 （1Bh 到 1Fh）都指向同一组寄存器：EIE、EIR、ESTAT、ECON2 和 ECON1。
+它们是控制和监视器件工作的关键寄存器，由于被映射到同一存储空间，因此可以在不切换存储区的情况下很方便地访问它们。</p>
+<p><img alt="3" src="/img/raspberry_pico/eth/3.png" /></p>
+<p>接收寄存器：
+EPKTCNT     以太网数据包计数</p>
+<p>ERDPTL
+ERDPTH</p>
+<p>发送缓冲器起始地址
+（ ETXSTH:ETXSTL）
+发送缓冲器结束地址
+（ ETXNDH:ETXNDL）
+接收缓冲器起始地址
+（ ERXSTH:ERXSTL）
+接收缓冲器结束地址
+（ ERXNDH:ERXNDL
+缓冲器写指针
+（ EWRPTH:EWRPTL
+缓冲器读指针
+（ ERDPTH:ERDPTL） 
+ERDPTL  读指针低字节 ERDPT&lt;7:0&gt;）
+ERDPTH  －   －   －   读指针高字节 （ ERDPT&lt;12:8&gt;）
+EWRPTL  写指针低字节 （ EWRPT&lt;7:0&gt;）
+EWRPTH  －   －   －   写指针高字节 （ EWRPT&lt;12:8&gt;）</p>
+<p>ETXSTL  发送起始低字节 （ ETXST&lt;7:0&gt;） 
+ETXSTH  －   发送起始高字节 （ ETXST&lt;12:8&gt;） 
+ETXNDL  发送结束低字节 （ ETXND&lt;7:0&gt;） <br />
+ETXNDH  －   发送结束高字节 （ ETXND&lt;12:8&gt;） 
+ERXSTL  接收起始低字节 （ ERXST&lt;7:0&gt;） <br />
+ERXSTH  －   接收起始高字节 （ ERXST&lt;12:8&gt;） 
+ERXNDL  接收结束低字节 （ ERXND&lt;7:0&gt;） <br />
+ERXNDH  －   接收结束高字节 （ ERXND&lt;12:8&gt;） 
+ERXRDPTL    接收读指针低字节 （ ERXRDPT&lt;7:0&gt;）  <br />
+ERXRDPTH    －   接收读指针高字节 （ ERXRDPT&lt;12:8&gt;） 
+ERXWRPTL    接收写指针低字节 （ ERXWRPT&lt;7:0&gt;）  <br />
+ERXWRPTH    －   接收写指针高字节 （ ERXWRPT&lt;12:8&gt;） </p>
+<p>MIWRL   MII 写数据低字节 （ MIWR&lt;7:0&gt;） 
+MIWRH   MII 写数据高字节 （ MIWR&lt;15:8&gt;） 
+MIRDL   MII 读数据低字节 （ MIRD&lt;7:0&gt;） 
+MIRDH   MII 读数据高字节 （ MIRD&lt;15:8&gt;） </p>
+<p>MAADR1  MAC 地址字节 1 （ MAADR&lt;15:8&gt;） 
+MAADR0  MAC 地址字节 0 （ MAADR&lt;7:0&gt;） 
+MAADR3  MAC 地址字节 3 （ MAADR&lt;31:24&gt;） 
+MAADR2  MAC 地址字节 2 （ MAADR&lt;23:16&gt;） 
+MAADR5  MAC 地址字节 5 （ MAADR&lt;48:41&gt;） 
+MAADR4  MAC 地址字节 4 （ MAADR&lt;40:32&gt;） </p>
+<p>以太网缓冲器包含供以太网控制器使用的发送和接收存
+储器。该缓冲器大小为 8 KB，分成单独的接收和发送缓
+冲空间。 主控制器使用 SPI 接口可以对发送和接收存储
+器的容量和位置进行编程。 </p>
+<p>ESTAT： 以太网状态寄存器 
+EIE： 以太网中断允许寄存器 
+PHIE： PHY 中断允许寄存器
+PHIR： PHY 中断请求 （标志）寄存器  </p>
+<p>ENC28J60只支持SPI 的模式 0,0。 另外， SPI 端口要求 SCK 在空闲状态时为低电平，并且不支持时钟极性选择。 </p>
+<p>ENC28J60 所执行的操作完全依据外部主控制器通过
+SPI 接口发出的命令。 这些命令为一个或多个字节的指
+令，用于访问控制存储器和以太网缓冲区。 指令至少包
+含一个 3 位操作码和一个用于指定寄存器地址或数据常
+量的 5 位参数。 写和位域指令后还会有一个或多个字节
+的数据。 </p>
+<h2 id="enc28j60">ENC28J60 共有七条指令</h2>
+<p><img alt="4" src="/img/raspberry_pico/eth/4.png" />
+ENC28J60 具有多个中断源和两个独立的中断输出引
+脚，可以在有事件发生时通知主控制器。主控制器在检
+测到中断引脚电平的下降沿时触发中断。
+导致中断的原因可分为两类：控制事件 （ INT）和 LAN
+唤醒（ Wake-up on LAN， WOL） 事件。 EIE 和 EWOLIE
+寄存器包含各个中断源的中断允许位，而 EIR 和
+EWOLIR寄存器则包含相应的中断标志位。 当某一中断
+发生时， 其中断标志位被置 1。 如果 EIE 或 EWOLIE 寄
+存器允许该中断并且相应的 INTIE 或 WOLIE 全局中断
+允许位置 1，则相应的 INT 或 WOL 中断引脚将被
+ENC28J60 驱动为低电平 （见图 12-1） 。 </p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

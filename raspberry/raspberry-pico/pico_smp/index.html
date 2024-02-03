@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>轻松玩转树莓派Pico之八、RP2040双核应用 - 燕十三的嵌入式之旅</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">燕十三的嵌入式之旅</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../../.." class="nav-link">主页</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../about/" class="nav-link">关于我</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../IoT/" class="nav-link">IoT</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../riscv-v/" class="nav-link">RISC-V</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../rt-thread/" class="nav-link">RT-Thread</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Linux <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../linux/arm/arm/" class="dropdown-item">ARM</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">RISC-V</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v1</a>
+</li>
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v2</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">raspberry <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../1.md" class="dropdown-item">raspberry</a>
+</li>
+                                    
+<li>
+    <a href="../" class="dropdown-item">轻松玩转树莓派pico</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../tools/" class="nav-link">Tools</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#_1" class="nav-link">硬件</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#freertos" class="nav-link">FreeRTOS应用</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#1demo" class="nav-link">1、DEMO 运行</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#2" class="nav-link">2、工程创建</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#2freertos-smp" class="nav-link">2、FreeRTOS-SMP源码下载</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#3" class="nav-link">3、编译</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<!--more-->
+
+<p>前文说过树莓派 Pico 开发板片上主芯片为 RP2040 单片机，双核 Arm Cortex-M0 + 处理器，工作主频为 133MHz，264K 片上 SRAM，和 2MByteFlash。之前相关的 Project 都只用到了其中 1 个核，这次我们来体验一下双核。</p>
+<h2 id="_1">硬件</h2>
+<p>example:
+pico-examples/multicore</p>
+<p>Pico:
+https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_multicore/multicore.c
+ multi core launch core 1</p>
+<h2 id="freertos">FreeRTOS应用</h2>
+<p>FreeRTOS SMP 相关介绍可以在官网<a href="https://www.freertos.org/symmetric-multiprocessing-introduction.html">https://www.freertos.org/symmetric-multiprocessing-introduction.html</a> 页面下获取。</p>
+<p>该页面上面就有 pico 在 FreeRTOS SMP 上应用的相关介绍 <a href="https://www.freertos.org/smp-demos-for-the-raspberry-pi-pico-board.html">https://www.freertos.org/smp-demos-for-the-raspberry-pi-pico-board.html</a>。</p>
+<p>FreeRTOS SMP 相关的代码，目前是以分支形式在 FreeRTOS-Kernel 仓库里面的。
+<a href="https://github.com/FreeRTOS/FreeRTOS-Kernel/tree/smp">https://github.com/FreeRTOS/FreeRTOS-Kernel/tree/smp</a></p>
+<p>FreeRTOS 提供了 SMP 的 demo，位于 <a href="https://github.com/FreeRTOS/FreeRTOS-SMP-Demos">https://github.com/FreeRTOS/FreeRTOS-SMP-Demos</a></p>
+<h2 id="1demo">1、DEMO 运行</h2>
+<ol>
+<li>下载 FreeRTOS-SMP-Demos
+FreeRTOS-SMP-Demos 仓库里面通过 submodule 模式已经集成了 支持 SMP 的 FreeRTOS-Kernel</li>
+</ol>
+<pre><code class="language-shell">$ git clone --recursive https://github.com/FreeRTOS/FreeRTOS-SMP-Demos
+</code></pre>
+<ol>
+<li>RP2040的工程位于 FreeRTOS-SMP-Demos/FreeRTOS/Demo/CORTEX_M0+_RP2040，文件夹下集成了 PICO 编译需要的相关文件，可以直接编译。</li>
+</ol>
+<pre><code class="language-shell">$ tree -L 1
+.
+├── build
+├── CMakeLists.txt
+├── OnEitherCore
+├── pico_sdk_import.cmake
+├── README.md
+└── Standard
+</code></pre>
+<p>该目录下有 2 个 demo，分别对应：
+- Standard：可以将任务配置在 core0 或 core1 上运行，任务指定后只能在对应的核上运行。
+- OnEitherCore：允许任务在两个核之间进行切换运行，任务可能在 core0上运行一段时间，然后切换到 core1上运行</p>
+<p>进入 build 目录，运行</p>
+<pre><code class="language-shell">$ cmake ..
+$ make
+</code></pre>
+<h2 id="2">2、工程创建</h2>
+<p>运行完 FreeRTOS-SMP-Demos 后，我们对 SMP 运行有了一定的了解，接下来我们自己创建工程编译运行。</p>
+<ol>
+<li>按照前文 “轻松玩转树莓派Pico之二、创建自己的pico工程项目” 一文创建 pico_freertos_smp 项目。
+创建 pico_freertos_smp.c，并输入：</li>
+</ol>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+
+int main()
+{
+    setup_default_uart();
+    while(1) {
+        printf(&quot;Hello World!\r\n&quot;);
+        sleep_ms(1000);
+    }
+    return 0;
+}
+</code></pre>
+<ol>
+<li>创建项目CMakeLists.txt</li>
+</ol>
+<pre><code class="language-c">cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+project(PICO_FREERTOS_SMP_PROJECT C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+pico_sdk_init()
+
+add_executable(PICO_FREERTOS_SMP_PROJECT
+    pico_freertos_smp.c
+)
+
+pico_add_extra_outputs(PICO_FREERTOS_SMP_PROJECT)
+target_link_libraries(PICO_FREERTOS_SMP_PROJECT pico_stdlib)
+</code></pre>
+<ol>
+<li>在项目 pico_freertos_smp 目录下依次输入：</li>
+</ol>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make
+</code></pre>
+<p>测试是否可以正常编译</p>
+<h2 id="2freertos-smp">2、FreeRTOS-SMP源码下载</h2>
+<p>下载 smp 分支源码，在命令行中输入：</p>
+<pre><code class="language-shell">$ git clone https://github.com/FreeRTOS/FreeRTOS-Kernel -b smp
+</code></pre>
+<h2 id="3">3、编译</h2>
+<p>下载完成后，可以在 FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2040 目录下看到 RP2040 相关的适配，根据 README.md 文件介绍，可以将 FreeRTOS_Kernel_import.cmake 文件复制到项目工程下，并
+在项目 CMakeLists.txt 文件夹加入该文件即可。</p>
+<ol>
+<li>修改 CMakeLists.txt，加入 <code>include(FreeRTOS_Kernel_import.cmake)</code>
+因为我们的下载的 FreeRTOS-Kernel 就在当前工程目录下，以子模块类型存在。</li>
+</ol>
+<pre><code class="language-c">cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+include(FreeRTOS_Kernel_import.cmake)
+
+project(PICO_FREERTOS_SMP_PROJECT C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+pico_sdk_init()
+
+add_executable(PICO_FREERTOS_SMP_PROJECT
+    pico_freertos_smp.c
+)
+
+pico_add_extra_outputs(PICO_FREERTOS_SMP_PROJECT)
+target_link_libraries(PICO_FREERTOS_SMP_PROJECT pico_stdlib)
+</code></pre>
+<ol>
+<li></li>
+</ol>
+<p>在项目 pico_freertos_smp 目录下依次输入:</p>
+<pre><code class="language-shell">$ mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make
+</code></pre>
+<p>即可完成编译，编译完成后在 builld 目录下已经生成了 .uf2 .bin .elf 等文件。</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

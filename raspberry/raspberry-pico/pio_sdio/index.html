@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>Pio Sdio - 燕十三的嵌入式之旅</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">燕十三的嵌入式之旅</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../../.." class="nav-link">主页</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../about/" class="nav-link">关于我</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../IoT/" class="nav-link">IoT</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../riscv-v/" class="nav-link">RISC-V</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../rt-thread/" class="nav-link">RT-Thread</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Linux <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../linux/arm/arm/" class="dropdown-item">ARM</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">RISC-V</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v1</a>
+</li>
+            
+<li>
+    <a href="../../../linux/risc-v/milk-v/milk-v-duo2/" class="dropdown-item">milk-v2</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">raspberry <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../1.md" class="dropdown-item">raspberry</a>
+</li>
+                                    
+<li>
+    <a href="../" class="dropdown-item">轻松玩转树莓派pico</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../../tools/" class="nav-link">Tools</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#sdio" class="nav-link">sdio</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#8080" class="nav-link">8080</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#led" class="nav-link">LED显示</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#i2s" class="nav-link">I2S</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#mic" class="nav-link">mic采集</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<!--more-->
+<h2 id="sdio">sdio</h2>
+<p>下面是一个使用 C 语言在树莓派 Pico 上使用 PIO 实现 SDIO（Secure Digital Input/Output）功能的示例代码：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;hardware/pio.h&quot;
+#include &quot;hardware/dma.h&quot;
+
+// PIO 程序代码
+static uint32_t sdio_program[] = {
+    0x0000,           // pull block
+    0x2020, 0x0000,   // mov x, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2220, 0x0000,   // mov y, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2420, 0x0000,   // mov z, osr
+
+    // 在这里添加你的 SDIO 控制逻辑
+    // 可以使用 x, y, z 寄存器来存储输入输出数据
+
+    0x520a, 0x0000,   // push pair
+    0xff00,           // wrap 0
+};
+
+int main() {
+    stdio_init_all();
+
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, sdio_program, sizeof(sdio_program) / sizeof(sdio_program[0]));
+
+    pio_sm_config sdio_config = pio_get_default_sm_config();
+    sm_config_set_in_pins(&amp;sdio_config, PICO_SDIO_DATA_PIN_BASE);
+    pio_gpio_init(pio, PICO_SDIO_SCK_PIN);
+    pio_gpio_init(pio, PICO_SDIO_CMD_PIN);
+    pio_gpio_init_mask(pio, PICO_SDIO_DATA_PIN_MASK);
+
+    sm_config_set_wrap(&amp;sdio_config, offset, offset + sizeof(sdio_program));
+    pio_sm_init(pio, sm, offset, &amp;sdio_config);
+
+    pio_sm_set_enabled(pio, sm, true);
+
+    while (1) {
+        // 在这里添加你的 SDIO 数据读取/写入代码
+        // 可以使用 pio_sm_get_blocking() 发送/接收数据
+
+    }
+}
+</code></pre>
+<p>注意，上述示例中的 <code>PICO_SDIO_SCK_PIN</code>、<code>PICO_SDIO_CMD_PIN</code> 和 <code>PICO_SDIO_DATA_PIN_BASE</code> 需要根据实际连接的引脚进行修改，并确保正确的引脚初始化。</p>
+<p>你可以根据需要在 <code>while</code> 循环中添加你的 SDIO 数据读取/写入的代码，使用 <code>pio_sm_get_blocking()</code> 函数发送/接收数据。</p>
+<p>请注意，此示例仅提供了基本的框架，具体的 SDIO 控制逻辑需要根据你的实际需求进行编写。具体的数据传输、协议解析等细节也需要根据 SDIO 的规范进行实现。</p>
+<h2 id="8080">8080</h2>
+<p>下面是一个使用 C 语言在树莓派 Pico 上使用 PIO 实现 8080 显示功能的示例代码：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;hardware/pio.h&quot;
+#include &quot;hardware/dma.h&quot;
+
+// PIO 程序代码
+static uint32_t display_program[] = {
+    0x0000,           // pull block
+    0x2020, 0x0000,   // mov x, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2220, 0x0000,   // mov y, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2420, 0x0000,   // mov z, osr
+
+    // 在这里添加你的 8080 显示控制逻辑
+    // 可以使用 x, y, z 寄存器来存储输入输出数据
+
+    0x520a, 0x0000,   // push pair
+    0xff00,           // wrap 0
+};
+
+int main() {
+    stdio_init_all();
+
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, display_program, sizeof(display_program) / sizeof(display_program[0]));
+
+    pio_sm_config display_config = pio_get_default_sm_config();
+    sm_config_set_in_pins(&amp;display_config, PICO_DISPLAY_DATA_PIN_BASE);
+    pio_gpio_init(pio, PICO_DISPLAY_WR_PIN);
+    pio_gpio_init(pio, PICO_DISPLAY_RD_PIN);
+    pio_gpio_init(pio, PICO_DISPLAY_DC_PIN);
+    pio_gpio_init_mask(pio, PICO_DISPLAY_DATA_PIN_MASK);
+
+    sm_config_set_wrap(&amp;display_config, offset, offset + sizeof(display_program));
+    pio_sm_init(pio, sm, offset, &amp;display_config);
+
+    pio_sm_set_enabled(pio, sm, true);
+
+    while (1) {
+        // 在这里添加你的 8080 显示数据写入代码
+        // 可以使用 pio_sm_put_blocking() 发送数据
+
+    }
+}
+</code></pre>
+<p>注意，上述示例中的 <code>PICO_DISPLAY_WR_PIN</code>、<code>PICO_DISPLAY_RD_PIN</code>、<code>PICO_DISPLAY_DC_PIN</code> 和 <code>PICO_DISPLAY_DATA_PIN_BASE</code> 需要根据实际连接的引脚进行修改，并确保正确的引脚初始化。</p>
+<p>你可以根据需要在 <code>while</code> 循环中添加你的 8080 显示数据写入的代码，使用 <code>pio_sm_put_blocking()</code> 函数发送数据。</p>
+<p>请注意，此示例仅提供了基本的框架，具体的显示控制逻辑需要根据你的实际需求进行编写。具体的数据传输、时序控制等细节也需要根据 8080 显示控制协议进行实现。</p>
+<h2 id="led">LED显示</h2>
+<p>在树莓派 Pico 上使用 PIO 实现 HUB75 显示功能需要结合驱动芯片（如常见的 FM6126A）的详细规格进行编程。由于 HUB75 显示接口的复杂性和多样性，无法提供一个通用的示例代码。以下是一个简化的示例，用于说明基本的框架和流程：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;hardware/gpio.h&quot;
+#include &quot;hardware/pio.h&quot;
+#include &quot;hardware/dma.h&quot;
+
+// PIO 程序代码
+static uint32_t hub75_program[] = {
+    // 在这里编写你的 HUB75 显示控制逻辑
+    // 可以使用 x, y, z 寄存器来存储输入输出数据
+};
+
+int main() {
+    stdio_init_all();
+
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, hub75_program, sizeof(hub75_program) / sizeof(hub75_program[0]));
+
+    // 初始化 HUB75 接口相关的引脚
+    gpio_init(PICO_HUB75_CLK_PIN);
+    gpio_set_dir(PICO_HUB75_CLK_PIN, GPIO_OUT);
+    gpio_pull_down(PICO_HUB75_CLK_PIN);
+
+    // 在这里根据驱动芯片的规格初始化 HUB75 的引脚，如LE、OE、A、B、C、D等
+
+    pio_sm_config hub75_config = pio_get_default_sm_config();
+    sm_config_set_clkdiv(&amp;hub75_config, 1.0);  // 设置时钟分频，根据显示需求调整
+    sm_config_set_out_pins(&amp;hub75_config, PICO_HUB75_DATA_PIN_BASE, PICO_HUB75_DATA_PIN_COUNT);
+    pio_gpio_init(pio, PICO_HUB75_CLK_PIN);
+
+    // 在这里根据驱动芯片的规格初始化 HUB75 数据引脚
+
+    sm_config_set_wrap(&amp;hub75_config, offset, offset + sizeof(hub75_program));
+    pio_sm_init(pio, sm, offset, &amp;hub75_config);
+
+    pio_sm_set_enabled(pio, sm, true);
+
+    while (1) {
+        // 在这里写入 HUB75 显示数据
+        // 可以使用 pio_sm_put_blocking() 发送数据
+    }
+}
+</code></pre>
+<p>请根据实际的 HUB75 显示驱动芯片规格进行相关引脚的初始化，并在 <code>while</code> 循环中添加实际的数据写入逻辑。具体的时序和数据传输细节需要根据驱动芯片和显示模组的规格进行编写。</p>
+<h2 id="i2s">I2S</h2>
+<p>在树莓派 Pico 上使用 PIO 实现 I2S（Integrated Interchip Sound）功能，可以通过 PIO SDK 的方式来实现。以下是一个示例代码，展示如何使用 C 语言在树莓派 Pico 上使用 PIO 实现 I2S 功能：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;hardware/pio.h&quot;
+#include &quot;hardware/dma.h&quot;
+
+// PIO 程序代码
+static uint32_t i2s_program[] = {
+    0x0000,           // pull block
+    0x2020, 0x0000,   // mov x, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2220, 0x0000,   // mov y, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2420, 0x0000,   // mov z, osr
+
+    // 在这里添加你的 I2S 控制逻辑
+    // 可以使用 x, y, z 寄存器来存储输入输出数据
+
+    0x520a, 0x0000,   // push pair
+    0xff00,           // wrap 0
+};
+
+int main() {
+    stdio_init_all();
+
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, i2s_program, sizeof(i2s_program) / sizeof(i2s_program[0]));
+
+    pio_sm_config i2s_config = pio_get_default_sm_config();
+    sm_config_set_in_pins(&amp;i2s_config, PICO_I2S_RX_PIN_BASE);
+    sm_config_set_out_pins(&amp;i2s_config, PICO_I2S_TX_PIN_BASE);
+    pio_gpio_init(pio, PICO_I2S_SCK_PIN);
+    pio_gpio_init(pio, PICO_I2S_LRCK_PIN);
+    pio_gpio_init(pio, PICO_I2S_BCLK_PIN);
+
+    sm_config_set_wrap(&amp;i2s_config, offset, offset + sizeof(i2s_program));
+    pio_sm_init(pio, sm, offset, &amp;i2s_config);
+
+    pio_sm_set_enabled(pio, sm, true);
+
+    while (1) {
+        // 在这里添加你的 I2S 数据传输代码
+        // 可以使用 pio_sm_get_blocking() 和 pio_sm_put_blocking() 发送/接收数据
+    }
+}
+</code></pre>
+<p>请根据你的实际需求和硬件连接，在上述代码中正确设置 <code>PICO_I2S_RX_PIN_BASE</code>、<code>PICO_I2S_TX_PIN_BASE</code>、<code>PICO_I2S_SCK_PIN</code>、<code>PICO_I2S_LRCK_PIN</code> 和 <code>PICO_I2S_BCLK_PIN</code> 等引脚的值。</p>
+<p>请注意，上述示例提供了基本的框架，具体的 I2S 控制逻辑需要根据你的实际需求进行编写。具体的数据传输、时序控制等细节也需要根据 I2S 的规范和硬件设备的要求进行实现。</p>
+<h2 id="mic">mic采集</h2>
+<p>在树莓派 Pico 上使用 PIO 实现音频采集功能需要结合外部音频模块（如麦克风）和 ADC（模数转换器）进行配置和操作。以下是一个示例代码，展示如何使用 C 语言在树莓派 Pico 上使用 PIO 实现音频采集功能：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &quot;pico/stdlib.h&quot;
+#include &quot;hardware/pio.h&quot;
+#include &quot;hardware/adc.h&quot;
+
+// PIO 程序代码
+static uint32_t audio_program[] = {
+    0x0000,           // pull block
+    0x2020, 0x0000,   // mov x, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2220, 0x0000,   // mov y, osr
+    0x4a0a, 0x0000,   // pull pair
+    0x2420, 0x0000,   // mov z, osr
+
+    // 在这里添加你的音频采集逻辑
+    // 可以使用 x, y, z 寄存器来存储输入输出数据
+
+    0x520a, 0x0000,   // push pair
+    0xff00,           // wrap 0
+};
+
+int main() {
+    stdio_init_all();
+
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, audio_program, sizeof(audio_program) / sizeof(audio_program[0]));
+
+    adc_init();
+    adc_gpio_init(PICO_AUDIO_IN_PIN);
+
+    pio_sm_config audio_config = pio_get_default_sm_config();
+    sm_config_set_in_pins(&amp;audio_config, PICO_AUDIO_IN_PIN);
+    pio_gpio_init(pio, PICO_AUDIO_CLOCK_PIN);
+    pio_gpio_init(pio, PICO_AUDIO_DATA_PIN);
+
+    sm_config_set_wrap(&amp;audio_config, offset, offset + sizeof(audio_program));
+    pio_sm_init(pio, sm, offset, &amp;audio_config);
+
+    pio_sm_set_enabled(pio, sm, true);
+
+    while (1) {
+        // 在这里读取采集的音频数据
+        // 可以使用 adc_read() 函数进行 ADC 数据的读取
+    }
+}
+</code></pre>
+<p>请根据你的实际需求和硬件连接，在上述代码中正确设置 <code>PICO_AUDIO_IN_PIN</code>、<code>PICO_AUDIO_CLOCK_PIN</code> 和 <code>PICO_AUDIO_DATA_PIN</code> 等引脚的值。</p>
+<p>请注意，上述示例提供了基本的框架，具体的音频采集逻辑需要根据你的实际需求进行编写。具体的 ADC 配置和数据读取等细节也需要根据硬件设备的要求进行实现。</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
