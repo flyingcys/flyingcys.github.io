@@ -37,14 +37,9 @@
         <div class="container-fluid d-flex align-items-center">
             <h1 class="d-flex align-items-center fs-4 text-white mb-0">
                 <img src="imgs/logo.svg" width="38" height="30" class="me-3" alt="Web Serial">
-                Web Serial Debug
+                TuyaOpen 串口调试助手
             </h1>
-            <span class="ms-auto">
-                <span class="link-light">代码已开源:</span>
-                <a href="https://github.com/itldg/web-serial-debug" target="_blank" class="link-light">Github</a>
-                <a href="https://gitee.com/itldg/web-serial-debug" target="_blank" class="link-light">Gitee</a>
-                <a href="javascript:hideTop()" class="link-light ml-2">隐藏头部</a>
-            </span>
+            
         </div>
     </header>
 
@@ -54,8 +49,14 @@
             <div class="collapse show p-2 float-start">
                 <div class="input-group mb-3">
                     <span class="input-group-text">波特率</span>
-                    <input type="number" id="serial-baud" class="form-control" placeholder="选择波特率" value="115200"
-                        list="baud-list">
+                    <select class="form-select" id="serial-baud">
+                        <option>9600</option>
+                        <option>19200</option>
+                        <option>38400</option>
+                        <option>115200</option>
+                        <option>460800</option>
+                        <option>921600</option>
+                    </select>
                     <datalist id="baud-list">
                         <option>110</option>
                         <option>300</option>
