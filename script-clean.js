@@ -502,18 +502,18 @@ class SerialTerminal {
             
             // 添加日志 - 如果用户要求的波特率不是115200，说明后续会切换
             if (baudrate !== 115200) {
-                this.addToFlashLog(i18n.t('serial_connected') + ` (${initialOptions.baudRate} bps - 初始连接，将切换到 ${baudrate} bps)`, 'info');
+                this.addToFlashLog(i18n.t('serial_connected') + ` (${initialOptions.baudRate} ${i18n.t('bps')} - ${i18n.t('serial_connected_initial_switch')} ${baudrate} ${i18n.t('bps')})`, 'info');
             } else {
-                this.addToFlashLog(i18n.t('serial_connected') + ` (${baudrate} bps)`, 'info');
+                this.addToFlashLog(i18n.t('serial_connected') + ` (${baudrate} ${i18n.t('bps')})`, 'info');
             }
             
             // 调试信息：明确这是固件下载的连接
-            console.log('固件下载连接成功（115200），串口调试连接状态:', this.isSerialConnected);
+            console.log(i18n.t('console_flash_connect_success'), this.isSerialConnected);
             
             return { reader: this.flashReader, writer: this.flashWriter, port: this.flashPort };
 
         } catch (error) {
-            console.error('固件下载连接失败:', error);
+            console.error(i18n.t('console_flash_connect_failed'), error);
             this.showError(i18n.t('connect_failed', error.message));
             throw error;
         }
@@ -583,10 +583,10 @@ class SerialTerminal {
             this.updateFlashConnectionStatus(true);
             
             // 添加日志 - 显示初始连接波特率
-            this.addToFlashLog(i18n.t('serial_connected') + ` (${initialOptions.baudRate} bps - 初始连接)`, 'info');
+            this.addToFlashLog(i18n.t('serial_connected') + ` (${initialOptions.baudRate} ${i18n.t('bps')} - ${i18n.t('serial_connected_initial')})`, 'info');
             
             // 调试信息：明确这是固件下载的独立连接
-            console.log('固件下载独立连接成功（115200），串口调试连接状态:', this.isSerialConnected);
+            console.log(i18n.t('console_flash_independent_success'), this.isSerialConnected);
             
             return { reader: this.flashReader, writer: this.flashWriter, port: this.flashPort };
 
@@ -783,7 +783,7 @@ class SerialTerminal {
             // 调试信息：显示过滤的字节数
             const filteredCount = data.length - actualDataLength;
             if (filteredCount > 0) {
-                console.log(`过滤了 ${filteredCount} 个0x00字符`);
+                console.log(i18n.t('console_filtered_null_chars', filteredCount));
             }
         }
         
@@ -934,10 +934,10 @@ class SerialTerminal {
     addToDisplay(text, type = 'received') {
         // 调试：打印接收到的原始数据
         if (type === 'received') {
-            console.log('原始接收数据:', text);
-            console.log('数据字符码:', Array.from(text).map(c => c.charCodeAt(0)));
-            console.log('包含ANSI转义序列:', /(?:\x1b|\u001b)\[([0-9;]*)m/g.test(text));
-            console.log('包含缺少转义字符的ANSI:', /\[([0-9;]*)m/g.test(text));
+            console.log(i18n.t('console_raw_received_data'), text);
+            console.log(i18n.t('console_data_char_codes'), Array.from(text).map(c => c.charCodeAt(0)));
+            console.log(i18n.t('console_contains_ansi_escape'), /(?:\x1b|\u001b)\[([0-9;]*)m/g.test(text));
+            console.log(i18n.t('console_contains_missing_escape'), /\[([0-9;]*)m/g.test(text));
         }
         
         // 移除占位符
@@ -948,7 +948,7 @@ class SerialTerminal {
 
         // 对显示文本进行安全处理
         const safeText = this.sanitizeDisplayText(text);
-        console.log('处理后的安全文本:', safeText);
+        console.log(i18n.t('console_processed_safe_text'), safeText);
 
         const line = document.createElement('div');
         line.className = `data-line ${type}`;
@@ -981,7 +981,7 @@ class SerialTerminal {
         
         // 处理ANSI颜色
         if (typeof safeText === 'object' && safeText.hasAnsi) {
-            console.log('应用ANSI颜色样式:', safeText);
+            console.log(i18n.t('console_apply_ansi_colors'), safeText);
             // 如果有ANSI颜色信息，应用颜色样式
             contentSpan.textContent = safeText.text;
             
@@ -1042,7 +1042,7 @@ class SerialTerminal {
     sanitizeDisplayText(text) {
         if (!text) return '';
         
-        console.log('sanitizeDisplayText输入:', text);
+        console.log(i18n.t('console_sanitize_input'), text);
         
         // 检查是否包含ANSI颜色序列（支持三种格式：\033、\x1b和缺少转义字符的格式）
         // 标准ANSI格式：\x1b[...m 或 \033[...m
@@ -1053,15 +1053,15 @@ class SerialTerminal {
         ansiColorRegex.lastIndex = 0;
         const hasAnsiColors = ansiColorRegex.test(text);
         
-        console.log('ANSI检测结果:', hasAnsiColors);
+        console.log(i18n.t('console_ansi_detection_result'), hasAnsiColors);
         
         if (hasAnsiColors) {
-            console.log('调用parseAnsiColors处理');
+            console.log(i18n.t('console_call_parse_ansi'));
             // 如果包含ANSI颜色序列，解析并应用颜色
             return this.parseAnsiColors(text);
         }
         
-        console.log('作为普通文本处理');
+        console.log(i18n.t('console_treat_as_plain'));
         
         // 替换所有控制字符和特殊字符为可见的替代符
         let sanitized = text
@@ -1079,7 +1079,7 @@ class SerialTerminal {
 
     // 新增：解析ANSI颜色序列
     parseAnsiColors(text) {
-        console.log('parseAnsiColors输入:', text);
+        console.log(i18n.t('console_parse_ansi_input'), text);
         
         // ANSI颜色映射表
         const ansiColors = {
@@ -1129,54 +1129,54 @@ class SerialTerminal {
         let currentBgColor = null;
         let bold = false;
         
-        console.log('使用正则表达式:', ansiRegex);
+        console.log(i18n.t('console_using_regex'), ansiRegex);
         
         // 查找所有ANSI序列
         while ((match = ansiRegex.exec(text)) !== null) {
-            console.log('找到ANSI匹配:', match);
+            console.log(i18n.t('console_found_ansi_match'), match);
             // match[1] 是标准格式的代码，match[2] 是缺少转义字符格式的代码
             const codes = (match[1] || match[2] || '').split(';').filter(code => code !== '');
-            console.log('解析的代码:', codes);
+            console.log(i18n.t('console_parsed_codes'), codes);
             
             for (const code of codes) {
-                console.log('处理代码:', code);
+                console.log(i18n.t('console_processing_code'), code);
                 if (code === '0') {
                     // 重置所有样式
                     currentColor = null;
                     currentBgColor = null;
                     bold = false;
-                    console.log('重置样式');
+                    console.log(i18n.t('console_reset_style'));
                 } else if (code === '1') {
                     // 粗体/加亮
                     bold = true;
-                    console.log('设置粗体');
+                    console.log(i18n.t('console_set_bold'));
                 } else if (code === '22') {
                     // 关闭粗体
                     bold = false;
-                    console.log('关闭粗体');
+                    console.log(i18n.t('console_close_bold'));
                 } else if (code === '39') {
                     // 默认前景色
                     currentColor = null;
-                    console.log('重置前景色');
+                    console.log(i18n.t('console_reset_foreground'));
                 } else if (code === '49') {
                     // 默认背景色
                     currentBgColor = null;
-                    console.log('重置背景色');
+                    console.log(i18n.t('console_reset_background'));
                 } else if (ansiColors[code]) {
                     // 前景色
                     currentColor = ansiColors[code];
-                    console.log('设置前景色:', code, '->', currentColor);
+                    console.log(i18n.t('console_set_foreground'), code, '->', currentColor);
                 } else if (ansiBgColors[code]) {
                     // 背景色
                     currentBgColor = ansiBgColors[code];
-                    console.log('设置背景色:', code, '->', currentBgColor);
+                    console.log(i18n.t('console_set_background'), code, '->', currentBgColor);
                 }
             }
         }
         
         // 移除ANSI序列，保留纯文本（支持两种格式）
         let cleanText = text.replace(ansiRegex, '');
-        console.log('清理后的文本:', cleanText);
+        console.log(i18n.t('console_cleaned_text'), cleanText);
         
         // 替换其他控制字符
         cleanText = cleanText
@@ -1197,7 +1197,7 @@ class SerialTerminal {
             hasAnsi: true
         };
         
-        console.log('parseAnsiColors最终结果:', result);
+        console.log(i18n.t('console_parse_ansi_final'), result);
         
         return result;
     }
@@ -1839,7 +1839,7 @@ class SerialTerminal {
                 // 更新各种占位符文本
                 this.updatePlaceholderTexts();
                 
-                console.log(`语言已切换到: ${lang}`);
+                console.log(i18n.t('console_language_switched'), lang);
             } else {
                 console.error(`语言切换失败: ${lang}`);
                 this.showError(`Failed to switch to language: ${lang}`);
@@ -1895,7 +1895,7 @@ class SerialTerminal {
             });
         }
         
-        console.log(`语言显示已更新为: ${currentLangData.name} (${currentLang})`);
+        console.log(i18n.t('console_language_display_updated'), `${currentLangData.name} (${currentLang})`);
     }
 
     // 兼容性方法 - 保持原有的updateLanguageButton方法名
@@ -2099,7 +2099,7 @@ class SerialTerminal {
                 }
             });
             
-            console.log(`串口目标设备选择: ${selectedDevice}, 波特率: ${config.baudrate}, 配置锁定: ${isReadonly}`);
+            console.log(i18n.t('console_serial_target_device'), `${selectedDevice}, ${i18n.t('baud_rate')} ${config.baudrate}, 配置锁定: ${isReadonly}`);
         }
     }
 }

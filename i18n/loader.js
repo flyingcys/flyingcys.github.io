@@ -87,6 +87,7 @@ class I18nLoader {
             this.currentLanguage = langCode;
             localStorage.setItem('language', langCode);
             this.updatePageText();
+            this.updatePageTitle();
             return true;
         }
         return false;
@@ -95,11 +96,7 @@ class I18nLoader {
     // 更新页面文本
     updatePageText() {
         // 更新所有带有 data-i18n 属性的元素
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const text = this.t(key);
-            element.textContent = text;
-        });
+        this.updateElements();
         
         // 更新所有带有 data-i18n-placeholder 属性的元素
         document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
@@ -113,8 +110,8 @@ class I18nLoader {
             element.title = this.t(key);
         });
         
-        // 更新document title
-        document.title = this.t('title');
+        // 动态更新页面标题
+        this.updatePageTitle();
     }
     
     // 获取当前语言
@@ -169,6 +166,24 @@ class I18nLoader {
         window.dispatchEvent(event);
         
         console.log('I18n system initialized with language:', savedLang);
+    }
+
+    updatePageTitle() {
+        // 更新页面标题
+        const titleElement = document.querySelector('title[data-i18n]');
+        if (titleElement && titleElement.dataset.i18n) {
+            const translatedTitle = this.t(titleElement.dataset.i18n);
+            document.title = translatedTitle;
+        }
+    }
+
+    updateElements() {
+        // 更新所有带有 data-i18n 属性的元素
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            const text = this.t(key);
+            element.textContent = text;
+        });
     }
 }
 

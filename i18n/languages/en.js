@@ -228,8 +228,22 @@ const en = {
     flashdownloader_reset_baudrate: "FlashDownloader: Resetting serial port baudrate to 115200...",
     flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ Serial port baudrate reset to 115200",
     flashdownloader_direct_reset_success: "FlashDownloader: ✅ Serial port directly reset to 115200",
-    flashdownloader_reset_failed: "FlashDownloader: Failed to reset serial port baudrate",
-    flashdownloader_direct_reset_failed: "FlashDownloader: Direct serial port reset also failed"
+    flashdownloader_reset_failed: "FlashDownloader: Baudrate reset failed",
+    flashdownloader_direct_reset_failed: "FlashDownloader: Direct serial port reset also failed",
+    
+    // New: Serial connection status messages
+    serial_connected_initial_switch: "initial connection, will switch to",
+    serial_connected_initial: "initial connection",
+    bps: "bps",
+    
+    // New: Console debug messages (only essential ones for demo)
+    console_flash_connect_success: "Firmware download connected successfully (115200), serial debug connection status:",
+    console_flash_connect_failed: "Firmware download connection failed:",
+    console_flash_independent_success: "Firmware download independent connection successful (115200), serial debug connection status:",
+    console_filtered_null_chars: "Filtered {0} 0x00 characters",
+    console_language_switched: "Language switched to:",
+    console_language_display_updated: "Language display updated to:",
+    console_serial_target_device: "Serial target device selection:"
 };
 
 // Export to global

@@ -29,7 +29,9 @@ const es = {
     disconnect_flash: "Desconectar Descarga de Firmware",
     status_disconnected: "Desconectado",
     status_connected: "Conectado",
-    baud_rate: "Velocidad de Baudios:",
+    serial_target_device: "Dispositivo objetivo:",
+    custom_device: "Personalizado",
+    baud_rate: "Tasa de baudios:",
     data_bits: "Bits de Datos:",
     stop_bits: "Bits de Parada:",
     parity: "Paridad:",
@@ -180,8 +182,54 @@ const es = {
     packets_received: "Paquetes Recibidos",
     
     // Botones de función y operaciones
-    fullscreen: "Pantalla Completa",
-    exit_fullscreen: "Salir de Pantalla Completa"
+    fullscreen: "Pantalla completa",
+    exit_fullscreen: "Salir de pantalla completa",
+    
+    // Nuevo: Estado del modo debug
+    debug_mode_enabled: "🔧 Modo debug habilitado",
+    debug_mode_disabled: "🔧 Modo debug deshabilitado",
+    enabled: "Habilitado",
+    disabled: "Deshabilitado",
+    
+    // Nuevo: Relacionado con reset de baudrate
+    resetting_baudrate_115200: "Restableciendo baudrate del puerto serie a 115200...",
+    baudrate_reset_success: "✅ Baudrate del puerto serie restablecido a 115200",
+    direct_serial_reset_success: "✅ Puerto serie restablecido directamente a 115200",
+    baudrate_reset_failed: "Error al restablecer baudrate del puerto serie",
+    direct_reset_failed: "Error al restablecer directamente el puerto serie también",
+    
+    // Nuevo: Relacionado con gestor de descarga
+    downloader_manager_not_initialized: "Gestor de descarga no inicializado",
+    loaded_chip_types: "Cargados {0} tipos de chip soportados",
+    using_default_chip_support: "Usando soporte de chip por defecto (T5AI)",
+    unsupported_device_type: "Tipo de dispositivo no soportado: {0}",
+    unsupported_chip_type: "Tipo de chip no soportado: {0}",
+    
+    // Nuevo: Relacionado con proceso de descarga de firmware
+    starting_firmware_download_process: "Iniciando proceso de descarga de firmware...",
+    starting_device_download: "Iniciando descarga de dispositivo {0}, tamaño de archivo: {1} bytes",
+    firmware_download_completed_time: "Descarga de firmware completada! Tiempo total: {0}ms",
+    device_firmware_download_completed: "Descarga de firmware de dispositivo {0} completada",
+    initializing_downloader: "Inicializando descargador {0}...",
+    connecting_device: "Conectando con dispositivo {0}...",
+    cannot_connect_device: "No se puede conectar con dispositivo {0}",
+    downloading_firmware_to_device: "Descargando firmware a dispositivo {0}...",
+    t5ai_firmware_download_completed: "Descarga de firmware T5AI completada",
+    firmware_download_completed_device_restarted: "Descarga de firmware completada, dispositivo reiniciándose...",
+    serial_not_connected_connect_first: "Puerto serie no conectado, por favor conecte primero el dispositivo serie",
+    restoring_serial_reader_writer_failed: "Error al restaurar reader/writer del puerto serie",
+    cleanup_reset_baudrate: "Limpieza: Restableciendo baudrate...",
+    cleanup_baudrate_reset_success: "Limpieza: Baudrate restablecido exitosamente",
+    cleanup_reset_failed: "Limpieza: Error en el restablecimiento",
+    flashdownloader_reset_baudrate: "FlashDownloader: Restableciendo baudrate a 115200...",
+    flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ Baudrate restablecido exitosamente a 115200",
+    flashdownloader_direct_reset_success: "FlashDownloader: ✅ Reset directo del puerto serie también exitoso",
+    flashdownloader_reset_failed: "FlashDownloader: Error en el restablecimiento de baudrate",
+    
+    // Nuevo: Mensajes de estado de conexión serie
+    serial_connected_initial_switch: "conexión inicial, cambiará a",
+    serial_connected_initial: "conexión inicial",
+    bps: "bps"
 };
 
 // Exportar a global

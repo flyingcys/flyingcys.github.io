@@ -182,8 +182,54 @@ const zhTw = {
     packets_received: "接收包數",
     
     // 功能按鈕和操作
-    fullscreen: "全屏顯示",
-    exit_fullscreen: "退出全屏"
+    fullscreen: "全螢幕顯示",
+    exit_fullscreen: "退出全螢幕",
+    
+    // 新增：除錯模式狀態
+    debug_mode_enabled: "🔧 除錯模式已啟用",
+    debug_mode_disabled: "🔧 除錯模式已停用",
+    enabled: "啟用",
+    disabled: "停用",
+    
+    // 新增：波特率重置相關
+    resetting_baudrate_115200: "重置串口波特率到115200...",
+    baudrate_reset_success: "✅ 串口波特率已重置到115200",
+    direct_serial_reset_success: "✅ 串口已直接重置到115200",
+    baudrate_reset_failed: "重置串口波特率失敗",
+    direct_reset_failed: "直接重置串口也失敗",
+    
+    // 新增：下載器管理器相關
+    downloader_manager_not_initialized: "下載器管理器未初始化",
+    loaded_chip_types: "已載入 {0} 種支援的晶片類型",
+    using_default_chip_support: "使用預設晶片支援 (T5AI)",
+    unsupported_device_type: "不支援的設備類型: {0}",
+    unsupported_chip_type: "不支援的晶片類型: {0}",
+    
+    // 新增：韌體下載流程相關
+    starting_firmware_download_process: "開始韌體下載流程...",
+    starting_device_download: "開始 {0} 設備下載，檔案大小: {1} 位元組",
+    firmware_download_completed_time: "韌體下載完成！總時間: {0}ms",
+    device_firmware_download_completed: "{0} 設備韌體下載完成",
+    initializing_downloader: "正在初始化 {0} 下載器...",
+    connecting_device: "正在連接 {0} 設備...",
+    cannot_connect_device: "無法連接 {0} 設備",
+    downloading_firmware_to_device: "正在下載韌體到 {0} 設備...",
+    t5ai_firmware_download_completed: "T5AI 韌體下載完成",
+    firmware_download_completed_device_restarted: "韌體下載完成，設備重新啟動中...",
+    serial_not_connected_connect_first: "串口未連接，請先連接串口設備",
+    restoring_serial_reader_writer_failed: "恢復串口 reader/writer 失敗",
+    cleanup_reset_baudrate: "清理：重置波特率中...",
+    cleanup_baudrate_reset_success: "清理：波特率重置成功",
+    cleanup_reset_failed: "清理：重置失敗",
+    flashdownloader_reset_baudrate: "FlashDownloader：重置波特率到115200...",
+    flashdownloader_baudrate_reset_success: "FlashDownloader：✅ 波特率成功重置到115200",
+    flashdownloader_direct_reset_success: "FlashDownloader：✅ 串口直接重置也成功",
+    flashdownloader_reset_failed: "FlashDownloader：波特率重置失敗",
+    
+    // 新增：串口連接狀態訊息
+    serial_connected_initial_switch: "初始連接，將切換到",
+    serial_connected_initial: "初始連接",
+    bps: "bps"
 };
 
 // 導出到全局

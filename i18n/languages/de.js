@@ -29,6 +29,8 @@ const de = {
     disconnect_flash: "Firmware-Download trennen",
     status_disconnected: "Getrennt",
     status_connected: "Verbunden",
+    serial_target_device: "Zielgerät:",
+    custom_device: "Benutzerdefiniert",
     baud_rate: "Baudrate:",
     data_bits: "Datenbits:",
     stop_bits: "Stoppbits:",
@@ -181,7 +183,53 @@ const de = {
     
     // Funktionstasten und Operationen
     fullscreen: "Vollbild",
-    exit_fullscreen: "Vollbild verlassen"
+    exit_fullscreen: "Vollbild verlassen",
+    
+    // Neu: Debug-Modus-Status
+    debug_mode_enabled: "🔧 Debug-Modus aktiviert",
+    debug_mode_disabled: "🔧 Debug-Modus deaktiviert",
+    enabled: "Aktiviert",
+    disabled: "Deaktiviert",
+    
+    // Neu: Baudrate-Reset-bezogen
+    resetting_baudrate_115200: "Setze Serial-Port-Baudrate auf 115200 zurück...",
+    baudrate_reset_success: "✅ Serial-Port-Baudrate auf 115200 zurückgesetzt",
+    direct_serial_reset_success: "✅ Serial-Port direkt auf 115200 zurückgesetzt",
+    baudrate_reset_failed: "Zurücksetzen der Serial-Port-Baudrate fehlgeschlagen",
+    direct_reset_failed: "Direktes Zurücksetzen des Serial-Ports ebenfalls fehlgeschlagen",
+    
+    // Neu: Download-Manager-bezogen
+    downloader_manager_not_initialized: "Download-Manager nicht initialisiert",
+    loaded_chip_types: "{0} unterstützte Chip-Typen geladen",
+    using_default_chip_support: "Verwende Standard-Chip-Unterstützung (T5AI)",
+    unsupported_device_type: "Nicht unterstützter Gerätetyp: {0}",
+    unsupported_chip_type: "Nicht unterstützter Chip-Typ: {0}",
+    
+    // Neu: Firmware-Download-Prozess-bezogen
+    starting_firmware_download_process: "Starte Firmware-Download-Prozess...",
+    starting_device_download: "Starte {0}-Geräte-Download, Dateigröße: {1} Bytes",
+    firmware_download_completed_time: "Firmware-Download abgeschlossen! Gesamtzeit: {0}ms",
+    device_firmware_download_completed: "{0}-Geräte-Firmware-Download abgeschlossen",
+    initializing_downloader: "Initialisiere {0}-Downloader...",
+    connecting_device: "Verbinde mit {0}-Gerät...",
+    cannot_connect_device: "Kann nicht mit {0}-Gerät verbinden",
+    downloading_firmware_to_device: "Lade Firmware auf {0}-Gerät herunter...",
+    t5ai_firmware_download_completed: "T5AI-Firmware-Download abgeschlossen",
+    firmware_download_completed_device_restarted: "Firmware-Download abgeschlossen, Gerät wird neu gestartet...",
+    serial_not_connected_connect_first: "Serial nicht verbunden, bitte verbinden Sie zuerst das Serial-Gerät",
+    restoring_serial_reader_writer_failed: "Wiederherstellung von Serial-Reader/Writer fehlgeschlagen",
+    cleanup_reset_baudrate: "Cleanup: Setze Baudrate zurück...",
+    cleanup_baudrate_reset_success: "Cleanup: Baudrate erfolgreich zurückgesetzt",
+    cleanup_reset_failed: "Cleanup: Reset fehlgeschlagen",
+    flashdownloader_reset_baudrate: "FlashDownloader: Setze Baudrate auf 115200 zurück...",
+    flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ Baudrate erfolgreich auf 115200 zurückgesetzt",
+    flashdownloader_direct_reset_success: "FlashDownloader: ✅ Direkter Serial-Reset ebenfalls erfolgreich",
+    flashdownloader_reset_failed: "FlashDownloader: Baudrate-Reset fehlgeschlagen",
+    
+    // Neu: Serial-Verbindungsstatusmeldungen
+    serial_connected_initial_switch: "Erste Verbindung, wird gewechselt zu",
+    serial_connected_initial: "Erste Verbindung",
+    bps: "bps"
 };
 
 // In globalen Bereich exportieren

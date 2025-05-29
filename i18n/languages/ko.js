@@ -29,6 +29,8 @@ const ko = {
     disconnect_flash: "펌웨어 다운로드 연결 해제",
     status_disconnected: "연결 해제됨",
     status_connected: "연결됨",
+    serial_target_device: "대상 장치:",
+    custom_device: "사용자 정의",
     baud_rate: "보드레이트:",
     data_bits: "데이터 비트:",
     stop_bits: "정지 비트:",
@@ -181,7 +183,53 @@ const ko = {
     
     // 기능 버튼 및 작업
     fullscreen: "전체 화면",
-    exit_fullscreen: "전체 화면 종료"
+    exit_fullscreen: "전체 화면 종료",
+    
+    // 새로 추가: 디버그 모드 상태
+    debug_mode_enabled: "🔧 디버그 모드 활성화됨",
+    debug_mode_disabled: "🔧 디버그 모드 비활성화됨",
+    enabled: "활성화됨",
+    disabled: "비활성화됨",
+    
+    // 새로 추가: 보드레이트 재설정 관련
+    resetting_baudrate_115200: "시리얼 포트 보드레이트를 115200으로 재설정 중...",
+    baudrate_reset_success: "✅ 시리얼 포트 보드레이트를 115200으로 재설정했습니다",
+    direct_serial_reset_success: "✅ 시리얼 포트를 115200으로 직접 재설정했습니다",
+    baudrate_reset_failed: "시리얼 포트 보드레이트 재설정 실패",
+    direct_reset_failed: "시리얼 포트 직접 재설정도 실패",
+    
+    // 새로 추가: 다운로더 관리자 관련
+    downloader_manager_not_initialized: "다운로더 관리자가 초기화되지 않음",
+    loaded_chip_types: "{0}개의 지원되는 칩 유형이 로드됨",
+    using_default_chip_support: "기본 칩 지원 사용 (T5AI)",
+    unsupported_device_type: "지원되지 않는 장치 유형: {0}",
+    unsupported_chip_type: "지원되지 않는 칩 유형: {0}",
+    
+    // 새로 추가: 펌웨어 다운로드 프로세스 관련
+    starting_firmware_download_process: "펌웨어 다운로드 프로세스 시작 중...",
+    starting_device_download: "{0} 장치 다운로드 시작, 파일 크기: {1} 바이트",
+    firmware_download_completed_time: "펌웨어 다운로드 완료! 총 시간: {0}ms",
+    device_firmware_download_completed: "{0} 장치 펌웨어 다운로드 완료",
+    initializing_downloader: "{0} 다운로더 초기화 중...",
+    connecting_device: "{0} 장치에 연결 중...",
+    cannot_connect_device: "{0} 장치에 연결할 수 없습니다",
+    downloading_firmware_to_device: "{0} 장치에 펌웨어 다운로드 중...",
+    t5ai_firmware_download_completed: "T5AI 펌웨어 다운로드 완료",
+    firmware_download_completed_device_restarted: "펌웨어 다운로드 완료, 장치 재시작 중...",
+    serial_not_connected_connect_first: "시리얼이 연결되지 않음, 먼저 시리얼 장치를 연결하세요",
+    restoring_serial_reader_writer_failed: "시리얼 reader/writer 복원 실패",
+    cleanup_reset_baudrate: "정리: 보드레이트 재설정 중...",
+    cleanup_baudrate_reset_success: "정리: 보드레이트 재설정 성공",
+    cleanup_reset_failed: "정리: 재설정 실패",
+    flashdownloader_reset_baudrate: "FlashDownloader: 보드레이트를 115200으로 재설정 중...",
+    flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ 보드레이트를 115200으로 성공적으로 재설정",
+    flashdownloader_direct_reset_success: "FlashDownloader: ✅ 시리얼 포트 직접 재설정도 성공",
+    flashdownloader_reset_failed: "FlashDownloader: 보드레이트 재설정 실패",
+    
+    // 새로 추가: 시리얼 연결 상태 메시지
+    serial_connected_initial_switch: "초기 연결, 다음으로 전환됩니다",
+    serial_connected_initial: "초기 연결",
+    bps: "bps"
 };
 
 // 전역으로 내보내기

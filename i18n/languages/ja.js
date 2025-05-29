@@ -183,11 +183,57 @@ const ja = {
     
     // 機能ボタンと操作
     fullscreen: "フルスクリーン",
-    exit_fullscreen: "フルスクリーン終了"
+    exit_fullscreen: "フルスクリーン終了",
+    
+    // 新規: デバッグモード状態
+    debug_mode_enabled: "🔧 デバッグモード有効",
+    debug_mode_disabled: "🔧 デバッグモード無効",
+    enabled: "有効",
+    disabled: "無効",
+    
+    // 新規: ボーレートリセット関連
+    resetting_baudrate_115200: "シリアルポートのボーレートを115200にリセット中...",
+    baudrate_reset_success: "✅ シリアルポートのボーレートを115200にリセットしました",
+    direct_serial_reset_success: "✅ シリアルポートを115200に直接リセットしました",
+    baudrate_reset_failed: "シリアルポートのボーレートリセットに失敗",
+    direct_reset_failed: "シリアルポートの直接リセットも失敗",
+    
+    // 新規: ダウンローダマネージャ関連
+    downloader_manager_not_initialized: "ダウンローダマネージャが初期化されていません",
+    loaded_chip_types: "{0}種類のサポート対象チップタイプを読み込みました",
+    using_default_chip_support: "デフォルトチップサポートを使用 (T5AI)",
+    unsupported_device_type: "サポートされていないデバイスタイプ: {0}",
+    unsupported_chip_type: "サポートされていないチップタイプ: {0}",
+    
+    // 新規: ファームウェアダウンロードプロセス関連
+    starting_firmware_download_process: "ファームウェアダウンロードプロセスを開始中...",
+    starting_device_download: "{0}デバイスダウンロードを開始、ファイルサイズ: {1}バイト",
+    firmware_download_completed_time: "ファームウェアダウンロード完了! 総時間: {0}ms",
+    device_firmware_download_completed: "{0}デバイスファームウェアダウンロード完了",
+    initializing_downloader: "{0}ダウンローダを初期化中...",
+    connecting_device: "{0}デバイスに接続中...",
+    cannot_connect_device: "{0}デバイスに接続できません",
+    downloading_firmware_to_device: "{0}デバイスにファームウェアをダウンロード中...",
+    t5ai_firmware_download_completed: "T5AIファームウェアダウンロード完了",
+    firmware_download_completed_device_restarted: "ファームウェアダウンロード完了、デバイスを再起動中...",
+    serial_not_connected_connect_first: "シリアルが接続されていません、まずシリアルデバイスを接続してください",
+    restoring_serial_reader_writer_failed: "シリアルreader/writerの復元に失敗",
+    cleanup_reset_baudrate: "クリーンアップ: ボーレートをリセット中...",
+    cleanup_baudrate_reset_success: "クリーンアップ: ボーレートのリセットに成功",
+    cleanup_reset_failed: "クリーンアップ: リセットに失敗",
+    flashdownloader_reset_baudrate: "FlashDownloader: ボーレートを115200にリセット中...",
+    flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ ボーレートを115200に正常にリセット",
+    flashdownloader_direct_reset_success: "FlashDownloader: ✅ シリアルポートの直接リセットも成功",
+    flashdownloader_reset_failed: "FlashDownloader: ボーレートリセット失敗",
+    
+    // 新規: シリアル接続状態メッセージ
+    serial_connected_initial_switch: "初期接続、次に切り替えます",
+    serial_connected_initial: "初期接続",
+    bps: "bps"
 };
 
 // グローバルにエクスポート
 if (typeof window !== 'undefined') {
     window.i18nLanguages = window.i18nLanguages || {};
     window.i18nLanguages.ja = ja;
-} 
+}
