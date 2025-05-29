@@ -374,6 +374,7 @@ header p {
     align-items: center;
     gap: 15px;
     margin-bottom: 20px;
+    margin-top: 10px;
     flex-wrap: wrap;
 }
 
@@ -407,6 +408,7 @@ header p {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
+    margin-bottom: 25px;
 }
 
 .config-group {
@@ -473,6 +475,16 @@ header p {
 .btn-secondary:hover:not(:disabled) {
     background: #5a6268;
     transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .btn-success {
@@ -1936,4 +1948,256 @@ header p {
         transform: translateX(0);
         border-left-color: rgba(255, 255, 255, 0.15);
     }
+}
+
+/* 连接控制和状态显示区域 */
+.connection-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.status-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-group .status-label {
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.status-group .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-group .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e53e3e;
+    transition: all 0.3s ease;
+}
+
+.status-group .status-dot.connected {
+    background: #38a169;
+    animation: pulse 2s infinite;
+}
+
+.status-group .status-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+/* 响应式布局优化 */
+@media (max-width: 768px) {
+    .connection-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .status-group {
+        justify-content: center;
+    }
+}
+
+/* 配置参数区域样式 */
+.config-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+/* 数据显示区域样式 */
+.data-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 发送区域样式 */
+.send-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 快捷命令区域样式 */
+.quick-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 快捷命令头部样式 */
+.quick-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.quick-header h3 {
+    color: #2d3748;
+    font-size: 1.2em;
+    margin: 0;
+}
+
+/* 固件下载相关区域样式 */
+.flash-control-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: grid;
+    gap: 20px;
+}
+
+.file-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.device-selection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.progress-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.debug-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.flash-log-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.flash-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.flash-log-header h3 {
+    color: #2d3748;
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.flash-log-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.flash-log-display {
+    background: #1a202c;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 15px;
+    height: 300px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    border: 2px solid #2d3748;
+}
+
+/* 发送选项和控件样式 */
+.send-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.send-controls {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.send-controls input[type="text"] {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #e1e5e9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.send-controls input[type="text"]:focus {
+    border-color: #4f46e5;
+    outline: none;
 } 

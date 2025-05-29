@@ -106,20 +106,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="connection-controls">
-                        <button id="connectBtn" class="btn btn-primary">
-                            <span class="icon">🔗</span>
-                            <span data-i18n="connect">连接串口</span>
-                        </button>
-                        <button id="disconnectBtn" class="btn btn-secondary" disabled>
-                            <span class="icon"></span>
-                            <span data-i18n="disconnect">断开连接</span>
-                        </button>
-                        <div class="status-indicator">
-                            <span class="status-dot" id="statusDot"></span>
-                            <span id="statusText" data-i18n="status_disconnected">未连接</span>
-                        </div>
-                    </div>
 
                     <div class="serial-config">
                         <div class="config-group">
@@ -159,6 +145,21 @@
                                 <option value="even" data-i18n="parity_even">偶校验</option>
                                 <option value="odd" data-i18n="parity_odd">奇校验</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect">连接串口</span>
+                        </button>
+                        <button id="disconnectBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect">断开连接</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="statusDot"></span>
+                            <span id="statusText" data-i18n="status_disconnected">未连接</span>
                         </div>
                     </div>
                 </div>
@@ -265,20 +266,6 @@
                     <div class="control-header">
                         <h3 data-i18n="control_title">🔧 串口连接控制</h3>
                     </div>
-                    <div class="connection-controls">
-                        <button id="connectFlashBtn" class="btn btn-primary">
-                            <span class="icon">🔗</span>
-                            <span data-i18n="connect">连接串口</span>
-                        </button>
-                        <button id="disconnectFlashBtn" class="btn btn-secondary" disabled>
-                            <span class="icon"></span>
-                            <span data-i18n="disconnect">断开连接</span>
-                        </button>
-                        <div class="status-indicator">
-                            <span class="status-dot" id="flashStatusDot"></span>
-                            <span id="flashStatusText" data-i18n="status_disconnected">未连接</span>
-                        </div>
-                    </div>
 
                     <div class="serial-config">
                         <div class="config-group">
@@ -314,6 +301,21 @@
                                 <option value="even" data-i18n="parity_even">偶校验</option>
                                 <option value="odd" data-i18n="parity_odd">奇校验</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectFlashBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect">连接串口</span>
+                        </button>
+                        <button id="disconnectFlashBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect">断开连接</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="flashStatusDot"></span>
+                            <span id="flashStatusText" data-i18n="status_disconnected">未连接</span>
                         </div>
                     </div>
                 </div>
