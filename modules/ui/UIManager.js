@@ -239,6 +239,32 @@ class UIManager {
         this.eventBus.on('device:config-updated', (data) => {
             this.updateDeviceConfigUI(data);
         });
+        
+        // 快捷命令执行
+        this.eventBus.on('quick-command:execute', (command) => {
+            if (this.elements.sendInput) {
+                this.elements.sendInput.value = command.value;
+                // 如果串口已连接，自动发送
+                if (this.elements.sendBtn && !this.elements.sendBtn.disabled) {
+                    this.sendData();
+                }
+            }
+        });
+        
+        // HEX模式切换时更新占位符
+        this.eventBus.on('hex-mode:changed', () => {
+            this.updateInputPlaceholder();
+        });
+        
+        // 语言切换后更新文本
+        this.eventBus.on('language:changed', () => {
+            this.updateUITexts();
+        });
+        
+        // 文本更新请求
+        this.eventBus.on('ui:text-updated', () => {
+            this.updateUITexts();
+        });
     }
     
     /**
@@ -556,6 +582,34 @@ class UIManager {
     destroy() {
         this.elements = {};
         this.eventBus = null;
+    }
+    
+    /**
+     * 更新UI文本（语言切换后调用）
+     */
+    updateUITexts() {
+        // 更新连接状态文本
+        const isSerialConnected = this.elements.statusDot?.classList.contains('connected');
+        if (this.elements.statusText) {
+            this.elements.statusText.textContent = isSerialConnected ? 
+                i18n.t('status_connected') : i18n.t('status_disconnected');
+        }
+        
+        const isFlashConnected = this.elements.flashStatusDot?.classList.contains('connected');
+        if (this.elements.flashStatusText) {
+            this.elements.flashStatusText.textContent = isFlashConnected ? 
+                i18n.t('status_connected') : i18n.t('status_disconnected');
+        }
+        
+        // 更新输入框占位符
+        this.updateInputPlaceholder();
+        
+        // 更新文件名显示
+        if (this.elements.selectedFileName && 
+            (this.elements.selectedFileName.textContent === '未选择文件' || 
+             this.elements.selectedFileName.textContent === 'No file selected')) {
+            this.elements.selectedFileName.textContent = i18n.t('no_file_selected');
+        }
     }
 }
 

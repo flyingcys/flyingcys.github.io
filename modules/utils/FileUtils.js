@@ -5,6 +5,35 @@
 class FileUtils {
     constructor(eventBus) {
         this.eventBus = eventBus;
+        this.bindEvents();
+    }
+    
+    /**
+     * 绑定事件监听
+     */
+    bindEvents() {
+        // 监听HEX转换请求
+        this.eventBus.on('data:hex-to-bytes', (data) => {
+            try {
+                const bytes = this.hexStringToBytes(data.hexString);
+                if (data.callback && typeof data.callback === 'function') {
+                    data.callback(bytes);
+                } else {
+                    this.eventBus.emit('data:hex-converted', bytes);
+                }
+            } catch (error) {
+                this.eventBus.emit('error', error);
+            }
+        });
+        
+        // 监听文件保存请求
+        this.eventBus.on('file:save-text', (data) => {
+            this.saveTextToFile(data.content, data.filename, data.mimeType);
+        });
+        
+        this.eventBus.on('file:save-json', (data) => {
+            this.saveJsonToFile(data.data, data.filename);
+        });
     }
     
     /**

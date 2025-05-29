@@ -36,11 +36,11 @@ class SerialManager {
     
     bindEvents() {
         // 监听连接请求
-        this.eventBus.on('serial:connect', (config) => {
+        this.eventBus.on('serial:connect-request', (config) => {
             this.connectSerial(config);
         });
         
-        this.eventBus.on('serial:disconnect', () => {
+        this.eventBus.on('serial:disconnect-request', () => {
             this.disconnectSerial();
         });
         
@@ -52,14 +52,28 @@ class SerialManager {
             this.disconnectFlash();
         });
         
-        this.eventBus.on('flash:connect-independent', (config) => {
+        this.eventBus.on('flash:connect-independent-request', (config) => {
             this.connectFlashIndependent(config);
         });
         
-        this.eventBus.on('flash:disconnect-independent', () => {
+        this.eventBus.on('flash:disconnect-independent-request', () => {
             this.disconnectFlashIndependent();
         });
         
+        // 监听FlashDownloader的连接请求（新增）
+        this.eventBus.on('flash:connect-request', (baudrate) => {
+            this.connectFlash(baudrate);
+        });
+        
+        this.eventBus.on('flash:disconnect-request', () => {
+            this.disconnectFlash();
+        });
+        
+        // 监听波特率重置请求（新增）
+        this.eventBus.on('flash:reset-baudrate', async (baudrate) => {
+            await this.resetFlashBaudrate(baudrate);
+        });
+
         // 监听数据发送请求
         this.eventBus.on('serial:send', (data) => {
             this.sendSerialData(data);
@@ -306,11 +320,54 @@ class SerialManager {
 
         } catch (error) {
             this.eventBus.emit('error', {
-                type: 'flash_disconnect_independent_failed',
-                message: `固件下载独立断开连接失败: ${error.message}`,
+                type: 'flash_disconnect_failed',
+                message: `固件下载断开连接失败: ${error.message}`,
                 error
             });
             throw error;
+        }
+    }
+    
+    /**
+     * 重置固件下载串口波特率（和原始版本完全一致的逻辑）
+     */
+    async resetFlashBaudrate(baudrate = 115200) {
+        try {
+            if (this.flashPort && this.isFlashConnected) {
+                // 直接重新配置串口（与原始逻辑完全一致）
+                if (this.flashReader) {
+                    await this.flashReader.releaseLock();
+                    this.flashReader = null;
+                }
+                if (this.flashWriter) {
+                    await this.flashWriter.releaseLock();
+                    this.flashWriter = null;
+                }
+                
+                await this.flashPort.close();
+                await this.flashPort.open({
+                    baudRate: baudrate,
+                    dataBits: 8,
+                    stopBits: 1,
+                    parity: 'none'
+                });
+                
+                this.flashReader = this.flashPort.readable.getReader();
+                this.flashWriter = this.flashPort.writable.getWriter();
+                
+                this.eventBus.emit('flash:log-add', {
+                    message: i18n.t('direct_serial_reset_success'),
+                    type: 'info',
+                    isMainProcess: true
+                });
+            }
+        } catch (resetError) {
+            this.eventBus.emit('flash:log-add', {
+                message: i18n.t('baudrate_reset_failed') + ': ' + resetError.message,
+                type: 'warning',
+                isMainProcess: true
+            });
+            throw resetError;
         }
     }
     

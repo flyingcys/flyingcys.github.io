@@ -56,13 +56,6 @@ window.ANSI_BG_COLORS = {
     '107': '#808080'  // 亮白色背景
 };
 
-// 默认快捷命令
-window.DEFAULT_QUICK_COMMANDS = [
-    { name: 'AT', value: 'AT' },
-    { name: 'Help', value: 'help' },
-    { name: 'Reboot', value: 'reboot' }
-];
-
 // 语言数据配置
 window.LANGUAGE_CONFIG = {
     'zh': { flag: '🇨🇳', name: '简体中文' },
@@ -87,7 +80,33 @@ window.APP_CONFIG = {
     HEX_MODE_DEFAULT: false,
     ADD_NEWLINE_DEFAULT: true,
     FLASH_DEBUG_MODE_DEFAULT: false,
-    FLASH_AUTO_SCROLL_DEFAULT: true
+    FLASH_AUTO_SCROLL_DEFAULT: true,
+    DEVICE_CONFIGS: window.DEVICE_BAUDRATE_CONFIG,
+    ANSI_COLORS: window.ANSI_COLORS,
+    ANSI_BG_COLORS: window.ANSI_BG_COLORS,
+    BAUD_RATES: window.DEVICE_BAUDRATE_CONFIG,
+    DATA_BITS_OPTIONS: {
+        '5': { name: '5 Data Bits' },
+        '6': { name: '6 Data Bits' },
+        '7': { name: '7 Data Bits' },
+        '8': { name: '8 Data Bits' }
+    },
+    STOP_BITS_OPTIONS: {
+        '1': { name: '1 Stop Bit' },
+        '1.5': { name: '1.5 Stop Bits' },
+        '2': { name: '2 Stop Bits' }
+    },
+    PARITY_OPTIONS: {
+        'N': { name: 'None' },
+        'O': { name: 'Odd' },
+        'E': { name: 'Even' },
+        'M': { name: 'Mark' },
+        'S': { name: 'Space' }
+    },
+    LANGUAGE_CONFIG: window.LANGUAGE_CONFIG,
+    DEFAULT_QUICK_COMMANDS: [
+        { name: 'AT', value: 'AT' }
+    ]
 };
 
-console.log('📋 配置常量已加载'); 
+console.log('📋 应用配置加载完成'); 
