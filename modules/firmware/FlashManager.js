@@ -139,6 +139,13 @@ class FlashManager {
             // 提供固件下载连接状态
             isFlashConnected: this.isFlashConnected.bind(this),
             
+            // 提供波特率配置访问（新增）
+            flashBaudRateSelect: {
+                get value() {
+                    return document.getElementById('flashBaudRate')?.value || '921600';
+                }
+            },
+            
             // 提供事件总线访问（为了兼容性）
             eventBus: this.eventBus
         };
