@@ -243,7 +243,10 @@ const en = {
     console_filtered_null_chars: "Filtered {0} 0x00 characters",
     console_language_switched: "Language switched to:",
     console_language_display_updated: "Language display updated to:",
-    console_serial_target_device: "Serial target device selection:"
+    console_serial_target_device: "Serial target device selection:",
+    
+    // Serial disconnection handling
+    serial_disconnected_unexpectedly: "Serial connection unexpectedly disconnected: {0}"
 };
 
 // Export to global

@@ -268,7 +268,10 @@ const zh = {
     console_language_ui_initialized: "Language UI initialized for:",
     console_language_switched: "语言已切换到:",
     console_language_display_updated: "语言显示已更新为:",
-    console_serial_target_device: "串口目标设备选择:"
+    console_serial_target_device: "串口目标设备选择:",
+    
+    // 串口异常处理相关
+    serial_disconnected_unexpectedly: "串口连接异常断开: {0}"
 };
 
 // 导出到全局

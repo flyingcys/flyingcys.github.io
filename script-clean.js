@@ -762,7 +762,22 @@ class SerialTerminal {
         } catch (error) {
             if (error.name !== 'AbortError') {
                 console.error('读取数据错误:', error);
-                this.showError(i18n.t('read_error', error.message));
+                
+                // 检测串口异常断开的情况
+                const isPortDisconnected = 
+                    error.name === 'NetworkError' || 
+                    error.message.includes('device has been lost') ||
+                    error.message.includes('device not found') ||
+                    error.message.includes('not open') ||
+                    !this.serialPort?.readable;
+                
+                if (isPortDisconnected) {
+                    // 串口异常断开，自动重置状态
+                    this.handleSerialDisconnection(error);
+                } else {
+                    // 其他读取错误
+                    this.showError(i18n.t('read_error', error.message));
+                }
             }
         }
     }
@@ -2102,6 +2117,122 @@ class SerialTerminal {
             console.log(i18n.t('console_serial_target_device'), `${selectedDevice}, ${i18n.t('baud_rate')} ${config.baudrate}, 配置锁定: ${isReadonly}`);
         }
     }
+
+    // 处理串口异常断开
+    async handleSerialDisconnection(error) {
+        console.warn('检测到串口异常断开:', error.message);
+        
+        // 添加系统消息显示断开原因
+        this.addToDisplay(i18n.t('serial_disconnected_unexpectedly', error.message), 'system error');
+        
+        // 清理连接状态和资源
+        await this.cleanupSerialConnection();
+        
+        // 显示用户友好的恢复提示
+        this.showSerialRecoveryDialog();
+    }
+
+    // 清理串口连接状态和资源
+    async cleanupSerialConnection() {
+        try {
+            // 清理读取器
+            if (this.serialReader) {
+                try {
+                    await this.serialReader.cancel();
+                } catch (e) {
+                    // 忽略取消时的错误
+                }
+                try {
+                    await this.serialReader.releaseLock();
+                } catch (e) {
+                    // 忽略释放锁时的错误
+                }
+                this.serialReader = null;
+            }
+
+            // 清理写入器
+            if (this.serialWriter) {
+                try {
+                    await this.serialWriter.releaseLock();
+                } catch (e) {
+                    // 忽略释放锁时的错误
+                }
+                this.serialWriter = null;
+            }
+
+            // 重置串口对象
+            this.serialPort = null;
+            
+            // 重置连接状态
+            this.updateSerialConnectionStatus(false);
+            
+            console.log('串口连接状态已清理完成');
+            
+        } catch (error) {
+            console.error('清理串口连接时出错:', error);
+        }
+    }
+
+    // 显示串口恢复对话框
+    showSerialRecoveryDialog() {
+        const isZh = i18n.getCurrentLanguage().startsWith('zh');
+        const title = isZh ? '⚠️ 串口连接异常' : '⚠️ Serial Connection Error';
+        const message = isZh 
+            ? '串口设备已断开或被移除。\n\n可能的原因：\n• USB连接断开\n• 设备被拔出\n• 驱动程序问题\n\n请检查设备连接后重新连接串口。'
+            : 'Serial device has been disconnected or removed.\n\nPossible causes:\n• USB connection lost\n• Device unplugged\n• Driver issues\n\nPlease check device connection and reconnect the serial port.';
+        
+        const reconnectText = isZh ? '重新连接' : 'Reconnect';
+        const cancelText = isZh ? '取消' : 'Cancel';
+        
+        // 创建自定义对话框
+        if (this.recoveryDialog) {
+            document.body.removeChild(this.recoveryDialog);
+        }
+        
+        this.recoveryDialog = document.createElement('div');
+        this.recoveryDialog.className = 'recovery-dialog-overlay';
+        this.recoveryDialog.innerHTML = `
+            <div class="recovery-dialog">
+                <div class="recovery-dialog-header">
+                    <h3>${title}</h3>
+                </div>
+                <div class="recovery-dialog-body">
+                    <p>${message.replace(/\n/g, '<br>')}</p>
+                </div>
+                <div class="recovery-dialog-actions">
+                    <button class="btn btn-primary" id="recoveryReconnect">${reconnectText}</button>
+                    <button class="btn btn-secondary" id="recoveryCancel">${cancelText}</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(this.recoveryDialog);
+        
+        // 绑定事件
+        document.getElementById('recoveryReconnect').onclick = () => {
+            this.closeRecoveryDialog();
+            this.connectSerial(); // 尝试重新连接
+        };
+        
+        document.getElementById('recoveryCancel').onclick = () => {
+            this.closeRecoveryDialog();
+        };
+        
+        // 点击背景关闭
+        this.recoveryDialog.onclick = (e) => {
+            if (e.target === this.recoveryDialog) {
+                this.closeRecoveryDialog();
+            }
+        };
+    }
+
+    // 关闭恢复对话框
+    closeRecoveryDialog() {
+        if (this.recoveryDialog) {
+            document.body.removeChild(this.recoveryDialog);
+            this.recoveryDialog = null;
+        }
+    }
 }
 
-// 注意：SerialTerminal现在由HTML中的DOMContentLoaded事件处理器初始化，确保多语言系统先就绪 
+// 注意：SerialTerminal现在由HTML中的DOMContentLoaded事件处理器初始化，确保多语言系统先就绪
