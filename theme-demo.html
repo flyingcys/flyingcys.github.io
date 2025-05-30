@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色彩主题展示 - Color Theme Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .theme-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .theme-selector h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .theme-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-warm {
+            background: linear-gradient(135deg, #ff6b4a, #ee5a24);
+        }
+
+        .btn-nature {
+            background: linear-gradient(135deg, #26a69a, #00695c);
+        }
+
+        .btn-dark {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+        }
+
+        .btn-rose {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        .btn-original {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .demo-frame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .description {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .theme-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .theme-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 80px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preview-warm {
+            background: linear-gradient(135deg, #ff6b4a, #ee5a24);
+        }
+
+        .preview-nature {
+            background: linear-gradient(135deg, #26a69a, #00695c);
+        }
+
+        .preview-dark {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+
+        .preview-rose {
+            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+        }
+
+        .preview-original {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-selector">
+        <h1>🎨 色彩主题展示</h1>
+        <p style="color: #666; margin-bottom: 20px;">点击下面的按钮切换不同的色彩主题</p>
+        
+        <div class="theme-buttons">
+            <button class="theme-btn btn-original" onclick="loadTheme('original')">
+                🔵 原始蓝紫色
+            </button>
+            <button class="theme-btn btn-warm" onclick="loadTheme('warm')">
+                🧡 橙红暖色调
+            </button>
+            <button class="theme-btn btn-nature" onclick="loadTheme('nature')">
+                🟢 翠绿自然系
+            </button>
+            <button class="theme-btn btn-dark" onclick="loadTheme('dark')">
+                🌙 深邃夜空色
+            </button>
+            <button class="theme-btn btn-rose" onclick="loadTheme('rose')">
+                🌹 玫瑰金优雅系
+            </button>
+        </div>
+    </div>
+
+    <iframe id="demoFrame" class="demo-frame" src="index.html"></iframe>
+
+    <div class="description">
+        <p>当前显示的是您的原始页面效果。选择不同主题查看变化！</p>
+    </div>
+
+    <div class="theme-info">
+        <div class="theme-card">
+            <div class="theme-preview preview-original"></div>
+            <h3>🔵 原始蓝紫色</h3>
+            <p>经典的蓝紫色渐变，现代感十足，给人专业稳重的感觉</p>
+        </div>
+
+        <div class="theme-card">
+            <div class="theme-preview preview-warm"></div>
+            <h3>🧡 橙红暖色调</h3>
+            <p>温暖的橙红色系，充满活力和热情，适合创意类应用</p>
+        </div>
+
+        <div class="theme-card">
+            <div class="theme-preview preview-nature"></div>
+            <h3>🟢 翠绿自然系</h3>
+            <p>清新的绿色调，带来自然和谐的感觉，护眼且舒适</p>
+        </div>
+
+        <div class="theme-card">
+            <div class="theme-preview preview-dark"></div>
+            <h3>🌙 深邃夜空色</h3>
+            <p>深色主题，减少眼部疲劳，适合长时间使用</p>
+        </div>
+
+        <div class="theme-card">
+            <div class="theme-preview preview-rose"></div>
+            <h3>🌹 玫瑰金优雅系</h3>
+            <p>优雅的玫瑰金色，温柔精致，带来高端奢华的视觉体验</p>
+        </div>
+    </div>
+
+    <script>
+        function loadTheme(theme) {
+            const frame = document.getElementById('demoFrame');
+            const description = document.querySelector('.description p');
+            
+            switch(theme) {
+                case 'original':
+                    frame.src = 'index.html';
+                    description.textContent = '当前显示：原始蓝紫色主题 - 经典专业的设计风格';
+                    break;
+                case 'warm':
+                    frame.src = 'demo-warm.html';
+                    description.textContent = '当前显示：橙红暖色调主题 - 充满活力和热情的设计';
+                    break;
+                case 'nature':
+                    frame.src = 'demo-nature.html';
+                    description.textContent = '当前显示：翠绿自然系主题 - 清新自然的护眼设计';
+                    break;
+                case 'dark':
+                    frame.src = 'demo-dark.html';
+                    description.textContent = '当前显示：深邃夜空色主题 - 适合夜间使用的暗色设计';
+                    break;
+                case 'rose':
+                    frame.src = 'demo-rose.html';
+                    description.textContent = '当前显示：玫瑰金优雅系主题 - 温柔精致的高端设计';
+                    break;
+            }
+        }
+
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        loadTheme('original');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        loadTheme('warm');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        loadTheme('nature');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        loadTheme('dark');
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        loadTheme('rose');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

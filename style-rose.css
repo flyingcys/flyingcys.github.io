@@ -1,0 +1,198 @@
+/* 优雅主题 - 玫瑰金色系 */
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    min-height: 100vh;
+    color: #374151;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 头部样式 */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #9d174d;
+    position: relative;
+}
+
+.header-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.language-switcher {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.lang-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.lang-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(244, 114, 182, 0.15);
+    border: 2px solid rgba(244, 114, 182, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    color: #9d174d;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 100px;
+}
+
+.lang-dropdown-btn:hover {
+    background: rgba(244, 114, 182, 0.25);
+    border-color: rgba(244, 114, 182, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 114, 182, 0.2);
+}
+
+/* 主要元素色彩 */
+.card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(244, 114, 182, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(244, 114, 182, 0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ec4899, #be185d);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #db2777, #9d174d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #f472b6, #e879f9);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #ec4899, #d946ef);
+    transform: translateY(-1px);
+}
+
+.status-success {
+    color: #065f46;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #10b981;
+}
+
+.status-error {
+    color: #991b1b;
+    background: linear-gradient(135deg, #fecaca, #fca5a5);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #ef4444;
+}
+
+.progress-bar {
+    background: #fce7f3;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #ec4899, #be185d);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+/* 输入框样式 */
+input[type="text"], input[type="number"], select, textarea {
+    border: 2px solid #f8bbd9;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #ec4899;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+/* 标签和文本 */
+.label-primary {
+    color: #9d174d;
+    font-weight: 600;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+
+.text-accent {
+    color: #ec4899;
+    font-weight: 500;
+}
+
+/* 链接样式 */
+a {
+    color: #ec4899;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #be185d;
+    text-decoration: underline;
+}
+
+/* 卡片阴影效果 */
+.card-elevated {
+    box-shadow: 0 12px 40px rgba(244, 114, 182, 0.15);
+}
+
+/* 高亮元素 */
+.highlight {
+    background: linear-gradient(135deg, #fce7f3, #f8bbd9);
+    border-left: 4px solid #ec4899;
+    padding: 16px;
+    border-radius: 0 8px 8px 0;
+} 
