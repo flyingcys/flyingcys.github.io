@@ -7,7 +7,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #26a69a 0%, #00695c 100%);
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);          /* 蓝紫色 */
+    background: linear-gradient(135deg, #26a69a 0%, #00695c 100%);          /* 翠绿色 */
+    /* background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1e 100%);  深邃夜空 */
     min-height: 100vh;
     color: #333;
 }
