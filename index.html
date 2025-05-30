@@ -73,6 +73,7 @@
             </div>
             <h1 data-i18n="title">TuyaOpen串口工具(内测版)</h1>
             <p data-i18n="subtitle">基于Chrome Web Serial API的一站式开发者工具</p>
+            <p class="system-info-subtitle" id="systemInfoSubtitle">加载中...</p>
         </header>
 
         <!-- Tab导航 -->
@@ -412,15 +413,6 @@
                         <div class="placeholder" data-i18n="waiting_download">等待下载操作...</div>
                     </div>
                 </div>
-                
-                <!-- 测试版本说明 -->
-                <div class="beta-notice">
-                    <div class="beta-content">
-                        <span class="beta-icon">🧪</span>
-                        <span class="beta-text" data-i18n="beta_notice">当前功能属于测试版本，遇到问题请通过提交issue到</span>
-                        <a href="https://github.com/Tuya-Community/TuyaOpen-Tools" target="_blank" class="beta-link" data-i18n="repository_link">TuyaOpen-Tools 仓库</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -547,6 +539,8 @@
         </div>
     </div>
 
+    <script src="i18n/i18n.js"></script>
+    
     <!-- 多语言配置文件 -->
     <script src="i18n/loader.js"></script>
     
@@ -571,6 +565,9 @@
                 if (!window.serialTerminal) {
                     window.serialTerminal = new SerialTerminal();
                     console.log('串口终端初始化完成');
+                    
+                    // 初始化后立即显示系统信息
+                    window.serialTerminal.updateSystemInfoDisplay();
                 }
             } catch (error) {
                 console.error('系统初始化失败:', error);

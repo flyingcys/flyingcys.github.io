@@ -229,7 +229,16 @@ const zhTw = {
     // 新增：串口連接狀態訊息
     serial_connected_initial_switch: "初始連接，將切換到",
     serial_connected_initial: "初始連接",
-    bps: "bps"
+    bps: "bps",
+    
+    // 系統信息相關
+    system_info: "系統信息",
+    system_info_os: "操作系統",
+    system_info_browser: "瀏覽器",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "平台",
+    system_info_supported: "支持",
+    system_info_not_supported: "不支持"
 };
 
 // 導出到全局

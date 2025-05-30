@@ -246,7 +246,16 @@ const en = {
     console_serial_target_device: "Serial target device selection:",
     
     // Serial disconnection handling
-    serial_disconnected_unexpectedly: "Serial connection unexpectedly disconnected: {0}"
+    serial_disconnected_unexpectedly: "Serial connection unexpectedly disconnected: {0}",
+    
+    // System information
+    system_info: "System Info",
+    system_info_os: "OS",
+    system_info_browser: "Browser",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "Platform",
+    system_info_supported: "Supported",
+    system_info_not_supported: "Not Supported"
 };
 
 // Export to global

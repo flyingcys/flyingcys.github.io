@@ -424,6 +424,9 @@ class SerialTerminal {
 
             this.addToDisplay(i18n.t('serial_connected'), 'system');
             
+            // 添加系统信息到日志
+            this.addSystemInfoToLog('serial');
+            
             // 调试信息：明确这是串口调试的连接
             console.log('串口调试连接成功，固件下载连接状态:', this.isFlashConnected);
 
@@ -599,10 +602,14 @@ class SerialTerminal {
             this.updateFlashConnectionStatus(true);
             
             // 添加日志 - 显示初始连接波特率
-            this.addToFlashLog(i18n.t('serial_connected') + ` (${initialOptions.baudRate} ${i18n.t('bps')} - ${i18n.t('serial_connected_initial')})`, 'info');
+            this.addToFlashLog(i18n.t('serial_connected'), 'success');
+            this.addToFlashLog(`初始连接波特率: ${initialOptions.baudRate} bps`, 'info');
+            
+            // 添加系统信息到固件下载日志
+            this.addSystemInfoToLog('flash');
             
             // 调试信息：明确这是固件下载的独立连接
-            console.log(i18n.t('console_flash_independent_success'), this.isSerialConnected);
+            console.log('固件下载独立连接成功，串口调试连接状态:', this.isSerialConnected);
             
             return { reader: this.flashReader, writer: this.flashWriter, port: this.flashPort };
 
@@ -1887,6 +1894,9 @@ class SerialTerminal {
                 // 更新各种占位符文本
                 this.updatePlaceholderTexts();
                 
+                // 更新系统信息显示
+                this.updateSystemInfoDisplay();
+                
                 console.log(i18n.t('console_language_switched'), lang);
             } else {
                 console.error(`语言切换失败: ${lang}`);
@@ -2376,6 +2386,125 @@ class SerialTerminal {
         if (this.flashRecoveryDialog) {
             document.body.removeChild(this.flashRecoveryDialog);
             this.flashRecoveryDialog = null;
+        }
+    }
+
+    // 获取系统信息
+    getSystemInfo() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        
+        // 解析操作系统
+        let os = 'Unknown';
+        if (userAgent.indexOf('Windows') !== -1) {
+            os = 'Windows';
+            if (userAgent.indexOf('Windows NT 10.0') !== -1) os = 'Windows 10/11';
+            else if (userAgent.indexOf('Windows NT 6.3') !== -1) os = 'Windows 8.1';
+            else if (userAgent.indexOf('Windows NT 6.2') !== -1) os = 'Windows 8';
+            else if (userAgent.indexOf('Windows NT 6.1') !== -1) os = 'Windows 7';
+        } else if (userAgent.indexOf('Mac') !== -1) {
+            os = 'macOS';
+            const macMatch = userAgent.match(/Mac OS X ([0-9_]+)/);
+            if (macMatch) {
+                const version = macMatch[1].replace(/_/g, '.');
+                os = `macOS ${version}`;
+            }
+        } else if (userAgent.indexOf('Linux') !== -1) {
+            os = 'Linux';
+            if (userAgent.indexOf('Ubuntu') !== -1) os = 'Ubuntu Linux';
+            else if (userAgent.indexOf('CentOS') !== -1) os = 'CentOS Linux';
+            else if (userAgent.indexOf('Fedora') !== -1) os = 'Fedora Linux';
+        } else if (userAgent.indexOf('Android') !== -1) {
+            os = 'Android';
+        }
+
+        // 解析浏览器版本
+        let browser = 'Unknown';
+        let browserVersion = '';
+        
+        if (userAgent.indexOf('Chrome') !== -1 && userAgent.indexOf('Edg') === -1) {
+            browser = 'Chrome';
+            const chromeMatch = userAgent.match(/Chrome\/([0-9.]+)/);
+            if (chromeMatch) browserVersion = chromeMatch[1];
+        } else if (userAgent.indexOf('Edg') !== -1) {
+            browser = 'Edge';
+            const edgeMatch = userAgent.match(/Edg\/([0-9.]+)/);
+            if (edgeMatch) browserVersion = edgeMatch[1];
+        } else if (userAgent.indexOf('Firefox') !== -1) {
+            browser = 'Firefox';
+            const firefoxMatch = userAgent.match(/Firefox\/([0-9.]+)/);
+            if (firefoxMatch) browserVersion = firefoxMatch[1];
+        } else if (userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1) {
+            browser = 'Safari';
+            const safariMatch = userAgent.match(/Version\/([0-9.]+)/);
+            if (safariMatch) browserVersion = safariMatch[1];
+        }
+
+        // Web Serial API 支持检测
+        const webSerialSupport = 'serial' in navigator;
+        
+        return {
+            os,
+            platform,
+            browser,
+            browserVersion,
+            browserString: browserVersion ? `${browser} ${browserVersion}` : browser,
+            webSerialSupport,
+            userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href
+        };
+    }
+
+    // 格式化系统信息为字符串
+    formatSystemInfo() {
+        const info = this.getSystemInfo();
+        const osText = i18n.t('system_info_os') || '操作系统';
+        const browserText = i18n.t('system_info_browser') || '浏览器';
+        const webSerialText = i18n.t('system_info_web_serial') || 'Web Serial';
+        const platformText = i18n.t('system_info_platform') || '平台';
+        const supportedText = i18n.t('system_info_supported') || '支持';
+        const notSupportedText = i18n.t('system_info_not_supported') || '不支持';
+        
+        return `${osText}: ${info.os} | ${browserText}: ${info.browserString} | ${webSerialText}: ${info.webSerialSupport ? supportedText : notSupportedText} | ${platformText}: ${info.platform}`;
+    }
+
+    // 添加系统信息到日志
+    addSystemInfoToLog(logType = 'serial') {
+        const info = this.getSystemInfo();
+        const timestamp = this.generateTimestamp();
+        
+        const systemInfoLines = [
+            `=== 系统环境信息 ===`,
+            `时间: ${timestamp}`,
+            `操作系统: ${info.os}`,
+            `浏览器: ${info.browserString}`,
+            `Web Serial API: ${info.webSerialSupport ? '✅ 支持' : '❌ 不支持'}`,
+            `平台架构: ${info.platform}`,
+            `页面地址: ${info.url}`,
+            `User Agent: ${info.userAgent}`,
+            `=====================`
+        ];
+
+        if (logType === 'serial') {
+            // 添加到串口调试日志
+            systemInfoLines.forEach(line => {
+                this.addToDisplay(line, 'system');
+            });
+        } else if (logType === 'flash') {
+            // 添加到固件下载日志
+            systemInfoLines.forEach(line => {
+                this.addToFlashLog(line, 'system');
+            });
+        }
+    }
+
+    // 更新系统信息显示
+    updateSystemInfoDisplay() {
+        const subtitleElement = document.getElementById('systemInfoSubtitle');
+        if (subtitleElement) {
+            const info = this.formatSystemInfo();
+            subtitleElement.textContent = info;
         }
     }
 }

@@ -229,7 +229,16 @@ const ja = {
     // 新規: シリアル接続状態メッセージ
     serial_connected_initial_switch: "初期接続、次に切り替えます",
     serial_connected_initial: "初期接続",
-    bps: "bps"
+    bps: "bps",
+    
+    // システム情報関連
+    system_info: "システム情報",
+    system_info_os: "OS",
+    system_info_browser: "ブラウザ",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "プラットフォーム",
+    system_info_supported: "サポート",
+    system_info_not_supported: "非サポート"
 };
 
 // グローバルにエクスポート

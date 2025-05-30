@@ -229,7 +229,16 @@ const es = {
     // Nuevo: Mensajes de estado de conexión serie
     serial_connected_initial_switch: "conexión inicial, cambiará a",
     serial_connected_initial: "conexión inicial",
-    bps: "bps"
+    bps: "bps",
+    
+    // Información del sistema
+    system_info: "Info del Sistema",
+    system_info_os: "Sistema Operativo",
+    system_info_browser: "Navegador",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "Plataforma",
+    system_info_supported: "Soportado",
+    system_info_not_supported: "No soportado"
 };
 
 // Exportar a global

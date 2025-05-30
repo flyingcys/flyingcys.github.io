@@ -229,7 +229,16 @@ const de = {
     // Neu: Serial-Verbindungsstatusmeldungen
     serial_connected_initial_switch: "Erste Verbindung, wird gewechselt zu",
     serial_connected_initial: "Erste Verbindung",
-    bps: "bps"
+    bps: "bps",
+    
+    // Systeminformationen
+    system_info: "System Info",
+    system_info_os: "Betriebssystem",
+    system_info_browser: "Browser",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "Plattform",
+    system_info_supported: "Unterstützt",
+    system_info_not_supported: "Nicht unterstützt"
 };
 
 // In globalen Bereich exportieren

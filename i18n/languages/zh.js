@@ -271,7 +271,16 @@ const zh = {
     console_serial_target_device: "串口目标设备选择:",
     
     // 串口异常处理相关
-    serial_disconnected_unexpectedly: "串口连接异常断开: {0}"
+    serial_disconnected_unexpectedly: "串口连接异常断开: {0}",
+    
+    // 系统信息相关
+    system_info: "系统信息",
+    system_info_os: "操作系统",
+    system_info_browser: "浏览器",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "平台",
+    system_info_supported: "支持",
+    system_info_not_supported: "不支持"
 };
 
 // 导出到全局

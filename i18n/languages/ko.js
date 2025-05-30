@@ -229,7 +229,16 @@ const ko = {
     // 새로 추가: 시리얼 연결 상태 메시지
     serial_connected_initial_switch: "초기 연결, 다음으로 전환됩니다",
     serial_connected_initial: "초기 연결",
-    bps: "bps"
+    bps: "bps",
+    
+    // 시스템 정보 관련
+    system_info: "시스템 정보",
+    system_info_os: "운영체제",
+    system_info_browser: "브라우저",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "플랫폼",
+    system_info_supported: "지원됨",
+    system_info_not_supported: "지원되지 않음"
 };
 
 // 전역으로 내보내기

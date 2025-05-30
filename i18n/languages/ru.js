@@ -229,7 +229,16 @@ const ru = {
     // Новое: Сообщения о состоянии последовательного подключения
     serial_connected_initial_switch: "первоначальное подключение, переключится на",
     serial_connected_initial: "первоначальное подключение",
-    bps: "bps"
+    bps: "bps",
+    
+    // Системная информация
+    system_info: "Системная Информация",
+    system_info_os: "ОС",
+    system_info_browser: "Браузер",
+    system_info_web_serial: "Web Serial",
+    system_info_platform: "Платформа",
+    system_info_supported: "Поддерживается",
+    system_info_not_supported: "Не поддерживается"
 };
 
 // Экспорт в глобальную область
