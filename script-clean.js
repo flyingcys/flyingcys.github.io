@@ -1308,6 +1308,11 @@ class SerialTerminal {
 
     hideError() {
         this.errorModal.style.display = 'none';
+        
+        // 如果当前在固件下载Tab且进度区域可见，清零进度条
+        if (this.currentTab === 'flash' && this.progressArea && this.progressArea.style.display === 'block') {
+            this.resetFlashProgress();
+        }
     }
 
     // 初始化Tab功能
@@ -1447,14 +1452,20 @@ class SerialTerminal {
             if (this.isFlashPortDisconnectionError(error)) {
                 // 串口异常断开，清理固件下载连接状态
                 await this.cleanupFlashConnection();
+                
+                // 重置按钮状态（因为连接已断开）
+                this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
+                this.stopDownloadBtn.disabled = true;
+                
                 // 显示固件下载恢复对话框
                 this.showFlashRecoveryDialog(error);
-                return;
+                return; // 早期返回，避免执行finally块
             }
             
             this.addToFlashLog(i18n.t('download_failed', error.message), 'error');
             this.showError(i18n.t('download_failed', error.message));
         } finally {
+            // 只有在非异常断开的情况下才执行finally逻辑
             this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
             this.stopDownloadBtn.disabled = true;
         }
@@ -1528,6 +1539,42 @@ class SerialTerminal {
 
         // 添加到日志
         this.addToFlashLog(detail.message, 'progress');
+    }
+
+    // 重置固件下载进度条
+    resetFlashProgress() {
+        // 隐藏进度区域
+        if (this.progressArea) {
+            this.progressArea.style.display = 'none';
+        }
+        
+        // 重置进度文本和百分比
+        if (this.progressText) {
+            this.progressText.textContent = '';
+        }
+        if (this.progressPercent) {
+            this.progressPercent.textContent = '0%';
+        }
+        
+        // 重置进度条填充
+        if (this.progressFill) {
+            this.progressFill.style.width = '0%';
+        }
+        
+        // 重置字节数显示
+        if (this.downloadedBytes) {
+            this.downloadedBytes.textContent = '0';
+        }
+        if (this.totalBytes) {
+            this.totalBytes.textContent = '0';
+        }
+        
+        // 重置下载速度
+        if (this.downloadSpeed) {
+            this.downloadSpeed.textContent = '0 KB/s';
+        }
+        
+        console.log('固件下载进度条已重置');
     }
 
     // 添加到固件下载日志
@@ -2275,6 +2322,11 @@ class SerialTerminal {
             document.body.removeChild(this.recoveryDialog);
             this.recoveryDialog = null;
         }
+        
+        // 如果当前在固件下载Tab且进度区域可见，清零进度条
+        if (this.currentTab === 'flash' && this.progressArea && this.progressArea.style.display === 'block') {
+            this.resetFlashProgress();
+        }
     }
 
     // 检测固件下载串口异常断开
@@ -2386,6 +2438,11 @@ class SerialTerminal {
         if (this.flashRecoveryDialog) {
             document.body.removeChild(this.flashRecoveryDialog);
             this.flashRecoveryDialog = null;
+        }
+        
+        // 固件下载恢复对话框关闭时，总是重置进度条
+        if (this.progressArea && this.progressArea.style.display === 'block') {
+            this.resetFlashProgress();
         }
     }
 
