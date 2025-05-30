@@ -137,7 +137,11 @@ class T5Downloader extends BaseDownloader {
                 if (done || !value || value.length === 0) break;
             }
         } catch (error) {
-            // 忽略
+            // 检查是否为串口异常断开
+            if (this.isPortDisconnectionError(error)) {
+                throw new Error('设备连接已断开，请检查USB连接后重试');
+            }
+            // 其他错误忽略
         } finally {
             if (reader) {
                 try { reader.releaseLock(); } catch (e) {}
@@ -222,6 +226,10 @@ class T5Downloader extends BaseDownloader {
                         }
                     }
                 } catch (error) {
+                    // 检查是否为串口异常断开
+                    if (this.isPortDisconnectionError(error)) {
+                        throw new Error('设备连接已断开，请检查USB连接后重试');
+                    }
                     this.debugLog(`读取错误: ${error.message}`);
                     // Python在读取错误时会继续尝试，直到超时
                     await new Promise(resolve => setTimeout(resolve, 1));
@@ -1073,6 +1081,10 @@ class T5Downloader extends BaseDownloader {
                         this.debug('warning', `读取寄存器${tmpReg}响应长度不足: ${response.length} < ${expectedLength}，重试...`);
                     }
                 } catch (error) {
+                    // 检查是否为串口异常断开
+                    if (this.isPortDisconnectionError(error)) {
+                        throw new Error('设备连接已断开，请检查USB连接后重试');
+                    }
                     this.debug('warning', `读取寄存器${tmpReg}失败: ${error.message}，重试...`);
                 }
             }
@@ -1139,6 +1151,10 @@ class T5Downloader extends BaseDownloader {
                         this.debug('warning', `写入寄存器${regAddr}响应长度不足: ${response.length} < ${expectedLength}，重试...`);
                     }
                 } catch (error) {
+                    // 检查是否为串口异常断开
+                    if (this.isPortDisconnectionError(error)) {
+                        throw new Error('设备连接已断开，请检查USB连接后重试');
+                    }
                     this.debug('warning', `写入寄存器${regAddr}失败: ${error.message}，重试...`);
                 }
                 
@@ -1194,6 +1210,10 @@ class T5Downloader extends BaseDownloader {
                             this.debug('warning', `写入寄存器${regAddr}响应长度不足: ${response.length} < ${expectedLength}，重试...`);
                         }
                     } catch (error) {
+                        // 检查是否为串口异常断开
+                        if (this.isPortDisconnectionError(error)) {
+                            throw new Error('设备连接已断开，请检查USB连接后重试');
+                        }
                         this.debug('warning', `写入寄存器${regAddr}失败: ${error.message}，重试...`);
                     }
                     

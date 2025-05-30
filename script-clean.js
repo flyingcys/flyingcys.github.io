@@ -429,6 +429,14 @@ class SerialTerminal {
 
         } catch (error) {
             console.error('串口调试连接失败:', error);
+            
+            // 检查是否为用户取消选择端口
+            if (error.message && error.message.includes('No port selected by the user')) {
+                // 用户取消了端口选择，不显示错误提示，这是正常操作
+                console.log('用户取消了串口端口选择');
+                return;
+            }
+            
             this.showError(i18n.t('connect_failed', error.message));
         }
     }
@@ -514,6 +522,14 @@ class SerialTerminal {
 
         } catch (error) {
             console.error(i18n.t('console_flash_connect_failed'), error);
+            
+            // 检查是否为用户取消选择端口
+            if (error.message && error.message.includes('No port selected by the user')) {
+                // 用户取消了端口选择，不显示错误提示，这是正常操作
+                console.log('用户取消了固件下载串口端口选择');
+                throw error; // 仍然抛出错误以保持函数行为一致
+            }
+            
             this.showError(i18n.t('connect_failed', error.message));
             throw error;
         }
@@ -592,6 +608,14 @@ class SerialTerminal {
 
         } catch (error) {
             console.error('固件下载连接失败:', error);
+            
+            // 检查是否为用户取消选择端口
+            if (error.message && error.message.includes('No port selected by the user')) {
+                // 用户取消了端口选择，不显示错误提示，这是正常操作
+                console.log('用户取消了固件下载串口端口选择');
+                return;
+            }
+            
             this.showError(i18n.t('connect_failed', error.message));
             throw error;
         }
@@ -1412,6 +1436,15 @@ class SerialTerminal {
             this.addToFlashLog(i18n.t('download_complete'), 'success');
 
         } catch (error) {
+            // 检查是否为串口异常断开
+            if (this.isFlashPortDisconnectionError(error)) {
+                // 串口异常断开，清理固件下载连接状态
+                await this.cleanupFlashConnection();
+                // 显示固件下载恢复对话框
+                this.showFlashRecoveryDialog(error);
+                return;
+            }
+            
             this.addToFlashLog(i18n.t('download_failed', error.message), 'error');
             this.showError(i18n.t('download_failed', error.message));
         } finally {
@@ -2231,6 +2264,118 @@ class SerialTerminal {
         if (this.recoveryDialog) {
             document.body.removeChild(this.recoveryDialog);
             this.recoveryDialog = null;
+        }
+    }
+
+    // 检测固件下载串口异常断开
+    isFlashPortDisconnectionError(error) {
+        return error.name === 'NetworkError' || 
+               error.message.includes('device has been lost') ||
+               error.message.includes('device not found') ||
+               error.message.includes('not open') ||
+               error.message.includes('设备连接已断开') ||
+               !this.flashPort?.readable;
+    }
+
+    // 清理固件下载连接状态和资源
+    async cleanupFlashConnection() {
+        try {
+            // 清理读取器
+            if (this.flashReader) {
+                try {
+                    await this.flashReader.cancel();
+                } catch (e) {
+                    // 忽略取消时的错误
+                }
+                try {
+                    await this.flashReader.releaseLock();
+                } catch (e) {
+                    // 忽略释放锁时的错误
+                }
+                this.flashReader = null;
+            }
+
+            // 清理写入器
+            if (this.flashWriter) {
+                try {
+                    await this.flashWriter.releaseLock();
+                } catch (e) {
+                    // 忽略释放锁时的错误
+                }
+                this.flashWriter = null;
+            }
+
+            // 重置串口对象
+            this.flashPort = null;
+            
+            // 重置连接状态
+            this.updateFlashConnectionStatus(false);
+            
+            console.log('固件下载串口连接状态已清理完成');
+            
+        } catch (error) {
+            console.error('清理固件下载串口连接时出错:', error);
+        }
+    }
+
+    // 显示固件下载恢复对话框
+    showFlashRecoveryDialog(error) {
+        const isZh = i18n.getCurrentLanguage().startsWith('zh');
+        const title = isZh ? '⚠️ 固件下载连接异常' : '⚠️ Firmware Download Connection Error';
+        const message = isZh 
+            ? '固件下载过程中串口设备断开或被移除。\n\n可能的原因：\n• USB连接断开\n• 设备被拔出\n• 下载过程中设备重启\n• 驱动程序问题\n\n请检查设备连接后重新连接串口并重试下载。'
+            : 'Serial device disconnected during firmware download.\n\nPossible causes:\n• USB connection lost\n• Device unplugged\n• Device restart during download\n• Driver issues\n\nPlease check device connection, reconnect serial port and retry download.';
+        
+        const reconnectText = isZh ? '重新连接' : 'Reconnect';
+        const cancelText = isZh ? '取消' : 'Cancel';
+        
+        // 创建自定义对话框
+        if (this.flashRecoveryDialog) {
+            document.body.removeChild(this.flashRecoveryDialog);
+        }
+        
+        this.flashRecoveryDialog = document.createElement('div');
+        this.flashRecoveryDialog.className = 'recovery-dialog-overlay';
+        this.flashRecoveryDialog.innerHTML = `
+            <div class="recovery-dialog">
+                <div class="recovery-dialog-header">
+                    <h3>${title}</h3>
+                </div>
+                <div class="recovery-dialog-body">
+                    <p>${message.replace(/\n/g, '<br>')}</p>
+                </div>
+                <div class="recovery-dialog-actions">
+                    <button class="btn btn-primary" id="flashRecoveryReconnect">${reconnectText}</button>
+                    <button class="btn btn-secondary" id="flashRecoveryCancel">${cancelText}</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(this.flashRecoveryDialog);
+        
+        // 绑定事件
+        document.getElementById('flashRecoveryReconnect').onclick = () => {
+            this.closeFlashRecoveryDialog();
+            this.connectFlashIndependent(); // 尝试重新连接
+        };
+        
+        document.getElementById('flashRecoveryCancel').onclick = () => {
+            this.closeFlashRecoveryDialog();
+        };
+        
+        // 点击背景关闭
+        this.flashRecoveryDialog.onclick = (e) => {
+            if (e.target === this.flashRecoveryDialog) {
+                this.closeFlashRecoveryDialog();
+            }
+        };
+    }
+
+    // 关闭固件下载恢复对话框
+    closeFlashRecoveryDialog() {
+        if (this.flashRecoveryDialog) {
+            document.body.removeChild(this.flashRecoveryDialog);
+            this.flashRecoveryDialog = null;
         }
     }
 }

@@ -84,12 +84,27 @@ class BaseDownloader {
                 if (done || !value || value.length === 0) break;
             }
         } catch (error) {
-            // 忽略
+            // 检查是否为串口异常断开
+            if (this.isPortDisconnectionError(error)) {
+                throw new Error('设备连接已断开，请检查USB连接后重试');
+            }
+            // 其他错误忽略
         } finally {
             if (reader) {
                 try { reader.releaseLock(); } catch (e) {}
             }
         }
+    }
+
+    /**
+     * 检测是否为串口异常断开错误
+     */
+    isPortDisconnectionError(error) {
+        return error.name === 'NetworkError' || 
+               error.message.includes('device has been lost') ||
+               error.message.includes('device not found') ||
+               error.message.includes('not open') ||
+               !this.port?.readable;
     }
 
     /**
@@ -154,6 +169,10 @@ class BaseDownloader {
                         }
                     }
                 } catch (error) {
+                    // 检查是否为串口异常断开
+                    if (this.isPortDisconnectionError(error)) {
+                        throw new Error('设备连接已断开，请检查USB连接后重试');
+                    }
                     this.debugLog(`读取错误: ${error.message}`);
                     await new Promise(resolve => setTimeout(resolve, 1));
                 }
