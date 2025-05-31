@@ -85,9 +85,17 @@ class I18nLoader {
         const loaded = await this.loadLanguage(langCode);
         if (loaded) {
             this.currentLanguage = langCode;
-            localStorage.setItem('language', langCode);
+            // 统一使用 selectedLanguage 作为存储键名
+            localStorage.setItem('selectedLanguage', langCode);
             this.updatePageText();
             this.updatePageTitle();
+            
+            // 触发语言变更事件
+            const event = new CustomEvent('languageChanged', { 
+                detail: { language: langCode } 
+            });
+            window.dispatchEvent(event);
+            
             return true;
         }
         return false;
@@ -142,30 +150,42 @@ class I18nLoader {
     
     // 初始化
     async init() {
-        // 从localStorage读取用户偏好语言
-        const savedLang = localStorage.getItem('language') || 'zh';
+        // 检查URL参数中的语言设置
+        const urlParams = new URLSearchParams(window.location.search);
+        const langFromUrl = urlParams.get('lang');
+        
+        // 从localStorage读取用户偏好语言，统一使用 selectedLanguage
+        const savedLang = localStorage.getItem('selectedLanguage') || 'zh';
+        
+        // 确定要使用的语言（URL参数优先级最高）
+        const targetLang = langFromUrl || savedLang;
         
         // 预加载中文（默认语言）
         await this.loadLanguage('zh');
         
-        // 如果保存的语言不是中文，也加载它
-        if (savedLang !== 'zh') {
-            await this.loadLanguage(savedLang);
+        // 如果目标语言不是中文，也加载它
+        if (targetLang !== 'zh') {
+            await this.loadLanguage(targetLang);
         }
         
         // 设置当前语言
-        this.currentLanguage = savedLang;
+        this.currentLanguage = targetLang;
+        
+        // 如果URL中有语言参数，保存到localStorage
+        if (langFromUrl) {
+            localStorage.setItem('selectedLanguage', langFromUrl);
+        }
         
         // 更新页面文本
         this.updatePageText();
         
         // 触发语言设置完成事件，通知UI更新
         const event = new CustomEvent('i18nReady', { 
-            detail: { language: savedLang } 
+            detail: { language: targetLang } 
         });
         window.dispatchEvent(event);
         
-        console.log('I18n system initialized with language:', savedLang);
+        console.log('I18n system initialized with language:', targetLang);
     }
 
     updatePageTitle() {

@@ -232,13 +232,158 @@ const es = {
     bps: "bps",
     
     // Información del sistema
-    system_info: "Info del Sistema",
-    system_info_os: "Sistema Operativo",
+    system_info: "Información del Sistema",
+    system_info_os: "SO",
     system_info_browser: "Navegador",
     system_info_web_serial: "Web Serial",
     system_info_platform: "Plataforma",
     system_info_supported: "Soportado",
-    system_info_not_supported: "No soportado"
+    system_info_not_supported: "No soportado",
+    
+    // Manejo de desconexión serie
+    serial_disconnected_unexpectedly: "Conexión serie desconectada inesperadamente: {0}",
+    
+    // Página de solución de problemas del puerto serie
+    troubleshooting_title: "Guía de Solución de Problemas del Puerto Serie",
+    troubleshooting_subtitle: "Guía completa para resolver problemas de conexión serie",
+    back_to_main: "Volver al inicio",
+    no_serial_ports_found: "¿No se encontraron puertos serie?",
+    serial_troubleshooting_guide: "¿Problemas de conexión serie? Consulte la guía de solución de problemas",
+    serial_troubleshooting: "Solución de problemas serie",
+    
+    // Lista de verificación rápida
+    quick_check_title: "Lista de Verificación Rápida",
+    basic_checks: "Elementos de verificación básicos",
+    check_browser: "Usar Chrome, Edge u otros navegadores basados en Chromium",
+    check_cable: "Cable de datos USB conectado correctamente (no cable de carga)",
+    check_device_power: "El dispositivo está correctamente encendido",
+    check_other_software: "Cerrar otro software que ocupe puertos serie",
+    
+    // Problemas comunes
+    common_issues_title: "Problemas Comunes y Soluciones",
+    issue_no_ports: "Problema 1: No hay dispositivos serie disponibles",
+    issue_no_ports_desc: "La lista de dispositivos está vacía después de hacer clic en \"Conectar Serie\"",
+    issue_connection_failed: "Problema 2: Fallo de conexión",
+    issue_connection_failed_desc: "El dispositivo es visible pero ocurre un error al conectar",
+    issue_no_data: "Problema 3: Conectado pero sin datos",
+    issue_no_data_desc: "La conexión serie es exitosa pero no se reciben datos o la visualización de datos es anormal",
+    
+    possible_causes: "Posibles causas:",
+    cause_driver_missing: "Controlador del dispositivo no instalado o instalado incorrectamente",
+    cause_cable_issue: "Problema del cable USB (usando cable de carga en lugar de cable de datos)",
+    cause_device_not_recognized: "Dispositivo no reconocido por el sistema",
+    cause_port_occupied: "Puerto serie ocupado por otros programas",
+    cause_permission_denied: "Permisos insuficientes (Linux/macOS)",
+    cause_device_busy: "Dispositivo siendo usado por otras aplicaciones",
+    cause_driver_conflict: "Conflicto de controladores o incompatibilidad",
+    cause_baud_rate_mismatch: "Configuración de velocidad de baudios no coincide",
+    cause_serial_params_wrong: "Configuración incorrecta de bits de datos, bits de parada o paridad",
+    cause_device_not_sending: "El dispositivo no está enviando datos",
+    cause_flow_control: "Problemas de configuración de control de flujo",
+    cause_cable_quality: "Problemas de calidad del cable de datos o mal contacto",
+    
+    // Diagnóstico de problemas de controladores
+    driver_diagnosis_title: "Diagnóstico de Problemas de Controladores",
+    driver_diagnosis_desc: "La mayoría de los problemas de puerto serie están relacionados con controladores, siga estos pasos para el diagnóstico",
+    
+    // Sistemas operativos
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Relacionado con Windows
+    windows_check_device_manager: "Paso 1: Verificar Administrador de Dispositivos",
+    windows_step1_title: "Abrir Administrador de Dispositivos",
+    windows_step1_desc: "Clic derecho en \"Este PC\" → \"Propiedades\" → \"Administrador de dispositivos\", o presionar Win+X y seleccionar \"Administrador de dispositivos\"",
+    windows_step2_title: "Encontrar dispositivos serie",
+    windows_step2_desc: "Buscar las siguientes categorías en el Administrador de dispositivos:",
+    windows_step3_title: "Identificar estado del dispositivo",
+    windows_step3_desc: "Verificar el estado del icono del dispositivo:",
+    
+    ports_com_lpt: "Puertos (COM y LPT)",
+    universal_serial_bus: "Controladores de bus serie universal",
+    other_devices: "Otros dispositivos",
+    
+    device_normal: "✅ Normal: Nombre del dispositivo mostrado normalmente",
+    device_warning: "⚠️ Advertencia: Signo de exclamación amarillo, problema de controlador",
+    device_error: "❌ Error: X roja, dispositivo deshabilitado",
+    device_unknown: "❓ Desconocido: En \"Otros dispositivos\", controlador no instalado",
+    
+    windows_driver_install: "Paso 2: Instalar controladores",
+    windows_manual_install: "Paso 3: Instalación manual de controlador",
+    
+    // Descripciones de controladores
+    ch340_desc: "Chip USB a serie más común",
+    cp210x_desc: "Chip USB a serie Silicon Labs",
+    ftdi_desc: "Chip USB a serie FTDI",
+    
+    download_driver: "Descargar controlador correspondiente",
+    download_driver_desc: "Descargar el controlador correspondiente según el modelo de chip del dispositivo",
+    run_installer: "Ejecutar instalador",
+    run_installer_desc: "Ejecutar el instalador de controlador descargado como administrador",
+    restart_computer: "Reiniciar computadora",
+    restart_computer_desc: "Reiniciar la computadora después de la instalación para activar el controlador",
+    verify_installation: "Verificar instalación",
+    verify_installation_desc: "Reconectar el dispositivo y verificar si se muestra normalmente en el Administrador de dispositivos",
+    
+    screenshot_device_manager: "Ubicación de captura de pantalla del Administrador de dispositivos",
+    
+    // Relacionado con macOS
+    macos_check_system: "Paso 1: Verificar información del sistema",
+    macos_step1_title: "Abrir Información del Sistema",
+    macos_step1_desc: "Mantener presionada la tecla Option y hacer clic en el menú Apple → \"Información del Sistema\"",
+    macos_step2_title: "Ver dispositivos USB",
+    macos_step2_desc: "Seleccionar \"USB\" a la izquierda para ver dispositivos USB conectados",
+    macos_step3_title: "Verificar dispositivos serie",
+    macos_step3_desc: "Abrir Terminal e ingresar comando para ver dispositivos serie:",
+    
+    macos_driver_install: "Paso 2: Instalar controladores",
+    macos_driver_note: "macOS generalmente tiene incorporados la mayoría de los controladores USB a serie, pero algunos chips aún requieren instalación manual",
+    
+    ch340_mac_desc: "Controlador CH340 para macOS",
+    cp210x_mac_desc: "Controlador CP210x para macOS",
+    
+    // Relacionado con Linux
+    linux_check_system: "Paso 1: Verificar reconocimiento del sistema",
+    linux_step1_title: "Verificar dispositivos USB",
+    linux_step1_desc: "Abrir terminal e ingresar el siguiente comando:",
+    linux_step2_title: "Verificar dispositivos serie",
+    linux_step2_desc: "Ver dispositivos serie disponibles:",
+    linux_step3_title: "Verificar mensajes del kernel",
+    linux_step3_desc: "Ver mensajes del kernel al conectar el dispositivo:",
+    
+    linux_permissions: "Paso 2: Configurar permisos",
+    linux_add_user_group: "Agregar usuario al grupo dialout",
+    linux_add_user_desc: "Ejecutar el siguiente comando y volver a iniciar sesión:",
+    linux_check_permissions: "Verificar permisos del dispositivo",
+    linux_check_permissions_desc: "Confirmar configuración de permisos del dispositivo:",
+    
+    // Solución de problemas avanzada
+    advanced_troubleshooting: "Solución de Problemas Avanzada",
+    hardware_issues: "Investigación de problemas de hardware",
+    software_conflicts: "Resolución de conflictos de software",
+    
+    try_different_cable: "Probar cable de datos USB diferente",
+    try_different_port: "Probar puerto USB diferente",
+    try_different_computer: "Probar dispositivo en otras computadoras",
+    check_device_power: "Verificar si la alimentación del dispositivo es normal",
+    
+    close_other_serial_software: "Cerrar otro software de depuración serie",
+    disable_antivirus: "Deshabilitar temporalmente software antivirus",
+    update_browser: "Actualizar navegador a la última versión",
+    clear_browser_cache: "Limpiar caché y datos del navegador",
+    
+    // Obtener ayuda
+    get_help_title: "Obtener Ayuda",
+    get_help_desc: "Si ninguno de los métodos anteriores puede resolver el problema, recopile la siguiente información y contacte al soporte técnico:",
+    
+    help_info_os: "Versión del sistema operativo",
+    help_info_browser: "Versión del navegador",
+    help_info_device: "Modelo del dispositivo e información del chip",
+    help_info_error: "Capturas de pantalla de mensajes de error específicos",
+    help_info_device_manager: "Capturas de pantalla del Administrador de dispositivos (Windows)",
+    
+    github_support_desc: "Enviar reporte de problema en GitHub"
 };
 
 // Exportar a global

@@ -238,7 +238,144 @@ const ja = {
     system_info_web_serial: "Web Serial",
     system_info_platform: "プラットフォーム",
     system_info_supported: "サポート",
-    system_info_not_supported: "非サポート"
+    system_info_not_supported: "非サポート",
+    
+    // シリアルポートトラブルシューティングページ
+    troubleshooting_title: "シリアルポートトラブルシューティングガイド",
+    troubleshooting_subtitle: "シリアル接続問題を解決するための完全ガイド",
+    back_to_main: "メインに戻る",
+    no_serial_ports_found: "シリアルポートが見つかりませんか？",
+    serial_troubleshooting_guide: "シリアル接続の問題？トラブルシューティングガイドを確認",
+    serial_troubleshooting: "シリアルトラブルシューティング",
+    
+    // クイックチェックリスト
+    quick_check_title: "クイックチェックリスト",
+    basic_checks: "基本チェック項目",
+    check_browser: "Chrome、Edge、またはその他のChromiumベースブラウザを使用",
+    check_cable: "USBデータケーブルが正常に接続されている（充電ケーブルではない）",
+    check_device_power: "デバイスが正しく電源投入されている",
+    check_other_software: "シリアルポートを占有する他のソフトウェアを閉じる",
+    
+    // よくある問題
+    common_issues_title: "よくある問題と解決策",
+    issue_no_ports: "問題1: 利用可能なシリアルデバイスがない",
+    issue_no_ports_desc: "「シリアル接続」をクリック後、デバイスリストが空",
+    issue_connection_failed: "問題2: 接続失敗",
+    issue_connection_failed_desc: "デバイスは見えるが接続時にエラーが発生",
+    issue_no_data: "問題3: 接続成功だがデータなし",
+    issue_no_data_desc: "シリアル接続は成功したがデータを受信しない",
+    
+    possible_causes: "考えられる原因：",
+    cause_driver_missing: "デバイスドライバが未インストールまたは正しくインストールされていない",
+    cause_cable_issue: "USBケーブルの問題（データケーブルではなく充電ケーブルを使用）",
+    cause_device_not_recognized: "デバイスがシステムに認識されていない",
+    cause_port_occupied: "シリアルポートが他のプログラムに占有されている",
+    
+    // ドライバ問題診断
+    driver_diagnosis_title: "ドライバ問題診断",
+    driver_diagnosis_desc: "ほとんどのシリアルポート問題はドライバ関連です。以下の手順で診断してください",
+    
+    // オペレーティングシステム
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows関連
+    windows_check_device_manager: "ステップ1: デバイスマネージャーを確認",
+    windows_step1_title: "デバイスマネージャーを開く",
+    windows_step1_desc: "「このPC」を右クリック → 「プロパティ」 → 「デバイスマネージャー」、またはWin+Xを押して「デバイスマネージャー」を選択",
+    windows_step2_title: "シリアルデバイスを探す",
+    windows_step2_desc: "デバイスマネージャーで以下のカテゴリを探す：",
+    windows_step3_title: "デバイス状態を識別",
+    windows_step3_desc: "デバイスアイコンの状態を確認：",
+    
+    ports_com_lpt: "ポート（COMとLPT）",
+    universal_serial_bus: "ユニバーサルシリアルバスコントローラー",
+    other_devices: "その他のデバイス",
+    
+    device_normal: "✅ 正常：デバイス名が正常に表示",
+    device_warning: "⚠️ 警告：黄色の感嘆符、ドライバに問題",
+    device_error: "❌ エラー：赤いX、デバイスが無効",
+    device_unknown: "❓ 不明：「その他のデバイス」内、ドライバ未インストール",
+    
+    windows_driver_install: "ステップ2: ドライバをインストール",
+    windows_manual_install: "ステップ3: 手動ドライバインストール",
+    
+    // ドライバ説明
+    ch340_desc: "最も一般的なUSB-シリアル変換チップ",
+    cp210x_desc: "Silicon Labs USB-シリアル変換チップ",
+    ftdi_desc: "FTDI USB-シリアル変換チップ",
+    pl2303_desc: "Prolific USB-シリアル変換チップ",
+    
+    download_driver: "対応ドライバをダウンロード",
+    download_driver_desc: "デバイスチップモデルに応じて対応ドライバをダウンロード",
+    run_installer: "インストーラを実行",
+    run_installer_desc: "ダウンロードしたドライバインストーラを管理者として実行",
+    restart_computer: "コンピュータを再起動",
+    restart_computer_desc: "インストール完了後、コンピュータを再起動してドライバを有効化",
+    verify_installation: "インストールを確認",
+    verify_installation_desc: "デバイスを再接続し、デバイスマネージャーで正常に表示されるか確認",
+    
+    screenshot_device_manager: "デバイスマネージャーのスクリーンショット位置",
+    
+    // macOS関連
+    macos_check_system: "ステップ1: システム情報を確認",
+    macos_step1_title: "システム情報を開く",
+    macos_step1_desc: "Optionキーを押しながらAppleメニューをクリック → 「システム情報」",
+    macos_step2_title: "USBデバイスを表示",
+    macos_step2_desc: "左側で「USB」を選択し、接続されたUSBデバイスを表示",
+    macos_step3_title: "シリアルデバイスを確認",
+    macos_step3_desc: "ターミナルを開き、コマンドを入力してシリアルデバイスを表示：",
+    
+    macos_driver_install: "ステップ2: ドライバをインストール",
+    macos_driver_note: "macOSは通常、ほとんどのUSB-シリアル変換ドライバを内蔵していますが、一部のチップは手動インストールが必要です",
+    
+    ch340_mac_desc: "macOS版CH340ドライバ",
+    cp210x_mac_desc: "macOS版CP210xドライバ",
+    
+    // Linux関連
+    linux_check_system: "ステップ1: システム認識を確認",
+    linux_step1_title: "USBデバイスを確認",
+    linux_step1_desc: "ターミナルを開き、以下のコマンドを入力：",
+    linux_step2_title: "シリアルデバイスを確認",
+    linux_step2_desc: "利用可能なシリアルデバイスを表示：",
+    linux_step3_title: "カーネルメッセージを確認",
+    linux_step3_desc: "デバイス接続時のカーネルメッセージを表示：",
+    
+    linux_permissions: "ステップ2: 権限を設定",
+    linux_add_user_group: "ユーザーをdialoutグループに追加",
+    linux_add_user_desc: "以下のコマンドを実行し、再ログイン：",
+    linux_check_permissions: "デバイス権限を確認",
+    linux_check_permissions_desc: "デバイス権限設定を確認：",
+    
+    // 高度なトラブルシューティング
+    advanced_troubleshooting: "高度なトラブルシューティング",
+    hardware_issues: "ハードウェア問題調査",
+    software_conflicts: "ソフトウェア競合解決",
+    
+    try_different_cable: "異なるUSBデータケーブルを試す",
+    try_different_port: "異なるUSBポートを試す",
+    try_different_computer: "他のコンピュータでデバイスをテスト",
+    check_device_power: "デバイスの電源供給が正常か確認",
+    
+    close_other_serial_software: "他のシリアルデバッグソフトウェアを閉じる",
+    disable_antivirus: "一時的にアンチウイルスソフトウェアを無効化",
+    update_browser: "ブラウザを最新バージョンに更新",
+    clear_browser_cache: "ブラウザキャッシュとデータをクリア",
+    
+    // ヘルプを取得
+    get_help_title: "ヘルプを取得",
+    get_help_desc: "上記の方法で問題が解決しない場合は、以下の情報を収集してテクニカルサポートにお問い合わせください：",
+    
+    help_info_os: "オペレーティングシステムバージョン",
+    help_info_browser: "ブラウザバージョン",
+    help_info_device: "デバイスモデルとチップ情報",
+    help_info_error: "具体的なエラーメッセージのスクリーンショット",
+    help_info_device_manager: "デバイスマネージャーのスクリーンショット（Windows）",
+    
+    github_support_desc: "GitHubで問題レポートを提出",
+    community_forum: "コミュニティフォーラム",
+    forum_support_desc: "コミュニティフォーラムでヘルプを求める"
 };
 
 // グローバルにエクスポート

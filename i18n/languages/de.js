@@ -232,13 +232,158 @@ const de = {
     bps: "bps",
     
     // Systeminformationen
-    system_info: "System Info",
+    system_info: "Systeminfo",
     system_info_os: "Betriebssystem",
     system_info_browser: "Browser",
     system_info_web_serial: "Web Serial",
     system_info_platform: "Plattform",
     system_info_supported: "Unterstützt",
-    system_info_not_supported: "Nicht unterstützt"
+    system_info_not_supported: "Nicht unterstützt",
+    
+    // Serielle Verbindungsunterbrechung
+    serial_disconnected_unexpectedly: "Serielle Verbindung unerwartet getrennt: {0}",
+    
+    // Serieller Port Fehlerbehebungsseite
+    troubleshooting_title: "Serieller Port Fehlerbehebungsleitfaden",
+    troubleshooting_subtitle: "Vollständiger Leitfaden zur Lösung serieller Verbindungsprobleme",
+    back_to_main: "Zurück zur Hauptseite",
+    no_serial_ports_found: "Keine seriellen Ports gefunden?",
+    serial_troubleshooting_guide: "Probleme mit der seriellen Verbindung? Siehe Fehlerbehebungsanleitung",
+    serial_troubleshooting: "Serielle Fehlerbehebung",
+    
+    // Schnelle Checkliste
+    quick_check_title: "Schnelle Checkliste",
+    basic_checks: "Grundlegende Prüfpunkte",
+    check_browser: "Chrome, Edge oder andere Chromium-basierte Browser verwenden",
+    check_cable: "USB-Datenkabel ordnungsgemäß angeschlossen (kein Ladekabel)",
+    check_device_power: "Gerät ist ordnungsgemäß eingeschaltet",
+    check_other_software: "Andere Software schließen, die serielle Ports belegt",
+    
+    // Häufige Probleme
+    common_issues_title: "Häufige Probleme und Lösungen",
+    issue_no_ports: "Problem 1: Keine verfügbaren seriellen Geräte",
+    issue_no_ports_desc: "Geräteliste ist leer nach Klick auf \"Seriell verbinden\"",
+    issue_connection_failed: "Problem 2: Verbindung fehlgeschlagen",
+    issue_connection_failed_desc: "Gerät ist sichtbar, aber Fehler beim Verbinden",
+    issue_no_data: "Problem 3: Verbunden aber keine Daten",
+    issue_no_data_desc: "Serielle Verbindung erfolgreich, aber keine Daten empfangen oder abnormale Datenanzeige",
+    
+    possible_causes: "Mögliche Ursachen:",
+    cause_driver_missing: "Gerätetreiber nicht installiert oder falsch installiert",
+    cause_cable_issue: "USB-Kabelproblem (Ladekabel statt Datenkabel verwendet)",
+    cause_device_not_recognized: "Gerät vom System nicht erkannt",
+    cause_port_occupied: "Serieller Port von anderen Programmen belegt",
+    cause_permission_denied: "Unzureichende Berechtigungen (Linux/macOS)",
+    cause_device_busy: "Gerät wird von anderen Anwendungen verwendet",
+    cause_driver_conflict: "Treiberkonflikt oder Inkompatibilität",
+    cause_baud_rate_mismatch: "Baudrate-Einstellung stimmt nicht überein",
+    cause_serial_params_wrong: "Falsche Datenbits-, Stoppbits- oder Paritätseinstellungen",
+    cause_device_not_sending: "Gerät sendet keine Daten",
+    cause_flow_control: "Flusskontroll-Einstellungsprobleme",
+    cause_cable_quality: "Datenkabel-Qualitätsprobleme oder schlechter Kontakt",
+    
+    // Treiberprobleme-Diagnose
+    driver_diagnosis_title: "Treiberprobleme-Diagnose",
+    driver_diagnosis_desc: "Die meisten seriellen Port-Probleme sind treiberbezogen, bitte folgen Sie diesen Schritten zur Diagnose",
+    
+    // Betriebssysteme
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows-bezogen
+    windows_check_device_manager: "Schritt 1: Geräte-Manager überprüfen",
+    windows_step1_title: "Geräte-Manager öffnen",
+    windows_step1_desc: "Rechtsklick auf \"Dieser PC\" → \"Eigenschaften\" → \"Geräte-Manager\", oder Win+X drücken und \"Geräte-Manager\" auswählen",
+    windows_step2_title: "Serielle Geräte finden",
+    windows_step2_desc: "Folgende Kategorien im Geräte-Manager suchen:",
+    windows_step3_title: "Gerätestatus identifizieren",
+    windows_step3_desc: "Geräte-Icon-Status überprüfen:",
+    
+    ports_com_lpt: "Anschlüsse (COM & LPT)",
+    universal_serial_bus: "USB-Controller",
+    other_devices: "Andere Geräte",
+    
+    device_normal: "✅ Normal: Gerätename wird normal angezeigt",
+    device_warning: "⚠️ Warnung: Gelbes Ausrufezeichen, Treiberproblem",
+    device_error: "❌ Fehler: Rotes X, Gerät deaktiviert",
+    device_unknown: "❓ Unbekannt: In \"Andere Geräte\", Treiber nicht installiert",
+    
+    windows_driver_install: "Schritt 2: Treiber installieren",
+    windows_manual_install: "Schritt 3: Manuelle Treiberinstallation",
+    
+    // Treiberbeschreibungen
+    ch340_desc: "Häufigster USB-zu-Seriell-Chip",
+    cp210x_desc: "Silicon Labs USB-zu-Seriell-Chip",
+    ftdi_desc: "FTDI USB-zu-Seriell-Chip",
+    
+    download_driver: "Entsprechenden Treiber herunterladen",
+    download_driver_desc: "Entsprechenden Treiber nach Geräte-Chip-Modell herunterladen",
+    run_installer: "Installer ausführen",
+    run_installer_desc: "Heruntergeladenen Treiber-Installer als Administrator ausführen",
+    restart_computer: "Computer neu starten",
+    restart_computer_desc: "Computer nach Installation neu starten, um Treiber zu aktivieren",
+    verify_installation: "Installation überprüfen",
+    verify_installation_desc: "Gerät wieder anschließen und prüfen, ob es normal im Geräte-Manager angezeigt wird",
+    
+    screenshot_device_manager: "Geräte-Manager Screenshot-Position",
+    
+    // macOS-bezogen
+    macos_check_system: "Schritt 1: Systeminformationen überprüfen",
+    macos_step1_title: "Systeminformationen öffnen",
+    macos_step1_desc: "Option-Taste gedrückt halten und Apple-Menü klicken → \"Systeminformationen\"",
+    macos_step2_title: "USB-Geräte anzeigen",
+    macos_step2_desc: "\"USB\" links auswählen, um angeschlossene USB-Geräte anzuzeigen",
+    macos_step3_title: "Serielle Geräte überprüfen",
+    macos_step3_desc: "Terminal öffnen und Befehl eingeben, um serielle Geräte anzuzeigen:",
+    
+    macos_driver_install: "Schritt 2: Treiber installieren",
+    macos_driver_note: "macOS hat normalerweise die meisten USB-zu-Seriell-Treiber eingebaut, aber einige Chips benötigen noch manuelle Installation",
+    
+    ch340_mac_desc: "CH340-Treiber für macOS",
+    cp210x_mac_desc: "CP210x-Treiber für macOS",
+    
+    // Linux-bezogen
+    linux_check_system: "Schritt 1: Systemerkennung überprüfen",
+    linux_step1_title: "USB-Geräte überprüfen",
+    linux_step1_desc: "Terminal öffnen und folgenden Befehl eingeben:",
+    linux_step2_title: "Serielle Geräte überprüfen",
+    linux_step2_desc: "Verfügbare serielle Geräte anzeigen:",
+    linux_step3_title: "Kernel-Nachrichten überprüfen",
+    linux_step3_desc: "Kernel-Nachrichten beim Anschließen des Geräts anzeigen:",
+    
+    linux_permissions: "Schritt 2: Berechtigungen setzen",
+    linux_add_user_group: "Benutzer zur dialout-Gruppe hinzufügen",
+    linux_add_user_desc: "Folgenden Befehl ausführen und neu anmelden:",
+    linux_check_permissions: "Geräteberechtigungen überprüfen",
+    linux_check_permissions_desc: "Geräteberechtigungseinstellungen bestätigen:",
+    
+    // Erweiterte Fehlerbehebung
+    advanced_troubleshooting: "Erweiterte Fehlerbehebung",
+    hardware_issues: "Hardware-Problemuntersuchung",
+    software_conflicts: "Software-Konfliktlösung",
+    
+    try_different_cable: "Anderes USB-Datenkabel versuchen",
+    try_different_port: "Anderen USB-Port versuchen",
+    try_different_computer: "Gerät an anderen Computern testen",
+    check_device_power: "Prüfen, ob Gerätestromversorgung normal ist",
+    
+    close_other_serial_software: "Andere serielle Debug-Software schließen",
+    disable_antivirus: "Antivirus-Software vorübergehend deaktivieren",
+    update_browser: "Browser auf neueste Version aktualisieren",
+    clear_browser_cache: "Browser-Cache und -Daten löschen",
+    
+    // Hilfe erhalten
+    get_help_title: "Hilfe erhalten",
+    get_help_desc: "Wenn keine der oben genannten Methoden das Problem lösen kann, sammeln Sie bitte die folgenden Informationen und wenden Sie sich an den technischen Support:",
+    
+    help_info_os: "Betriebssystemversion",
+    help_info_browser: "Browserversion",
+    help_info_device: "Gerätemodell und Chip-Informationen",
+    help_info_error: "Spezifische Fehlermeldungs-Screenshots",
+    help_info_device_manager: "Geräte-Manager Screenshots (Windows)",
+    
+    github_support_desc: "Problembericht auf GitHub einreichen"
 };
 
 // In globalen Bereich exportieren

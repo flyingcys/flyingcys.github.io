@@ -232,13 +232,158 @@ const fr = {
     bps: "bps",
     
     // Informations système
-    system_info: "Infos Système",
-    system_info_os: "Système",
+    system_info: "Informations système",
+    system_info_os: "OS",
     system_info_browser: "Navigateur",
     system_info_web_serial: "Web Serial",
     system_info_platform: "Plateforme",
-    system_info_supported: "Supporté",
-    system_info_not_supported: "Non supporté"
+    system_info_supported: "Pris en charge",
+    system_info_not_supported: "Non pris en charge",
+    
+    // Gestion de la déconnexion série
+    serial_disconnected_unexpectedly: "Connexion série déconnectée de manière inattendue: {0}",
+    
+    // Page de dépannage du port série
+    troubleshooting_title: "Guide de dépannage du port série",
+    troubleshooting_subtitle: "Guide complet pour résoudre les problèmes de connexion série",
+    back_to_main: "Retour à l'accueil",
+    no_serial_ports_found: "Aucun port série trouvé ?",
+    serial_troubleshooting_guide: "Problèmes de connexion série ? Consultez le guide de dépannage",
+    serial_troubleshooting: "Dépannage série",
+    
+    // Liste de vérification rapide
+    quick_check_title: "Liste de vérification rapide",
+    basic_checks: "Éléments de vérification de base",
+    check_browser: "Utiliser Chrome, Edge ou d'autres navigateurs basés sur Chromium",
+    check_cable: "Câble de données USB connecté correctement (pas un câble de charge)",
+    check_device_power: "L'appareil est correctement alimenté",
+    check_other_software: "Fermer les autres logiciels qui occupent les ports série",
+    
+    // Problèmes courants
+    common_issues_title: "Problèmes courants et solutions",
+    issue_no_ports: "Problème 1: Aucun périphérique série disponible",
+    issue_no_ports_desc: "La liste des périphériques est vide après avoir cliqué sur \"Connecter série\"",
+    issue_connection_failed: "Problème 2: Échec de la connexion",
+    issue_connection_failed_desc: "L'appareil est visible mais une erreur se produit lors de la connexion",
+    issue_no_data: "Problème 3: Connecté mais aucune donnée",
+    issue_no_data_desc: "La connexion série réussit mais aucune donnée n'est reçue ou l'affichage des données est anormal",
+    
+    possible_causes: "Causes possibles:",
+    cause_driver_missing: "Pilote de périphérique non installé ou incorrectement installé",
+    cause_cable_issue: "Problème de câble USB (utilisation d'un câble de charge au lieu d'un câble de données)",
+    cause_device_not_recognized: "Périphérique non reconnu par le système",
+    cause_port_occupied: "Port série occupé par d'autres programmes",
+    cause_permission_denied: "Permissions insuffisantes (Linux/macOS)",
+    cause_device_busy: "Périphérique utilisé par d'autres applications",
+    cause_driver_conflict: "Conflit de pilotes ou incompatibilité",
+    cause_baud_rate_mismatch: "Désaccord de paramétrage du débit en bauds",
+    cause_serial_params_wrong: "Paramètres incorrects des bits de données, bits d'arrêt ou parité",
+    cause_device_not_sending: "Le périphérique n'envoie pas de données",
+    cause_flow_control: "Problèmes de paramétrage du contrôle de flux",
+    cause_cable_quality: "Problèmes de qualité du câble de données ou mauvais contact",
+    
+    // Diagnostic des problèmes de pilotes
+    driver_diagnosis_title: "Diagnostic des problèmes de pilotes",
+    driver_diagnosis_desc: "La plupart des problèmes de port série sont liés aux pilotes, veuillez suivre ces étapes pour le diagnostic",
+    
+    // Systèmes d'exploitation
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Relatif à Windows
+    windows_check_device_manager: "Étape 1: Vérifier le Gestionnaire de périphériques",
+    windows_step1_title: "Ouvrir le Gestionnaire de périphériques",
+    windows_step1_desc: "Clic droit sur \"Ce PC\" → \"Propriétés\" → \"Gestionnaire de périphériques\", ou appuyer sur Win+X et sélectionner \"Gestionnaire de périphériques\"",
+    windows_step2_title: "Trouver les périphériques série",
+    windows_step2_desc: "Rechercher les catégories suivantes dans le Gestionnaire de périphériques:",
+    windows_step3_title: "Identifier l'état du périphérique",
+    windows_step3_desc: "Vérifier l'état de l'icône du périphérique:",
+    
+    ports_com_lpt: "Ports (COM et LPT)",
+    universal_serial_bus: "Contrôleurs de bus série universels",
+    other_devices: "Autres périphériques",
+    
+    device_normal: "✅ Normal: Nom du périphérique affiché normalement",
+    device_warning: "⚠️ Avertissement: Point d'exclamation jaune, problème de pilote",
+    device_error: "❌ Erreur: X rouge, périphérique désactivé",
+    device_unknown: "❓ Inconnu: Dans \"Autres périphériques\", pilote non installé",
+    
+    windows_driver_install: "Étape 2: Installer les pilotes",
+    windows_manual_install: "Étape 3: Installation manuelle du pilote",
+    
+    // Descriptions des pilotes
+    ch340_desc: "Puce USB vers série la plus courante",
+    cp210x_desc: "Puce USB vers série Silicon Labs",
+    ftdi_desc: "Puce USB vers série FTDI",
+    
+    download_driver: "Télécharger le pilote correspondant",
+    download_driver_desc: "Télécharger le pilote correspondant selon le modèle de puce du périphérique",
+    run_installer: "Exécuter l'installateur",
+    run_installer_desc: "Exécuter l'installateur de pilote téléchargé en tant qu'administrateur",
+    restart_computer: "Redémarrer l'ordinateur",
+    restart_computer_desc: "Redémarrer l'ordinateur après l'installation pour activer le pilote",
+    verify_installation: "Vérifier l'installation",
+    verify_installation_desc: "Reconnecter le périphérique et vérifier s'il s'affiche normalement dans le Gestionnaire de périphériques",
+    
+    screenshot_device_manager: "Emplacement de capture d'écran du Gestionnaire de périphériques",
+    
+    // Relatif à macOS
+    macos_check_system: "Étape 1: Vérifier les informations système",
+    macos_step1_title: "Ouvrir les Informations système",
+    macos_step1_desc: "Maintenir la touche Option et cliquer sur le menu Apple → \"Informations système\"",
+    macos_step2_title: "Voir les périphériques USB",
+    macos_step2_desc: "Sélectionner \"USB\" à gauche pour voir les périphériques USB connectés",
+    macos_step3_title: "Vérifier les périphériques série",
+    macos_step3_desc: "Ouvrir le Terminal et entrer la commande pour voir les périphériques série:",
+    
+    macos_driver_install: "Étape 2: Installer les pilotes",
+    macos_driver_note: "macOS intègre généralement la plupart des pilotes USB vers série, mais certaines puces nécessitent encore une installation manuelle",
+    
+    ch340_mac_desc: "Pilote CH340 pour macOS",
+    cp210x_mac_desc: "Pilote CP210x pour macOS",
+    
+    // Relatif à Linux
+    linux_check_system: "Étape 1: Vérifier la reconnaissance du système",
+    linux_step1_title: "Vérifier les périphériques USB",
+    linux_step1_desc: "Ouvrir le terminal et entrer la commande suivante:",
+    linux_step2_title: "Vérifier les périphériques série",
+    linux_step2_desc: "Voir les périphériques série disponibles:",
+    linux_step3_title: "Vérifier les messages du noyau",
+    linux_step3_desc: "Voir les messages du noyau lors de la connexion du périphérique:",
+    
+    linux_permissions: "Étape 2: Définir les permissions",
+    linux_add_user_group: "Ajouter l'utilisateur au groupe dialout",
+    linux_add_user_desc: "Exécuter la commande suivante et se reconnecter:",
+    linux_check_permissions: "Vérifier les permissions du périphérique",
+    linux_check_permissions_desc: "Confirmer les paramètres de permissions du périphérique:",
+    
+    // Dépannage avancé
+    advanced_troubleshooting: "Dépannage avancé",
+    hardware_issues: "Investigation des problèmes matériels",
+    software_conflicts: "Résolution des conflits logiciels",
+    
+    try_different_cable: "Essayer un câble de données USB différent",
+    try_different_port: "Essayer un port USB différent",
+    try_different_computer: "Tester le périphérique sur d'autres ordinateurs",
+    check_device_power: "Vérifier si l'alimentation du périphérique est normale",
+    
+    close_other_serial_software: "Fermer les autres logiciels de débogage série",
+    disable_antivirus: "Désactiver temporairement le logiciel antivirus",
+    update_browser: "Mettre à jour le navigateur vers la dernière version",
+    clear_browser_cache: "Effacer le cache et les données du navigateur",
+    
+    // Obtenir de l'aide
+    get_help_title: "Obtenir de l'aide",
+    get_help_desc: "Si aucune des méthodes ci-dessus ne peut résoudre le problème, veuillez collecter les informations suivantes et contacter le support technique:",
+    
+    help_info_os: "Version du système d'exploitation",
+    help_info_browser: "Version du navigateur",
+    help_info_device: "Modèle de périphérique et informations sur la puce",
+    help_info_error: "Captures d'écran de messages d'erreur spécifiques",
+    help_info_device_manager: "Captures d'écran du Gestionnaire de périphériques (Windows)",
+    
+    github_support_desc: "Soumettre un rapport de problème sur GitHub"
 };
 
 // Exporter vers global

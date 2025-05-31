@@ -423,12 +423,12 @@ header p {
 
 .status-dot.connected {
     background: #28a745;
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
+    0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
-    100% { opacity: 1; }
 }
 
 .serial-config {
@@ -2036,7 +2036,7 @@ header p {
 }
 
 .status-group .status-dot.connected {
-    background: #38a169;
+    background: #28a745;
     animation: pulse 2s infinite;
 }
 
@@ -2353,4 +2353,38 @@ header p {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+/* 故障排除链接样式 */
+.troubleshooting-link {
+    display: flex;
+    align-items: center;
+}
+
+.help-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.help-link:hover {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.1);
+    border-color: #4f46e5;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+
+.help-link .icon {
+    font-size: 1.1em;
 } 

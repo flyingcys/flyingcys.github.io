@@ -280,7 +280,149 @@ const zh = {
     system_info_web_serial: "Web Serial",
     system_info_platform: "平台",
     system_info_supported: "支持",
-    system_info_not_supported: "不支持"
+    system_info_not_supported: "不支持",
+    
+    // 新增：串口故障排除页面
+    troubleshooting_title: "串口故障排除指南",
+    troubleshooting_subtitle: "解决串口连接问题的完整指南",
+    back_to_main: "返回主页",
+    no_serial_ports_found: "没有找到串口？",
+    serial_troubleshooting_guide: "串口连接问题？查看故障排除指南",
+    serial_troubleshooting: "串口故障排除",
+    
+    // 快速检查清单
+    quick_check_title: "快速检查清单",
+    basic_checks: "基础检查项目",
+    check_browser: "使用Chrome、Edge或其他Chromium内核浏览器",
+    check_cable: "USB数据线连接正常（非充电线）",
+    check_device_power: "设备已正确上电",
+    check_other_software: "关闭其他占用串口的软件",
+    
+    // 常见问题
+    common_issues_title: "常见问题及解决方案",
+    issue_no_ports: "问题1: 没有可用的串口设备",
+    issue_no_ports_desc: "点击\"连接串口\"后弹出的设备列表为空",
+    issue_connection_failed: "问题2: 连接失败",
+    issue_connection_failed_desc: "能看到设备但连接时报错",
+    issue_no_data: "问题3: 连接成功但无数据",
+    issue_no_data_desc: "串口连接成功但收不到数据或数据显示异常",
+    
+    possible_causes: "可能原因：",
+    cause_driver_missing: "设备驱动未安装或安装不正确",
+    cause_cable_issue: "USB线缆问题（使用充电线而非数据线）",
+    cause_device_not_recognized: "设备未被系统识别",
+    cause_port_occupied: "串口被其他程序占用",
+    cause_permission_denied: "权限不足（Linux/macOS）",
+    cause_device_busy: "设备正在被其他应用使用",
+    cause_driver_conflict: "驱动冲突或不兼容",
+    cause_baud_rate_mismatch: "波特率设置不匹配",
+    cause_serial_params_wrong: "数据位、停止位、校验位设置错误",
+    cause_device_not_sending: "设备端未发送数据",
+    cause_flow_control: "流控制设置问题",
+    cause_cable_quality: "数据线质量问题或接触不良",
+    
+    // 驱动问题诊断
+    driver_diagnosis_title: "驱动问题诊断",
+    driver_diagnosis_desc: "大部分串口问题都与驱动相关，请按照以下步骤进行诊断",
+    
+    // 操作系统
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows 相关
+    windows_check_device_manager: "步骤1: 检查设备管理器",
+    windows_step1_title: "打开设备管理器",
+    windows_step1_desc: "右键点击\"此电脑\" → \"属性\" → \"设备管理器\"，或按Win+X选择\"设备管理器\"",
+    windows_step2_title: "查找串口设备",
+    windows_step2_desc: "在设备管理器中查找以下分类：",
+    windows_step3_title: "识别设备状态",
+    windows_step3_desc: "检查设备图标状态：",
+    
+    ports_com_lpt: "端口(COM和LPT)",
+    universal_serial_bus: "通用串行总线控制器",
+    other_devices: "其他设备",
+    
+    device_normal: "✅ 正常：设备名称正常显示",
+    device_warning: "⚠️ 警告：黄色感叹号，驱动有问题",
+    device_error: "❌ 错误：红色X，设备被禁用",
+    device_unknown: "❓ 未知：在\"其他设备\"中，驱动未安装",
+    
+    windows_driver_install: "步骤2: 安装驱动程序",
+    windows_manual_install: "步骤3: 手动安装驱动",
+    
+    // 驱动描述
+    ch340_desc: "最常见的USB转串口芯片",
+    cp210x_desc: "Silicon Labs USB转串口芯片",
+    ftdi_desc: "FTDI公司USB转串口芯片",
+    
+    download_driver: "下载对应驱动",
+    download_driver_desc: "根据设备芯片型号下载对应驱动程序",
+    run_installer: "运行安装程序",
+    run_installer_desc: "以管理员身份运行下载的驱动安装程序",
+    restart_computer: "重启计算机",
+    restart_computer_desc: "安装完成后重启计算机使驱动生效",
+    verify_installation: "验证安装",
+    verify_installation_desc: "重新连接设备，检查设备管理器中是否正常显示",
+    
+    screenshot_device_manager: "设备管理器截图位置",
+    
+    // macOS 相关
+    macos_check_system: "步骤1: 检查系统信息",
+    macos_step1_title: "打开系统信息",
+    macos_step1_desc: "按住Option键点击苹果菜单 → \"系统信息\"",
+    macos_step2_title: "查看USB设备",
+    macos_step2_desc: "在左侧选择\"USB\"，查看连接的USB设备",
+    macos_step3_title: "检查串口设备",
+    macos_step3_desc: "打开终端，输入命令查看串口设备：",
+    
+    macos_driver_install: "步骤2: 安装驱动程序",
+    macos_driver_note: "macOS通常内置大部分USB转串口驱动，但某些芯片仍需手动安装",
+    
+    ch340_mac_desc: "macOS版本CH340驱动",
+    cp210x_mac_desc: "macOS版本CP210x驱动",
+    
+    // Linux 相关
+    linux_check_system: "步骤1: 检查系统识别",
+    linux_step1_title: "检查USB设备",
+    linux_step1_desc: "打开终端，输入以下命令：",
+    linux_step2_title: "检查串口设备",
+    linux_step2_desc: "查看可用的串口设备：",
+    linux_step3_title: "检查内核消息",
+    linux_step3_desc: "查看设备连接时的内核消息：",
+    
+    linux_permissions: "步骤2: 设置权限",
+    linux_add_user_group: "添加用户到dialout组",
+    linux_add_user_desc: "执行以下命令并重新登录：",
+    linux_check_permissions: "检查设备权限",
+    linux_check_permissions_desc: "确认设备权限设置：",
+    
+    // 高级故障排除
+    advanced_troubleshooting: "高级故障排除",
+    hardware_issues: "硬件问题排查",
+    software_conflicts: "软件冲突解决",
+    
+    try_different_cable: "尝试更换USB数据线",
+    try_different_port: "尝试不同的USB端口",
+    try_different_computer: "在其他计算机上测试设备",
+    check_device_power: "检查设备供电是否正常",
+    
+    close_other_serial_software: "关闭其他串口调试软件",
+    disable_antivirus: "临时禁用杀毒软件",
+    update_browser: "更新浏览器到最新版本",
+    clear_browser_cache: "清除浏览器缓存和数据",
+    
+    // 获取帮助
+    get_help_title: "获取帮助",
+    get_help_desc: "如果以上方法都无法解决问题，请收集以下信息并联系技术支持：",
+    
+    help_info_os: "操作系统版本",
+    help_info_browser: "浏览器版本",
+    help_info_device: "设备型号和芯片信息",
+    help_info_error: "具体错误信息截图",
+    help_info_device_manager: "设备管理器截图（Windows）",
+    
+    github_support_desc: "在GitHub上提交问题报告"
 };
 
 // 导出到全局

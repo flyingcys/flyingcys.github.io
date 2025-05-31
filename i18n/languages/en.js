@@ -255,7 +255,149 @@ const en = {
     system_info_web_serial: "Web Serial",
     system_info_platform: "Platform",
     system_info_supported: "Supported",
-    system_info_not_supported: "Not Supported"
+    system_info_not_supported: "Not Supported",
+    
+    // Serial Troubleshooting Page
+    troubleshooting_title: "Serial Port Troubleshooting Guide",
+    troubleshooting_subtitle: "Complete guide to solve serial connection issues",
+    back_to_main: "Back to Main",
+    no_serial_ports_found: "No serial ports found?",
+    serial_troubleshooting_guide: "Serial connection issues? Check troubleshooting guide",
+    serial_troubleshooting: "Serial Troubleshooting",
+    
+    // Quick check list
+    quick_check_title: "Quick Check List",
+    basic_checks: "Basic Check Items",
+    check_browser: "Use Chrome, Edge or other Chromium-based browsers",
+    check_cable: "USB data cable connected properly (not charging cable)",
+    check_device_power: "Device is properly powered on",
+    check_other_software: "Close other software that occupies serial ports",
+    
+    // Common issues
+    common_issues_title: "Common Issues and Solutions",
+    issue_no_ports: "Issue 1: No available serial devices",
+    issue_no_ports_desc: "Device list is empty after clicking \"Connect Serial\"",
+    issue_connection_failed: "Issue 2: Connection failed",
+    issue_connection_failed_desc: "Can see device but error occurs when connecting",
+    issue_no_data: "Issue 3: Connected but no data",
+    issue_no_data_desc: "Serial connection successful but no data received or data display abnormal",
+    
+    possible_causes: "Possible causes:",
+    cause_driver_missing: "Device driver not installed or incorrectly installed",
+    cause_cable_issue: "USB cable issue (using charging cable instead of data cable)",
+    cause_device_not_recognized: "Device not recognized by system",
+    cause_port_occupied: "Serial port occupied by other programs",
+    cause_permission_denied: "Insufficient permissions (Linux/macOS)",
+    cause_device_busy: "Device is being used by other applications",
+    cause_driver_conflict: "Driver conflict or incompatibility",
+    cause_baud_rate_mismatch: "Baud rate setting mismatch",
+    cause_serial_params_wrong: "Incorrect data bits, stop bits, or parity settings",
+    cause_device_not_sending: "Device not sending data",
+    cause_flow_control: "Flow control setting issues",
+    cause_cable_quality: "Data cable quality issues or poor connection",
+    
+    // Driver diagnosis
+    driver_diagnosis_title: "Driver Issue Diagnosis",
+    driver_diagnosis_desc: "Most serial port issues are driver-related, please follow these steps for diagnosis",
+    
+    // Operating systems
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows related
+    windows_check_device_manager: "Step 1: Check Device Manager",
+    windows_step1_title: "Open Device Manager",
+    windows_step1_desc: "Right-click \"This PC\" → \"Properties\" → \"Device Manager\", or press Win+X and select \"Device Manager\"",
+    windows_step2_title: "Find serial devices",
+    windows_step2_desc: "Look for the following categories in Device Manager:",
+    windows_step3_title: "Identify device status",
+    windows_step3_desc: "Check device icon status:",
+    
+    ports_com_lpt: "Ports (COM & LPT)",
+    universal_serial_bus: "Universal Serial Bus controllers",
+    other_devices: "Other devices",
+    
+    device_normal: "✅ Normal: Device name displayed normally",
+    device_warning: "⚠️ Warning: Yellow exclamation mark, driver issue",
+    device_error: "❌ Error: Red X, device disabled",
+    device_unknown: "❓ Unknown: In \"Other devices\", driver not installed",
+    
+    windows_driver_install: "Step 2: Install drivers",
+    windows_manual_install: "Step 3: Manual driver installation",
+    
+    // Driver descriptions
+    ch340_desc: "Most common USB to serial chip",
+    cp210x_desc: "Silicon Labs USB to serial chip",
+    ftdi_desc: "FTDI USB to serial chip",
+    
+    download_driver: "Download corresponding driver",
+    download_driver_desc: "Download the corresponding driver according to device chip model",
+    run_installer: "Run installer",
+    run_installer_desc: "Run the downloaded driver installer as administrator",
+    restart_computer: "Restart computer",
+    restart_computer_desc: "Restart computer after installation to make driver effective",
+    verify_installation: "Verify installation",
+    verify_installation_desc: "Reconnect device and check if it displays normally in Device Manager",
+    
+    screenshot_device_manager: "Device Manager screenshot location",
+    
+    // macOS related
+    macos_check_system: "Step 1: Check system information",
+    macos_step1_title: "Open System Information",
+    macos_step1_desc: "Hold Option key and click Apple menu → \"System Information\"",
+    macos_step2_title: "View USB devices",
+    macos_step2_desc: "Select \"USB\" on the left to view connected USB devices",
+    macos_step3_title: "Check serial devices",
+    macos_step3_desc: "Open Terminal and enter command to view serial devices:",
+    
+    macos_driver_install: "Step 2: Install drivers",
+    macos_driver_note: "macOS usually has built-in drivers for most USB to serial chips, but some chips still need manual installation",
+    
+    ch340_mac_desc: "macOS version CH340 driver",
+    cp210x_mac_desc: "macOS version CP210x driver",
+    
+    // Linux related
+    linux_check_system: "Step 1: Check system recognition",
+    linux_step1_title: "Check USB devices",
+    linux_step1_desc: "Open terminal and enter the following command:",
+    linux_step2_title: "Check serial devices",
+    linux_step2_desc: "View available serial devices:",
+    linux_step3_title: "Check kernel messages",
+    linux_step3_desc: "View kernel messages when device is connected:",
+    
+    linux_permissions: "Step 2: Set permissions",
+    linux_add_user_group: "Add user to dialout group",
+    linux_add_user_desc: "Execute the following command and re-login:",
+    linux_check_permissions: "Check device permissions",
+    linux_check_permissions_desc: "Confirm device permission settings:",
+    
+    // Advanced troubleshooting
+    advanced_troubleshooting: "Advanced Troubleshooting",
+    hardware_issues: "Hardware Issue Investigation",
+    software_conflicts: "Software Conflict Resolution",
+    
+    try_different_cable: "Try different USB data cable",
+    try_different_port: "Try different USB port",
+    try_different_computer: "Test device on other computers",
+    check_device_power: "Check if device power supply is normal",
+    
+    close_other_serial_software: "Close other serial debugging software",
+    disable_antivirus: "Temporarily disable antivirus software",
+    update_browser: "Update browser to latest version",
+    clear_browser_cache: "Clear browser cache and data",
+    
+    // Get help
+    get_help_title: "Get Help",
+    get_help_desc: "If none of the above methods can solve the problem, please collect the following information and contact technical support:",
+    
+    help_info_os: "Operating system version",
+    help_info_browser: "Browser version",
+    help_info_device: "Device model and chip information",
+    help_info_error: "Specific error message screenshots",
+    help_info_device_manager: "Device Manager screenshots (Windows)",
+    
+    github_support_desc: "Submit issue report on GitHub"
 };
 
 // Export to global

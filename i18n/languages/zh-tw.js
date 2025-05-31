@@ -198,47 +198,192 @@ const zhTw = {
     baudrate_reset_failed: "重置串口波特率失敗",
     direct_reset_failed: "直接重置串口也失敗",
     
-    // 新增：下載器管理器相關
-    downloader_manager_not_initialized: "下載器管理器未初始化",
-    loaded_chip_types: "已載入 {0} 種支援的晶片類型",
+    // 新增：下載管理器相關
+    downloader_manager_not_initialized: "下載管理器未初始化",
+    loaded_chip_types: "已載入{0}種支援的晶片類型",
     using_default_chip_support: "使用預設晶片支援 (T5AI)",
-    unsupported_device_type: "不支援的設備類型: {0}",
+    unsupported_device_type: "不支援的裝置類型: {0}",
     unsupported_chip_type: "不支援的晶片類型: {0}",
     
-    // 新增：韌體下載流程相關
-    starting_firmware_download_process: "開始韌體下載流程...",
-    starting_device_download: "開始 {0} 設備下載，檔案大小: {1} 位元組",
-    firmware_download_completed_time: "韌體下載完成！總時間: {0}ms",
-    device_firmware_download_completed: "{0} 設備韌體下載完成",
-    initializing_downloader: "正在初始化 {0} 下載器...",
-    connecting_device: "正在連接 {0} 設備...",
-    cannot_connect_device: "無法連接 {0} 設備",
-    downloading_firmware_to_device: "正在下載韌體到 {0} 設備...",
-    t5ai_firmware_download_completed: "T5AI 韌體下載完成",
-    firmware_download_completed_device_restarted: "韌體下載完成，設備重新啟動中...",
-    serial_not_connected_connect_first: "串口未連接，請先連接串口設備",
-    restoring_serial_reader_writer_failed: "恢復串口 reader/writer 失敗",
-    cleanup_reset_baudrate: "清理：重置波特率中...",
+    // 新增：韌體下載程序相關
+    starting_firmware_download_process: "開始韌體下載程序...",
+    starting_device_download: "開始{0}裝置下載，檔案大小: {1} 位元組",
+    firmware_download_completed_time: "韌體下載完成！總時間: {0}毫秒",
+    device_firmware_download_completed: "{0}裝置韌體下載完成",
+    initializing_downloader: "初始化{0}下載器...",
+    connecting_device: "連接{0}裝置...",
+    cannot_connect_device: "無法連接{0}裝置",
+    downloading_firmware_to_device: "下載韌體到{0}裝置...",
+    t5ai_firmware_download_completed: "T5AI韌體下載完成",
+    firmware_download_completed_device_restarted: "韌體下載完成，裝置重新啟動...",
+    serial_not_connected_connect_first: "串列埠未連接，請先連接串列裝置",
+    restoring_serial_reader_writer_failed: "恢復串列埠reader/writer失敗",
+    cleanup_reset_baudrate: "清理：重置波特率...",
     cleanup_baudrate_reset_success: "清理：波特率重置成功",
     cleanup_reset_failed: "清理：重置失敗",
     flashdownloader_reset_baudrate: "FlashDownloader：重置波特率到115200...",
     flashdownloader_baudrate_reset_success: "FlashDownloader：✅ 波特率成功重置到115200",
-    flashdownloader_direct_reset_success: "FlashDownloader：✅ 串口直接重置也成功",
+    flashdownloader_direct_reset_success: "FlashDownloader：✅ 串列埠直接重置也成功",
     flashdownloader_reset_failed: "FlashDownloader：波特率重置失敗",
     
-    // 新增：串口連接狀態訊息
+    // 新增：串列連接狀態訊息
     serial_connected_initial_switch: "初始連接，將切換到",
     serial_connected_initial: "初始連接",
     bps: "bps",
     
-    // 系統信息相關
-    system_info: "系統信息",
-    system_info_os: "操作系統",
+    // 系統資訊
+    system_info: "系統資訊",
+    system_info_os: "作業系統",
     system_info_browser: "瀏覽器",
     system_info_web_serial: "Web Serial",
     system_info_platform: "平台",
-    system_info_supported: "支持",
-    system_info_not_supported: "不支持"
+    system_info_supported: "支援",
+    system_info_not_supported: "不支援",
+    
+    // 串列斷線處理
+    serial_disconnected_unexpectedly: "串列連接意外斷開: {0}",
+    
+    // 串列埠故障排除頁面
+    troubleshooting_title: "串列埠故障排除指南",
+    troubleshooting_subtitle: "解決串列連接問題的完整指南",
+    back_to_main: "返回主頁",
+    no_serial_ports_found: "沒有找到串列埠？",
+    serial_troubleshooting_guide: "串列埠連接問題？查看故障排除指南",
+    serial_troubleshooting: "串列埠故障排除",
+    
+    // 快速檢查清單
+    quick_check_title: "快速檢查清單",
+    basic_checks: "基本檢查項目",
+    check_browser: "使用Chrome、Edge或其他基於Chromium的瀏覽器",
+    check_cable: "USB資料線正確連接（非充電線）",
+    check_device_power: "裝置正確供電",
+    check_other_software: "關閉其他佔用串列埠的軟體",
+    
+    // 常見問題
+    common_issues_title: "常見問題與解決方案",
+    issue_no_ports: "問題1：沒有可用的串列裝置",
+    issue_no_ports_desc: "點選「連接串列」後裝置清單為空",
+    issue_connection_failed: "問題2：連接失敗",
+    issue_connection_failed_desc: "裝置可見但連接時發生錯誤",
+    issue_no_data: "問題3：連接成功但無資料",
+    issue_no_data_desc: "串列連接成功但未接收到資料或資料顯示異常",
+    
+    possible_causes: "可能原因：",
+    cause_driver_missing: "裝置驅動程式未安裝或安裝不正確",
+    cause_cable_issue: "USB線材問題（使用充電線而非資料線）",
+    cause_device_not_recognized: "裝置未被系統識別",
+    cause_port_occupied: "串列埠被其他程式佔用",
+    cause_permission_denied: "權限不足（Linux/macOS）",
+    cause_device_busy: "裝置被其他應用程式使用",
+    cause_driver_conflict: "驅動程式衝突或不相容",
+    cause_baud_rate_mismatch: "波特率設定不匹配",
+    cause_serial_params_wrong: "資料位、停止位、校驗位設定錯誤",
+    cause_device_not_sending: "裝置未發送資料",
+    cause_flow_control: "流量控制設定問題",
+    cause_cable_quality: "資料線品質問題或接觸不良",
+    
+    // 驅動程式問題診斷
+    driver_diagnosis_title: "驅動程式問題診斷",
+    driver_diagnosis_desc: "大部分串列埠問題都與驅動程式有關，請按照以下步驟進行診斷",
+    
+    // 作業系統
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows相關
+    windows_check_device_manager: "步驟1：檢查裝置管理員",
+    windows_step1_title: "開啟裝置管理員",
+    windows_step1_desc: "右鍵點選「本機」→「內容」→「裝置管理員」，或按Win+X選擇「裝置管理員」",
+    windows_step2_title: "尋找串列裝置",
+    windows_step2_desc: "在裝置管理員中尋找以下類別：",
+    windows_step3_title: "識別裝置狀態",
+    windows_step3_desc: "檢查裝置圖示狀態：",
+    
+    ports_com_lpt: "連接埠 (COM 和 LPT)",
+    universal_serial_bus: "通用序列匯流排控制器",
+    other_devices: "其他裝置",
+    
+    device_normal: "✅ 正常：裝置名稱正常顯示",
+    device_warning: "⚠️ 警告：黃色驚嘆號，驅動程式問題",
+    device_error: "❌ 錯誤：紅色X，裝置已停用",
+    device_unknown: "❓ 未知：在「其他裝置」中，驅動程式未安裝",
+    
+    windows_driver_install: "步驟2：安裝驅動程式",
+    windows_manual_install: "步驟3：手動安裝驅動程式",
+    
+    // 驅動程式說明
+    ch340_desc: "最常見的USB轉串列晶片",
+    cp210x_desc: "Silicon Labs USB轉串列晶片",
+    ftdi_desc: "FTDI USB轉串列晶片",
+    
+    download_driver: "下載對應驅動程式",
+    download_driver_desc: "根據裝置晶片型號下載對應驅動程式",
+    run_installer: "執行安裝程式",
+    run_installer_desc: "以管理員身分執行下載的驅動程式安裝程式",
+    restart_computer: "重新啟動電腦",
+    restart_computer_desc: "安裝完成後重新啟動電腦以啟用驅動程式",
+    verify_installation: "驗證安裝",
+    verify_installation_desc: "重新連接裝置並檢查是否在裝置管理員中正常顯示",
+    
+    screenshot_device_manager: "裝置管理員截圖位置",
+    
+    // macOS相關
+    macos_check_system: "步驟1：檢查系統資訊",
+    macos_step1_title: "開啟系統資訊",
+    macos_step1_desc: "按住Option鍵並點選Apple選單→「系統資訊」",
+    macos_step2_title: "檢視USB裝置",
+    macos_step2_desc: "在左側選擇「USB」以檢視已連接的USB裝置",
+    macos_step3_title: "檢查串列裝置",
+    macos_step3_desc: "開啟終端機並輸入指令檢視串列裝置：",
+    
+    macos_driver_install: "步驟2：安裝驅動程式",
+    macos_driver_note: "macOS通常內建大部分USB轉串列驅動程式，但某些晶片仍需手動安裝",
+    
+    ch340_mac_desc: "macOS用CH340驅動程式",
+    cp210x_mac_desc: "macOS用CP210x驅動程式",
+    
+    // Linux相關
+    linux_check_system: "步驟1：檢查系統識別",
+    linux_step1_title: "檢查USB裝置",
+    linux_step1_desc: "開啟終端機並輸入以下指令：",
+    linux_step2_title: "檢查串列裝置",
+    linux_step2_desc: "檢視可用的串列裝置：",
+    linux_step3_title: "檢查核心訊息",
+    linux_step3_desc: "檢視連接裝置時的核心訊息：",
+    
+    linux_permissions: "步驟2：設定權限",
+    linux_add_user_group: "將使用者加入dialout群組",
+    linux_add_user_desc: "執行以下指令並重新登入：",
+    linux_check_permissions: "檢查裝置權限",
+    linux_check_permissions_desc: "確認裝置權限設定：",
+    
+    // 進階故障排除
+    advanced_troubleshooting: "進階故障排除",
+    hardware_issues: "硬體問題排查",
+    software_conflicts: "軟體衝突解決",
+    
+    try_different_cable: "嘗試不同的USB資料線",
+    try_different_port: "嘗試不同的USB連接埠",
+    try_different_computer: "在其他電腦上測試裝置",
+    check_device_power: "檢查裝置供電是否正常",
+    
+    close_other_serial_software: "關閉其他串列除錯軟體",
+    disable_antivirus: "暫時停用防毒軟體",
+    update_browser: "更新瀏覽器到最新版本",
+    clear_browser_cache: "清除瀏覽器快取和資料",
+    
+    // 取得協助
+    get_help_title: "取得協助",
+    get_help_desc: "如果以上方法都無法解決問題，請收集以下資訊並聯絡技術支援：",
+    
+    help_info_os: "作業系統版本",
+    help_info_browser: "瀏覽器版本",
+    help_info_device: "裝置型號和晶片資訊",
+    help_info_error: "具體錯誤訊息截圖",
+    help_info_device_manager: "裝置管理員截圖（Windows）",
+    
+    github_support_desc: "在GitHub上提交問題報告"
 };
 
 // 導出到全局

@@ -238,7 +238,152 @@ const ko = {
     system_info_web_serial: "Web Serial",
     system_info_platform: "플랫폼",
     system_info_supported: "지원됨",
-    system_info_not_supported: "지원되지 않음"
+    system_info_not_supported: "지원되지 않음",
+    
+    // 시리얼 연결 해제 처리
+    serial_disconnected_unexpectedly: "시리얼 연결이 예기치 않게 해제됨: {0}",
+    
+    // 시리얼 포트 문제 해결 페이지
+    troubleshooting_title: "시리얼 포트 문제 해결 가이드",
+    troubleshooting_subtitle: "시리얼 연결 문제를 해결하는 완전한 가이드",
+    back_to_main: "메인으로 돌아가기",
+    no_serial_ports_found: "시리얼 포트를 찾을 수 없나요?",
+    serial_troubleshooting_guide: "시리얼 연결 문제? 문제 해결 가이드 확인",
+    serial_troubleshooting: "시리얼 문제 해결",
+    
+    // 빠른 확인 목록
+    quick_check_title: "빠른 확인 목록",
+    basic_checks: "기본 확인 항목",
+    check_browser: "Chrome, Edge 또는 기타 Chromium 기반 브라우저 사용",
+    check_cable: "USB 데이터 케이블이 정상적으로 연결됨 (충전 케이블이 아님)",
+    check_device_power: "장치가 올바르게 전원이 켜짐",
+    check_other_software: "시리얼 포트를 점유하는 다른 소프트웨어 종료",
+    
+    // 일반적인 문제
+    common_issues_title: "일반적인 문제 및 해결책",
+    issue_no_ports: "문제 1: 사용 가능한 시리얼 장치 없음",
+    issue_no_ports_desc: "\"시리얼 연결\" 클릭 후 장치 목록이 비어 있음",
+    issue_connection_failed: "문제 2: 연결 실패",
+    issue_connection_failed_desc: "장치는 보이지만 연결 시 오류 발생",
+    issue_no_data: "문제 3: 연결 성공했지만 데이터 없음",
+    issue_no_data_desc: "시리얼 연결은 성공했지만 데이터를 받지 못하거나 데이터 표시가 비정상",
+    
+    possible_causes: "가능한 원인:",
+    cause_driver_missing: "장치 드라이버가 설치되지 않았거나 올바르게 설치되지 않음",
+    cause_cable_issue: "USB 케이블 문제 (데이터 케이블 대신 충전 케이블 사용)",
+    cause_device_not_recognized: "장치가 시스템에 인식되지 않음",
+    cause_port_occupied: "시리얼 포트가 다른 프로그램에 의해 점유됨",
+    cause_permission_denied: "권한 부족 (Linux/macOS)",
+    cause_device_busy: "장치가 다른 애플리케이션에서 사용 중",
+    cause_driver_conflict: "드라이버 충돌 또는 비호환성",
+    cause_baud_rate_mismatch: "보드레이트 설정 불일치",
+    cause_serial_params_wrong: "데이터 비트, 정지 비트, 패리티 설정 오류",
+    cause_device_not_sending: "장치에서 데이터를 보내지 않음",
+    cause_flow_control: "흐름 제어 설정 문제",
+    cause_cable_quality: "데이터 케이블 품질 문제 또는 접촉 불량",
+    
+    // 드라이버 문제 진단
+    driver_diagnosis_title: "드라이버 문제 진단",
+    driver_diagnosis_desc: "대부분의 시리얼 포트 문제는 드라이버와 관련이 있습니다. 다음 단계에 따라 진단하세요",
+    
+    // 운영 체제
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Windows 관련
+    windows_check_device_manager: "단계 1: 장치 관리자 확인",
+    windows_step1_title: "장치 관리자 열기",
+    windows_step1_desc: "\"내 PC\" 우클릭 → \"속성\" → \"장치 관리자\", 또는 Win+X를 누르고 \"장치 관리자\" 선택",
+    windows_step2_title: "시리얼 장치 찾기",
+    windows_step2_desc: "장치 관리자에서 다음 범주를 찾으세요:",
+    windows_step3_title: "장치 상태 식별",
+    windows_step3_desc: "장치 아이콘 상태 확인:",
+    
+    ports_com_lpt: "포트(COM 및 LPT)",
+    universal_serial_bus: "범용 직렬 버스 컨트롤러",
+    other_devices: "기타 장치",
+    
+    device_normal: "✅ 정상: 장치 이름이 정상적으로 표시됨",
+    device_warning: "⚠️ 경고: 노란색 느낌표, 드라이버 문제",
+    device_error: "❌ 오류: 빨간색 X, 장치가 비활성화됨",
+    device_unknown: "❓ 알 수 없음: \"기타 장치\"에 있음, 드라이버가 설치되지 않음",
+    
+    windows_driver_install: "단계 2: 드라이버 설치",
+    windows_manual_install: "단계 3: 수동 드라이버 설치",
+    
+    // 드라이버 설명
+    ch340_desc: "가장 일반적인 USB-시리얼 변환 칩",
+    cp210x_desc: "Silicon Labs USB-시리얼 변환 칩",
+    ftdi_desc: "FTDI USB-시리얼 변환 칩",
+    
+    download_driver: "해당 드라이버 다운로드",
+    download_driver_desc: "장치 칩 모델에 따라 해당 드라이버 다운로드",
+    run_installer: "설치 프로그램 실행",
+    run_installer_desc: "다운로드한 드라이버 설치 프로그램을 관리자 권한으로 실행",
+    restart_computer: "컴퓨터 재시작",
+    restart_computer_desc: "설치 완료 후 컴퓨터를 재시작하여 드라이버 적용",
+    verify_installation: "설치 확인",
+    verify_installation_desc: "장치를 다시 연결하고 장치 관리자에서 정상적으로 표시되는지 확인",
+    
+    screenshot_device_manager: "장치 관리자 스크린샷 위치",
+    
+    // macOS 관련
+    macos_check_system: "단계 1: 시스템 정보 확인",
+    macos_step1_title: "시스템 정보 열기",
+    macos_step1_desc: "Option 키를 누른 상태에서 Apple 메뉴 클릭 → \"시스템 정보\"",
+    macos_step2_title: "USB 장치 보기",
+    macos_step2_desc: "왼쪽에서 \"USB\"를 선택하여 연결된 USB 장치 보기",
+    macos_step3_title: "시리얼 장치 확인",
+    macos_step3_desc: "터미널을 열고 명령을 입력하여 시리얼 장치 보기:",
+    
+    macos_driver_install: "단계 2: 드라이버 설치",
+    macos_driver_note: "macOS는 일반적으로 대부분의 USB-시리얼 변환 드라이버를 내장하고 있지만, 일부 칩은 여전히 수동 설치가 필요합니다",
+    
+    ch340_mac_desc: "macOS용 CH340 드라이버",
+    cp210x_mac_desc: "macOS용 CP210x 드라이버",
+    
+    // Linux 관련
+    linux_check_system: "단계 1: 시스템 인식 확인",
+    linux_step1_title: "USB 장치 확인",
+    linux_step1_desc: "터미널을 열고 다음 명령을 입력:",
+    linux_step2_title: "시리얼 장치 확인",
+    linux_step2_desc: "사용 가능한 시리얼 장치 보기:",
+    linux_step3_title: "커널 메시지 확인",
+    linux_step3_desc: "장치 연결 시 커널 메시지 보기:",
+    
+    linux_permissions: "단계 2: 권한 설정",
+    linux_add_user_group: "사용자를 dialout 그룹에 추가",
+    linux_add_user_desc: "다음 명령을 실행하고 다시 로그인:",
+    linux_check_permissions: "장치 권한 확인",
+    linux_check_permissions_desc: "장치 권한 설정 확인:",
+    
+    // 고급 문제 해결
+    advanced_troubleshooting: "고급 문제 해결",
+    hardware_issues: "하드웨어 문제 조사",
+    software_conflicts: "소프트웨어 충돌 해결",
+    
+    try_different_cable: "다른 USB 데이터 케이블 시도",
+    try_different_port: "다른 USB 포트 시도",
+    try_different_computer: "다른 컴퓨터에서 장치 테스트",
+    check_device_power: "장치 전원 공급이 정상인지 확인",
+    
+    close_other_serial_software: "다른 시리얼 디버깅 소프트웨어 종료",
+    disable_antivirus: "일시적으로 안티바이러스 소프트웨어 비활성화",
+    update_browser: "브라우저를 최신 버전으로 업데이트",
+    clear_browser_cache: "브라우저 캐시 및 데이터 지우기",
+    
+    // 도움말 받기
+    get_help_title: "도움말 받기",
+    get_help_desc: "위의 방법으로 문제가 해결되지 않으면 다음 정보를 수집하여 기술 지원에 문의하세요:",
+    
+    help_info_os: "운영 체제 버전",
+    help_info_browser: "브라우저 버전",
+    help_info_device: "장치 모델 및 칩 정보",
+    help_info_error: "구체적인 오류 메시지 스크린샷",
+    help_info_device_manager: "장치 관리자 스크린샷 (Windows)",
+    
+    github_support_desc: "GitHub에서 문제 보고서 제출"
 };
 
 // 전역으로 내보내기

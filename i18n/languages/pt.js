@@ -198,9 +198,9 @@ const pt = {
     baudrate_reset_failed: "Falha ao redefinir baudrate da porta serial",
     direct_reset_failed: "Falha na redefinição direta da porta serial também",
     
-    // Novo: Relacionado ao gerenciador de download
-    downloader_manager_not_initialized: "Gerenciador de download não inicializado",
-    loaded_chip_types: "Carregados {0} tipos de chip suportados",
+    // Novo: Relacionado ao gestor de download
+    downloader_manager_not_initialized: "Gestor de download não inicializado",
+    loaded_chip_types: "{0} tipos de chip suportados carregados",
     using_default_chip_support: "Usando suporte de chip padrão (T5AI)",
     unsupported_device_type: "Tipo de dispositivo não suportado: {0}",
     unsupported_chip_type: "Tipo de chip não suportado: {0}",
@@ -216,15 +216,15 @@ const pt = {
     downloading_firmware_to_device: "Baixando firmware para o dispositivo {0}...",
     t5ai_firmware_download_completed: "Download de firmware T5AI concluído",
     firmware_download_completed_device_restarted: "Download de firmware concluído, dispositivo reiniciando...",
-    serial_not_connected_connect_first: "Porta serial não conectada, por favor conecte primeiro o dispositivo serial",
+    serial_not_connected_connect_first: "Porta serial não conectada, conecte primeiro o dispositivo serial",
     restoring_serial_reader_writer_failed: "Falha ao restaurar reader/writer da porta serial",
     cleanup_reset_baudrate: "Limpeza: Redefinindo baudrate...",
     cleanup_baudrate_reset_success: "Limpeza: Baudrate redefinido com sucesso",
     cleanup_reset_failed: "Limpeza: Falha na redefinição",
     flashdownloader_reset_baudrate: "FlashDownloader: Redefinindo baudrate para 115200...",
     flashdownloader_baudrate_reset_success: "FlashDownloader: ✅ Baudrate redefinido com sucesso para 115200",
-    flashdownloader_direct_reset_success: "FlashDownloader: ✅ Reset direto da porta serial também bem-sucedido",
-    flashdownloader_reset_failed: "FlashDownloader: Falha na redefinição de baudrate",
+    flashdownloader_direct_reset_success: "FlashDownloader: ✅ Redefinição direta da porta serial também bem-sucedida",
+    flashdownloader_reset_failed: "FlashDownloader: Falha na redefinição do baudrate",
     
     // Novo: Mensagens de status de conexão serial
     serial_connected_initial_switch: "conexão inicial, mudará para",
@@ -233,12 +233,157 @@ const pt = {
     
     // Informações do sistema
     system_info: "Informações do Sistema",
-    system_info_os: "Sistema Operacional",
+    system_info_os: "SO",
     system_info_browser: "Navegador",
     system_info_web_serial: "Web Serial",
     system_info_platform: "Plataforma",
     system_info_supported: "Suportado",
-    system_info_not_supported: "Não suportado"
+    system_info_not_supported: "Não suportado",
+    
+    // Tratamento de desconexão serial
+    serial_disconnected_unexpectedly: "Conexão serial desconectada inesperadamente: {0}",
+    
+    // Página de solução de problemas da porta serial
+    troubleshooting_title: "Guia de Solução de Problemas da Porta Serial",
+    troubleshooting_subtitle: "Guia completo para resolver problemas de conexão serial",
+    back_to_main: "Voltar ao início",
+    no_serial_ports_found: "Nenhuma porta serial encontrada?",
+    serial_troubleshooting_guide: "Problemas de conexão serial? Consulte o guia de solução de problemas",
+    serial_troubleshooting: "Solução de problemas serial",
+    
+    // Lista de verificação rápida
+    quick_check_title: "Lista de Verificação Rápida",
+    basic_checks: "Itens de verificação básicos",
+    check_browser: "Usar Chrome, Edge ou outros navegadores baseados em Chromium",
+    check_cable: "Cabo de dados USB conectado corretamente (não cabo de carregamento)",
+    check_device_power: "O dispositivo está corretamente ligado",
+    check_other_software: "Fechar outros softwares que ocupam portas seriais",
+    
+    // Problemas comuns
+    common_issues_title: "Problemas Comuns e Soluções",
+    issue_no_ports: "Problema 1: Nenhum dispositivo serial disponível",
+    issue_no_ports_desc: "A lista de dispositivos está vazia após clicar em \"Conectar Serial\"",
+    issue_connection_failed: "Problema 2: Falha na conexão",
+    issue_connection_failed_desc: "O dispositivo é visível mas ocorre erro ao conectar",
+    issue_no_data: "Problema 3: Conectado mas sem dados",
+    issue_no_data_desc: "A conexão serial é bem-sucedida mas nenhum dado é recebido ou a exibição de dados é anormal",
+    
+    possible_causes: "Possíveis causas:",
+    cause_driver_missing: "Driver do dispositivo não instalado ou instalado incorretamente",
+    cause_cable_issue: "Problema do cabo USB (usando cabo de carregamento em vez de cabo de dados)",
+    cause_device_not_recognized: "Dispositivo não reconhecido pelo sistema",
+    cause_port_occupied: "Porta serial ocupada por outros programas",
+    cause_permission_denied: "Permissões insuficientes (Linux/macOS)",
+    cause_device_busy: "Dispositivo sendo usado por outras aplicações",
+    cause_driver_conflict: "Conflito de drivers ou incompatibilidade",
+    cause_baud_rate_mismatch: "Configuração de taxa de baud não coincide",
+    cause_serial_params_wrong: "Configuração incorreta de bits de dados, bits de parada ou paridade",
+    cause_device_not_sending: "O dispositivo não está enviando dados",
+    cause_flow_control: "Problemas de configuração de controle de fluxo",
+    cause_cable_quality: "Problemas de qualidade do cabo de dados ou mau contato",
+    
+    // Diagnóstico de problemas de drivers
+    driver_diagnosis_title: "Diagnóstico de Problemas de Drivers",
+    driver_diagnosis_desc: "A maioria dos problemas de porta serial estão relacionados a drivers, siga estes passos para diagnóstico",
+    
+    // Sistemas operacionais
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+    
+    // Relacionado ao Windows
+    windows_check_device_manager: "Passo 1: Verificar Gerenciador de Dispositivos",
+    windows_step1_title: "Abrir Gerenciador de Dispositivos",
+    windows_step1_desc: "Clique com o botão direito em \"Este PC\" → \"Propriedades\" → \"Gerenciador de Dispositivos\", ou pressione Win+X e selecione \"Gerenciador de Dispositivos\"",
+    windows_step2_title: "Encontrar dispositivos seriais",
+    windows_step2_desc: "Procurar as seguintes categorias no Gerenciador de Dispositivos:",
+    windows_step3_title: "Identificar status do dispositivo",
+    windows_step3_desc: "Verificar o status do ícone do dispositivo:",
+    
+    ports_com_lpt: "Portas (COM e LPT)",
+    universal_serial_bus: "Controladores de barramento serial universal",
+    other_devices: "Outros dispositivos",
+    
+    device_normal: "✅ Normal: Nome do dispositivo exibido normalmente",
+    device_warning: "⚠️ Aviso: Ponto de exclamação amarelo, problema de driver",
+    device_error: "❌ Erro: X vermelho, dispositivo desabilitado",
+    device_unknown: "❓ Desconhecido: Em \"Outros dispositivos\", driver não instalado",
+    
+    windows_driver_install: "Passo 2: Instalar drivers",
+    windows_manual_install: "Passo 3: Instalação manual de driver",
+    
+    // Descrições de drivers
+    ch340_desc: "Chip USB para serial mais comum",
+    cp210x_desc: "Chip USB para serial Silicon Labs",
+    ftdi_desc: "Chip USB para serial FTDI",
+    
+    download_driver: "Baixar driver correspondente",
+    download_driver_desc: "Baixar o driver correspondente de acordo com o modelo do chip do dispositivo",
+    run_installer: "Executar instalador",
+    run_installer_desc: "Executar o instalador de driver baixado como administrador",
+    restart_computer: "Reiniciar computador",
+    restart_computer_desc: "Reiniciar o computador após a instalação para ativar o driver",
+    verify_installation: "Verificar instalação",
+    verify_installation_desc: "Reconectar o dispositivo e verificar se é exibido normalmente no Gerenciador de Dispositivos",
+    
+    screenshot_device_manager: "Localização da captura de tela do Gerenciador de Dispositivos",
+    
+    // Relacionado ao macOS
+    macos_check_system: "Passo 1: Verificar informações do sistema",
+    macos_step1_title: "Abrir Informações do Sistema",
+    macos_step1_desc: "Manter pressionada a tecla Option e clicar no menu Apple → \"Informações do Sistema\"",
+    macos_step2_title: "Ver dispositivos USB",
+    macos_step2_desc: "Selecionar \"USB\" à esquerda para ver dispositivos USB conectados",
+    macos_step3_title: "Verificar dispositivos seriais",
+    macos_step3_desc: "Abrir Terminal e inserir comando para ver dispositivos seriais:",
+    
+    macos_driver_install: "Passo 2: Instalar drivers",
+    macos_driver_note: "macOS geralmente tem a maioria dos drivers USB para serial incorporados, mas alguns chips ainda requerem instalação manual",
+    
+    ch340_mac_desc: "Driver CH340 para macOS",
+    cp210x_mac_desc: "Driver CP210x para macOS",
+    
+    // Relacionado ao Linux
+    linux_check_system: "Passo 1: Verificar reconhecimento do sistema",
+    linux_step1_title: "Verificar dispositivos USB",
+    linux_step1_desc: "Abrir terminal e inserir o seguinte comando:",
+    linux_step2_title: "Verificar dispositivos seriais",
+    linux_step2_desc: "Ver dispositivos seriais disponíveis:",
+    linux_step3_title: "Verificar mensagens do kernel",
+    linux_step3_desc: "Ver mensagens do kernel ao conectar o dispositivo:",
+    
+    linux_permissions: "Passo 2: Definir permissões",
+    linux_add_user_group: "Adicionar usuário ao grupo dialout",
+    linux_add_user_desc: "Executar o seguinte comando e fazer login novamente:",
+    linux_check_permissions: "Verificar permissões do dispositivo",
+    linux_check_permissions_desc: "Confirmar configurações de permissões do dispositivo:",
+    
+    // Solução de problemas avançada
+    advanced_troubleshooting: "Solução de Problemas Avançada",
+    hardware_issues: "Investigação de problemas de hardware",
+    software_conflicts: "Resolução de conflitos de software",
+    
+    try_different_cable: "Tentar cabo de dados USB diferente",
+    try_different_port: "Tentar porta USB diferente",
+    try_different_computer: "Testar dispositivo em outros computadores",
+    check_device_power: "Verificar se a alimentação do dispositivo é normal",
+    
+    close_other_serial_software: "Fechar outros softwares de depuração serial",
+    disable_antivirus: "Desabilitar temporariamente software antivírus",
+    update_browser: "Atualizar navegador para a versão mais recente",
+    clear_browser_cache: "Limpar cache e dados do navegador",
+    
+    // Obter ajuda
+    get_help_title: "Obter Ajuda",
+    get_help_desc: "Se nenhum dos métodos acima conseguir resolver o problema, colete as seguintes informações e entre em contato com o suporte técnico:",
+    
+    help_info_os: "Versão do sistema operacional",
+    help_info_browser: "Versão do navegador",
+    help_info_device: "Modelo do dispositivo e informações do chip",
+    help_info_error: "Capturas de tela de mensagens de erro específicas",
+    help_info_device_manager: "Capturas de tela do Gerenciador de Dispositivos (Windows)",
+    
+    github_support_desc: "Enviar relatório de problema no GitHub"
 };
 
 // Exportar para global

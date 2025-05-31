@@ -161,6 +161,12 @@
                             <span class="status-dot" id="statusDot"></span>
                             <span id="statusText" data-i18n="status_disconnected">未连接</span>
                         </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -316,6 +322,12 @@
                         <div class="status-indicator">
                             <span class="status-dot" id="flashStatusDot"></span>
                             <span id="flashStatusText" data-i18n="status_disconnected">未连接</span>
+                        </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -543,8 +555,6 @@
         </div>
     </div>
 
-    <script src="i18n/i18n.js"></script>
-    
     <!-- 多语言配置文件 -->
     <script src="i18n/loader.js"></script>
     
@@ -556,17 +566,194 @@
     <script src="flash-downloader.js"></script>
     <script src="script-clean.js"></script>
     
-    <!-- 初始化多语言系统 -->
+    <!-- 初始化多语言系统和事件处理 -->
     <script>
-        // 页面加载完成后初始化多语言系统
-        window.addEventListener('DOMContentLoaded', async function() {
+        // 打开故障排除页面，传递当前语言参数
+        function openTroubleshooting(event) {
+            event.preventDefault();
+            const currentLang = localStorage.getItem('selectedLanguage') || 'zh';
+            window.open(`troubleshooting.html?lang=${currentLang}`, '_blank');
+        }
+        
+        // 更新语言显示
+        function updateLanguageDisplay(lang) {
+            const flagElement = document.getElementById('currentLangFlag');
+            const nameElement = document.getElementById('currentLangName');
+            
+            if (flagElement && nameElement) {
+                flagElement.textContent = getFlagEmoji(lang);
+                
+                // 获取语言名称
+                const langNames = {
+                    'zh': '简体中文',
+                    'zh-tw': '繁體中文', 
+                    'en': 'English',
+                    'fr': 'Français',
+                    'de': 'Deutsch',
+                    'es': 'Español',
+                    'ja': '日本語',
+                    'ko': '한국어',
+                    'ru': 'Русский',
+                    'pt': 'Português'
+                };
+                nameElement.textContent = langNames[lang] || '简体中文';
+            }
+            
+            // 更新语言选项的激活状态
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        function getFlagEmoji(lang) {
+            const flagMap = {
+                'zh': '🇨🇳',
+                'zh-tw': '🇹🇼',
+                'en': '🇺🇸',
+                'fr': '🇫🇷',
+                'de': '🇩🇪',
+                'es': '🇪🇸',
+                'ja': '🇯🇵',
+                'ko': '🇰🇷',
+                'ru': '🇷🇺',
+                'pt': '🇵🇹'
+            };
+            return flagMap[lang] || '🌐';
+        }
+        
+        // 语言下拉菜单状态
+        let isDropdownOpen = false;
+        
+        // 切换下拉菜单
+        function toggleLanguageDropdown() {
+            const langDropdown = document.getElementById('langDropdown');
+            const langDropdownMenu = document.getElementById('langDropdownMenu');
+            
+            if (!langDropdown || !langDropdownMenu) {
+                console.error('语言下拉菜单元素未找到');
+                return;
+            }
+            
+            isDropdownOpen = !isDropdownOpen;
+            
+            if (isDropdownOpen) {
+                // 打开菜单
+                langDropdown.classList.add('active');
+                console.log('语言下拉菜单已打开');
+            } else {
+                // 关闭菜单
+                langDropdown.classList.remove('active');
+                console.log('语言下拉菜单已关闭');
+            }
+        }
+        
+        // 关闭下拉菜单
+        function closeLanguageDropdown() {
+            const langDropdown = document.getElementById('langDropdown');
+            if (langDropdown) {
+                langDropdown.classList.remove('active');
+                isDropdownOpen = false;
+                console.log('语言下拉菜单已关闭');
+            }
+        }
+        
+        // 选择语言
+        function selectLanguage(langCode) {
+            console.log('选择语言:', langCode);
+            
+            // 关闭下拉菜单
+            closeLanguageDropdown();
+            
+            // 切换语言
+            if (window.i18nLoader && typeof window.i18nLoader.setLanguage === 'function') {
+                window.i18nLoader.setLanguage(langCode).then(() => {
+                    console.log('语言切换成功:', langCode);
+                }).catch(error => {
+                    console.error('语言切换失败:', error);
+                });
+            } else {
+                console.error('i18nLoader未初始化或setLanguage方法不存在');
+            }
+        }
+        
+        // 初始化语言下拉菜单
+        function initLanguageDropdown() {
+            console.log('开始初始化语言下拉菜单...');
+            
+            const langDropdownBtn = document.getElementById('langDropdownBtn');
+            const langDropdown = document.getElementById('langDropdown');
+            
+            if (!langDropdownBtn || !langDropdown) {
+                console.error('语言下拉菜单元素未找到:', {
+                    btn: !!langDropdownBtn,
+                    dropdown: !!langDropdown
+                });
+                return;
+            }
+            
+            // 移除可能存在的旧事件监听器
+            langDropdownBtn.replaceWith(langDropdownBtn.cloneNode(true));
+            const newBtn = document.getElementById('langDropdownBtn');
+            
+            // 添加按钮点击事件
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('语言下拉按钮被点击');
+                toggleLanguageDropdown();
+            });
+            
+            // 为每个语言选项添加点击事件
+            document.querySelectorAll('.lang-option').forEach(option => {
+                // 移除旧的事件监听器
+                const newOption = option.cloneNode(true);
+                option.parentNode.replaceChild(newOption, option);
+                
+                // 添加新的事件监听器
+                newOption.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const selectedLang = this.getAttribute('data-lang');
+                    selectLanguage(selectedLang);
+                });
+            });
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function(event) {
+                const langDropdown = document.getElementById('langDropdown');
+                if (langDropdown && !langDropdown.contains(event.target)) {
+                    closeLanguageDropdown();
+                }
+            });
+            
+            console.log('语言下拉菜单初始化完成');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('页面DOM加载完成，开始初始化...');
+            
             try {
                 // 先初始化多语言系统
-                await window.i18nLoader.init();
-                console.log('多语言系统初始化完成');
+                if (window.i18nLoader) {
+                    console.log('开始初始化多语言系统...');
+                    await window.i18nLoader.init();
+                    console.log('多语言系统初始化完成');
+                } else {
+                    console.error('i18nLoader未找到');
+                }
+                
+                // 等待一小段时间确保DOM完全准备好
+                setTimeout(() => {
+                    // 初始化语言下拉菜单
+                    initLanguageDropdown();
+                }, 100);
                 
                 // 然后初始化串口终端（如果还没有初始化的话）
-                if (!window.serialTerminal) {
+                if (!window.serialTerminal && typeof SerialTerminal !== 'undefined') {
                     window.serialTerminal = new SerialTerminal();
                     console.log('串口终端初始化完成');
                     
@@ -576,6 +763,20 @@
             } catch (error) {
                 console.error('系统初始化失败:', error);
             }
+        });
+        
+        // 监听多语言系统初始化完成事件
+        window.addEventListener('i18nReady', function(event) {
+            const currentLang = event.detail.language;
+            updateLanguageDisplay(currentLang);
+            console.log('主页多语言系统就绪，当前语言:', currentLang);
+        });
+        
+        // 监听语言变更事件
+        window.addEventListener('languageChanged', function(event) {
+            const newLang = event.detail.language;
+            updateLanguageDisplay(newLang);
+            console.log('主页语言已切换到:', newLang);
         });
     </script>
 </body>
