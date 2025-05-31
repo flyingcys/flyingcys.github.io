@@ -148,32 +148,104 @@ class I18nLoader {
         return this.loadedLanguages.has(langCode);
     }
     
+    // 检测系统默认语言
+    detectSystemLanguage() {
+        // 获取浏览器语言设置
+        const browserLang = navigator.language || navigator.userLanguage || 'en';
+        console.log('检测到系统语言:', browserLang);
+        
+        // 语言映射表：将浏览器语言代码映射到我们支持的语言
+        const languageMap = {
+            'zh': 'zh',           // 中文
+            'zh-CN': 'zh',        // 简体中文
+            'zh-Hans': 'zh',      // 简体中文
+            'zh-TW': 'zh-tw',     // 繁体中文
+            'zh-Hant': 'zh-tw',   // 繁体中文
+            'en': 'en',           // 英文
+            'en-US': 'en',        // 美式英文
+            'en-GB': 'en',        // 英式英文
+            'ja': 'ja',           // 日文
+            'ja-JP': 'ja',        // 日文
+            'ko': 'ko',           // 韩文
+            'ko-KR': 'ko',        // 韩文
+            'fr': 'fr',           // 法文
+            'fr-FR': 'fr',        // 法文
+            'de': 'de',           // 德文
+            'de-DE': 'de',        // 德文
+            'es': 'es',           // 西班牙文
+            'es-ES': 'es',        // 西班牙文
+            'pt': 'pt',           // 葡萄牙文
+            'pt-BR': 'pt',        // 巴西葡萄牙文
+            'pt-PT': 'pt',        // 葡萄牙文
+            'ru': 'ru',           // 俄文
+            'ru-RU': 'ru'         // 俄文
+        };
+        
+        // 首先尝试完整匹配
+        let detectedLang = languageMap[browserLang];
+        
+        // 如果完整匹配失败，尝试匹配语言代码的前两位
+        if (!detectedLang) {
+            const langPrefix = browserLang.split('-')[0];
+            detectedLang = languageMap[langPrefix];
+        }
+        
+        // 如果仍然没有匹配，回退到英文
+        if (!detectedLang) {
+            console.log('系统语言不支持，回退到英文');
+            detectedLang = 'en';
+        }
+        
+        console.log('映射后的语言:', detectedLang);
+        return detectedLang;
+    }
+
     // 初始化
     async init() {
         // 检查URL参数中的语言设置
         const urlParams = new URLSearchParams(window.location.search);
         const langFromUrl = urlParams.get('lang');
         
-        // 从localStorage读取用户偏好语言，统一使用 selectedLanguage
-        const savedLang = localStorage.getItem('selectedLanguage') || 'zh';
+        // 从localStorage读取用户偏好语言
+        const savedLang = localStorage.getItem('selectedLanguage');
         
-        // 确定要使用的语言（URL参数优先级最高）
-        const targetLang = langFromUrl || savedLang;
+        // 检测系统默认语言
+        const systemLang = this.detectSystemLanguage();
         
-        // 预加载中文（默认语言）
+        // 确定要使用的语言（优先级：URL参数 > 用户保存的偏好 > 系统语言）
+        const targetLang = langFromUrl || savedLang || systemLang;
+        
+        console.log('语言选择过程:', {
+            urlParam: langFromUrl,
+            savedPreference: savedLang,
+            systemDetected: systemLang,
+            finalChoice: targetLang
+        });
+        
+        // 预加载中文（作为回退语言）
         await this.loadLanguage('zh');
         
         // 如果目标语言不是中文，也加载它
         if (targetLang !== 'zh') {
-            await this.loadLanguage(targetLang);
+            const loaded = await this.loadLanguage(targetLang);
+            if (!loaded) {
+                // 如果目标语言加载失败，回退到英文
+                console.warn(`语言 ${targetLang} 加载失败，回退到英文`);
+                await this.loadLanguage('en');
+                this.currentLanguage = 'en';
+            } else {
+                this.currentLanguage = targetLang;
+            }
+        } else {
+            this.currentLanguage = targetLang;
         }
-        
-        // 设置当前语言
-        this.currentLanguage = targetLang;
         
         // 如果URL中有语言参数，保存到localStorage
         if (langFromUrl) {
             localStorage.setItem('selectedLanguage', langFromUrl);
+        } else if (!savedLang) {
+            // 如果没有保存的偏好，保存检测到的语言
+            localStorage.setItem('selectedLanguage', this.currentLanguage);
         }
         
         // 更新页面文本
@@ -181,11 +253,11 @@ class I18nLoader {
         
         // 触发语言设置完成事件，通知UI更新
         const event = new CustomEvent('i18nReady', { 
-            detail: { language: targetLang } 
+            detail: { language: this.currentLanguage } 
         });
         window.dispatchEvent(event);
         
-        console.log('I18n system initialized with language:', targetLang);
+        console.log('多语言系统初始化完成，当前语言:', this.currentLanguage);
     }
 
     updatePageTitle() {
