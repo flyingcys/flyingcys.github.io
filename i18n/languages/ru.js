@@ -383,7 +383,38 @@ const ru = {
     help_info_error: "Скриншоты конкретных сообщений об ошибках",
     help_info_device_manager: "Скриншоты Диспетчера устройств (Windows)",
     
-    github_support_desc: "Отправить отчет о проблеме на GitHub"
+    github_support_desc: "Отправить отчет о проблеме на GitHub",
+    
+    // Новое: TuyaOpen Authorization related
+    tab_tuya_auth: "Авторизация TuyaOpen",
+    tuya_auth_title: "Запись Кода Авторизации TuyaOpen",
+    tuya_auth_subtitle: "Записать информацию авторизации проекта TuyaOpen на устройство",
+    uuid_label: "UUID (20 символов):",
+    auth_key_label: "AUTH_KEY (32 символа):",
+    uuid_placeholder: "Введите UUID из 20 символов...",
+    auth_key_placeholder: "Введите AUTH_KEY из 32 символов...",
+    authorize_btn: "Записать Авторизацию",
+    tuya_auth_notice_title: "⚠️ Важное Уведомление",
+    tuya_auth_notice_content: "Эта функция авторизации применима только для записи кодов авторизации проектов TuyaOpen и не может использоваться для не-TuyaOpen проектов.",
+    tuya_auth_additional_info: "Убедитесь, что устройство находится в режиме авторизации и последовательный порт правильно подключен перед выполнением операции авторизации.",
+    uuid_length_error: "Ошибка длины UUID! Введите UUID из 20 символов",
+    auth_key_length_error: "Ошибка длины AUTH_KEY! Введите AUTH_KEY из 32 символов",
+    uuid_empty_error: "Пожалуйста, введите UUID",
+    auth_key_empty_error: "Пожалуйста, введите AUTH_KEY",
+    tuya_auth_success: "✅ Информация авторизации TuyaOpen успешно записана!",
+    tuya_auth_failed: "❌ Ошибка записи информации авторизации TuyaOpen: {0}",
+    tuya_auth_sending: "Отправка информации авторизации...",
+    tuya_auth_command_sent: "Команда авторизации отправлена: auth {0} {1}",
+    
+    // Информация о состоянии, связанная с авторизацией
+    tuya_auth_waiting: "Ожидание операции авторизации...",
+    tuya_auth_connected: "Порт авторизации подключен",
+    tuya_auth_disconnected: "Порт авторизации отключен",
+    connect_tuya_auth: "Подключить Порт Авторизации",
+    disconnect_tuya_auth: "Отключить Порт Авторизации",
+    tuya_auth_serial_connected: "Порт авторизации TuyaOpen успешно подключен!",
+    tuya_auth_serial_disconnected: "Порт авторизации TuyaOpen отключен.",
+    tab_tuya_auth_name: "Авторизация TuyaOpen"
 };
 
 // Экспорт в глобальную область

@@ -2387,4 +2387,264 @@ header p {
 
 .help-link .icon {
     font-size: 1.1em;
+}
+
+/* TuyaOpen授权页面样式 */
+.tuya-auth-panel {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-header h3 {
+    color: #1e40af;
+    font-size: 1.5em;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.auth-subtitle {
+    color: #6b7280;
+    font-size: 0.95em;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.auth-input-area {
+    display: flex;
+    justify-content: center;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 600px;
+}
+
+.auth-form-group {
+    margin-bottom: 20px;
+}
+
+.auth-form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    background: #fafbfc;
+}
+
+.auth-input.error {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.auth-input.success {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.input-help {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 0.8em;
+    color: #6b7280;
+}
+
+.char-count {
+    color: #8b5cf6;
+}
+
+.byte-count {
+    color: #059669;
+    font-weight: 500;
+}
+
+.auth-button-area {
+    text-align: center;
+    margin-top: 32px;
+}
+
+#authorizeBtn {
+    min-width: 160px;
+    font-size: 1.1em;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+#authorizeBtn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+#authorizeBtn:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* TuyaOpen授权提示区域样式 */
+.tuya-auth-notice {
+    background: linear-gradient(135deg, #fef3c7, #fbbf24);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.notice-content h4 {
+    color: #92400e;
+    font-size: 1.2em;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notice-list p {
+    color: #78350f;
+    margin: 8px 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+    padding-left: 24px;
+    position: relative;
+}
+
+.notice-list p:before {
+    content: "•";
+    color: #f59e0b;
+    font-weight: bold;
+    position: absolute;
+    left: 8px;
+    font-size: 1.2em;
+}
+
+/* TuyaOpen授权Tab样式 */
+#tuyaauthTab.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#tuyaauthTab .receive-data-panel {
+    margin-top: 20px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .tuya-auth-panel {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .auth-header h3 {
+        font-size: 1.3em;
+    }
+    
+    .auth-form {
+        max-width: 100%;
+    }
+    
+    .auth-input {
+        padding: 10px 12px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+    
+    .input-help {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    #authorizeBtn {
+        min-width: 120px;
+        font-size: 1em;
+        padding: 12px 24px;
+    }
+    
+    .tuya-auth-notice {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .notice-content h4 {
+        font-size: 1.1em;
+    }
+    
+    .notice-list p {
+        font-size: 0.9em;
+        padding-left: 20px;
+    }
+}
+
+/* 输入验证动画 */
+@keyframes inputShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.auth-input.shake {
+    animation: inputShake 0.5s ease-in-out;
+}
+
+/* 成功提示样式 */
+.auth-success-message {
+    background: linear-gradient(135deg, #d1fae5, #10b981);
+    border: 2px solid #059669;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    color: #065f46;
+    font-weight: 500;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+/* 错误提示样式 */
+.auth-error-message {
+    background: linear-gradient(135deg, #fee2e2, #ef4444);
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    color: #991b1b;
+    font-weight: 500;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
 } 

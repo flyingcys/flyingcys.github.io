@@ -19,6 +19,7 @@ const zh = {
     // Tab标签
     tab_serial: "串口调试",
     tab_flash: "固件下载",
+    tab_tuya_auth: "TuyaOpen授权",
     
     // 控制面板
     control_title: "串口连接控制",
@@ -422,7 +423,37 @@ const zh = {
     help_info_error: "具体错误信息截图",
     help_info_device_manager: "设备管理器截图（Windows）",
     
-    github_support_desc: "在GitHub上提交问题报告"
+    github_support_desc: "在GitHub上提交问题报告",
+    
+    // 新增：TuyaOpen授权相关
+    tuya_auth_title: "TuyaOpen授权码写入",
+    tuya_auth_subtitle: "向设备写入TuyaOpen项目授权信息",
+    uuid_label: "UUID (20字符):",
+    auth_key_label: "AUTH_KEY (32字符):",
+    uuid_placeholder: "请输入20字符的UUID...",
+    auth_key_placeholder: "请输入32字符的AUTH_KEY...",
+    authorize_btn: "写入授权",
+    tuya_auth_notice_title: "⚠️ 重要提示",
+    tuya_auth_notice_content: "当前授权功能只适用于TuyaOpen工程的授权码写入，非TuyaOpen工程无法使用。",
+    tuya_auth_additional_info: "请确保设备已进入授权模式，并正确连接串口后再进行授权操作。",
+    uuid_length_error: "UUID长度错误！请输入20字符的UUID",
+    auth_key_length_error: "AUTH_KEY长度错误！请输入32字符的AUTH_KEY",
+    uuid_empty_error: "请输入UUID",
+    auth_key_empty_error: "请输入AUTH_KEY",
+    tuya_auth_success: "✅ TuyaOpen授权信息写入成功！",
+    tuya_auth_failed: "❌ TuyaOpen授权信息写入失败: {0}",
+    tuya_auth_sending: "正在发送授权信息...",
+    tuya_auth_command_sent: "授权命令已发送: auth {0} {1}",
+    
+    // 授权相关状态信息
+    tuya_auth_waiting: "等待授权操作...",
+    tuya_auth_connected: "授权串口已连接",
+    tuya_auth_disconnected: "授权串口已断开",
+    connect_tuya_auth: "连接授权串口",
+    disconnect_tuya_auth: "断开授权串口",
+    tuya_auth_serial_connected: "TuyaOpen授权串口连接成功！",
+    tuya_auth_serial_disconnected: "TuyaOpen授权串口已断开连接。",
+    tab_tuya_auth_name: "TuyaOpen授权"
 };
 
 // 导出到全局

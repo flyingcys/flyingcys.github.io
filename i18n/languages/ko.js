@@ -383,7 +383,38 @@ const ko = {
     help_info_error: "구체적인 오류 메시지 스크린샷",
     help_info_device_manager: "장치 관리자 스크린샷 (Windows)",
     
-    github_support_desc: "GitHub에서 문제 보고서 제출"
+    github_support_desc: "GitHub에 문제 보고서 제출",
+    
+    // 새로운: TuyaOpen Authorization related
+    tab_tuya_auth: "TuyaOpen 인증",
+    tuya_auth_title: "TuyaOpen 인증 코드 작성",
+    tuya_auth_subtitle: "장치에 TuyaOpen 프로젝트 인증 정보 작성",
+    uuid_label: "UUID (20자):",
+    auth_key_label: "AUTH_KEY (32자):",
+    uuid_placeholder: "20자 UUID를 입력하세요...",
+    auth_key_placeholder: "32자 AUTH_KEY를 입력하세요...",
+    authorize_btn: "인증 작성",
+    tuya_auth_notice_title: "⚠️ 중요 알림",
+    tuya_auth_notice_content: "이 인증 기능은 TuyaOpen 프로젝트의 인증 코드 작성에만 적용되며, TuyaOpen이 아닌 프로젝트에는 사용할 수 없습니다.",
+    tuya_auth_additional_info: "인증 작업을 진행하기 전에 장치가 인증 모드에 있고 시리얼 포트가 올바르게 연결되어 있는지 확인하세요.",
+    uuid_length_error: "UUID 길이 오류! 20자 UUID를 입력하세요",
+    auth_key_length_error: "AUTH_KEY 길이 오류! 32자 AUTH_KEY를 입력하세요",
+    uuid_empty_error: "UUID를 입력하세요",
+    auth_key_empty_error: "AUTH_KEY를 입력하세요",
+    tuya_auth_success: "✅ TuyaOpen 인증 정보가 성공적으로 작성되었습니다!",
+    tuya_auth_failed: "❌ TuyaOpen 인증 정보 작성 실패: {0}",
+    tuya_auth_sending: "인증 정보 전송 중...",
+    tuya_auth_command_sent: "인증 명령 전송됨: auth {0} {1}",
+    
+    // 인증 관련 상태 정보
+    tuya_auth_waiting: "인증 작업 대기 중...",
+    tuya_auth_connected: "인증 시리얼 포트 연결됨",
+    tuya_auth_disconnected: "인증 시리얼 포트 연결 해제됨",
+    connect_tuya_auth: "인증 시리얼 포트 연결",
+    disconnect_tuya_auth: "인증 시리얼 포트 연결 해제",
+    tuya_auth_serial_connected: "TuyaOpen 인증 시리얼 포트가 성공적으로 연결되었습니다!",
+    tuya_auth_serial_disconnected: "TuyaOpen 인증 시리얼 포트 연결이 해제되었습니다.",
+    tab_tuya_auth_name: "TuyaOpen 인증"
 };
 
 // 전역으로 내보내기

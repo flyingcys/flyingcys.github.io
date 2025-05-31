@@ -125,7 +125,7 @@ const ja = {
     download_failed: "ダウンロード失敗: {0}",
     
     // ファイル操作
-    file_selected: "ファイル選択: {0} ({1} バイト)",
+    file_selected: "ファイル選択: {0} ({1} 文字)",
     start_download_to: "{0}へのファームウェアダウンロードを開始...",
     download_complete: "ファームウェアダウンロード完了！",
     user_cancelled: "ユーザーがダウンロードをキャンセル",
@@ -207,7 +207,7 @@ const ja = {
     
     // 新規: ファームウェアダウンロードプロセス関連
     starting_firmware_download_process: "ファームウェアダウンロードプロセスを開始中...",
-    starting_device_download: "{0}デバイスダウンロードを開始、ファイルサイズ: {1}バイト",
+    starting_device_download: "{0}デバイスダウンロードを開始、ファイルサイズ: {1}文字",
     firmware_download_completed_time: "ファームウェアダウンロード完了! 総時間: {0}ms",
     device_firmware_download_completed: "{0}デバイスファームウェアダウンロード完了",
     initializing_downloader: "{0}ダウンローダを初期化中...",
@@ -375,7 +375,43 @@ const ja = {
     
     github_support_desc: "GitHubで問題レポートを提出",
     community_forum: "コミュニティフォーラム",
-    forum_support_desc: "コミュニティフォーラムでヘルプを求める"
+    forum_support_desc: "コミュニティフォーラムでヘルプを求める",
+    
+    // TuyaOpen認証関連
+    tab_tuya_auth: "TuyaOpen認証",
+    tuya_auth_title: "TuyaOpen認証コード",
+    tuya_auth_subtitle: "デバイスにTuyaOpenプロジェクト認証情報を書き込み",
+    uuid_label: "UUID (20文字):",
+    auth_key_label: "AUTH_KEY (32文字):",
+    uuid_placeholder: "20文字のUUIDを入力してください...",
+    auth_key_placeholder: "32文字のAUTH_KEYを入力してください...",
+    authorize_btn: "認証書き込み",
+    tuya_auth_notice_title: "⚠️ 重要な注意事項",
+    tuya_auth_notice_content: "この認証機能は、TuyaOpenプロジェクトの認証コード書き込みのみに適用され、非TuyaOpenプロジェクトでは使用できません。",
+    tuya_auth_additional_info: "認証操作を行う前に、デバイスが認証モードになっており、シリアルポートが正しく接続されていることを確認してください。",
+    uuid_length_error: "UUID長エラー！20文字のUUIDを入力してください",
+    auth_key_length_error: "AUTH_KEY長エラー！32文字のAUTH_KEYを入力してください",
+    uuid_empty_error: "UUIDを入力してください",
+    auth_key_empty_error: "AUTH_KEYを入力してください",
+    tuya_auth_success: "✅ TuyaOpen認証情報の書き込みが成功しました！",
+    tuya_auth_failed: "❌ TuyaOpen認証情報の書き込みに失敗しました: {0}",
+    tuya_auth_sending: "認証情報を送信中...",
+    tuya_auth_command_sent: "認証コマンドを送信しました: auth {0} {1}",
+    
+    // 認証関連ステータス情報
+    tuya_auth_waiting: "認証操作を待機中...",
+    tuya_auth_connected: "認証シリアル接続済み",
+    tuya_auth_disconnected: "認証シリアル切断済み",
+    connect_tuya_auth: "認証シリアル接続",
+    disconnect_tuya_auth: "認証シリアル切断",
+    tuya_auth_serial_connected: "TuyaOpen認証シリアルが正常に接続されました！",
+    tuya_auth_serial_disconnected: "TuyaOpen認証シリアルが切断されました。",
+    tab_tuya_auth_name: "TuyaOpen認証",
+    
+    // 新增缺失的翻译项
+    no_log_to_save: "保存するログがありません",
+    serial_disconnected_unexpectedly: "シリアル接続が予期せず切断されました: {0}",
+    console_filtered_null_chars: "{0}個の0x00文字をフィルタリングしました"
 };
 
 // グローバルにエクスポート

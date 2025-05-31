@@ -383,7 +383,38 @@ const pt = {
     help_info_error: "Capturas de tela de mensagens de erro específicas",
     help_info_device_manager: "Capturas de tela do Gerenciador de Dispositivos (Windows)",
     
-    github_support_desc: "Enviar relatório de problema no GitHub"
+    github_support_desc: "Enviar relatório de problema no GitHub",
+    
+    // Novo: TuyaOpen Authorization related
+    tab_tuya_auth: "Autorização TuyaOpen",
+    tuya_auth_title: "Escrita de Código de Autorização TuyaOpen",
+    tuya_auth_subtitle: "Escrever informações de autorização do projeto TuyaOpen no dispositivo",
+    uuid_label: "UUID (20 caracteres):",
+    auth_key_label: "AUTH_KEY (32 caracteres):",
+    uuid_placeholder: "Digite um UUID de 20 caracteres...",
+    auth_key_placeholder: "Digite uma AUTH_KEY de 32 caracteres...",
+    authorize_btn: "Escrever Autorização",
+    tuya_auth_notice_title: "⚠️ Aviso Importante",
+    tuya_auth_notice_content: "Esta função de autorização é aplicável apenas para escrever códigos de autorização de projetos TuyaOpen e não pode ser usada para projetos não-TuyaOpen.",
+    tuya_auth_additional_info: "Certifique-se de que o dispositivo esteja no modo de autorização e a porta serial esteja corretamente conectada antes de prosseguir com a operação de autorização.",
+    uuid_length_error: "Erro de comprimento UUID! Digite um UUID de 20 caracteres",
+    auth_key_length_error: "Erro de comprimento AUTH_KEY! Digite uma AUTH_KEY de 32 caracteres",
+    uuid_empty_error: "Por favor digite o UUID",
+    auth_key_empty_error: "Por favor digite o AUTH_KEY",
+    tuya_auth_success: "✅ Informações de autorização TuyaOpen escritas com sucesso!",
+    tuya_auth_failed: "❌ Falha ao escrever informações de autorização TuyaOpen: {0}",
+    tuya_auth_sending: "Enviando informações de autorização...",
+    tuya_auth_command_sent: "Comando de autorização enviado: auth {0} {1}",
+    
+    // Informações de status relacionadas à autorização
+    tuya_auth_waiting: "Aguardando operação de autorização...",
+    tuya_auth_connected: "Porta serial de autorização conectada",
+    tuya_auth_disconnected: "Porta serial de autorização desconectada",
+    connect_tuya_auth: "Conectar Porta Serial de Autorização",
+    disconnect_tuya_auth: "Desconectar Porta Serial de Autorização",
+    tuya_auth_serial_connected: "Porta serial de autorização TuyaOpen conectada com sucesso!",
+    tuya_auth_serial_disconnected: "Porta serial de autorização TuyaOpen desconectada.",
+    tab_tuya_auth_name: "Autorização TuyaOpen"
 };
 
 // Exportar para global

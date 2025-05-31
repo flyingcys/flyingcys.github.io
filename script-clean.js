@@ -12,6 +12,15 @@ class SerialTerminal {
         this.flashWriter = null;
         this.isFlashConnected = false;
         
+        // TuyaOpen授权相关的连接状态
+        this.authPort = null;
+        this.authReader = null;
+        this.authWriter = null;
+        this.isAuthConnected = false;
+        this.authRxCount = 0;
+        this.authTxCount = 0;
+        this.authReceiveBuffer = '';
+        
         this.rxCount = 0;
         this.txCount = 0;
         this.selectedFile = null;
@@ -27,6 +36,7 @@ class SerialTerminal {
         this.initializeTabs();
         this.initializeFlashDownloader();
         this.initializeQuickCommands();
+        this.initializeTuyaAuth();
         
         // 监听多语言系统就绪事件
         window.addEventListener('i18nReady', () => {
@@ -152,6 +162,37 @@ class SerialTerminal {
         this.flashFullscreenCloseBtn = document.getElementById('flashFullscreenCloseBtn');
         this.flashFullscreenDataDisplay = document.getElementById('flashFullscreenDataDisplay');
         this.isFlashFullscreen = false;
+        
+        // TuyaOpen授权相关元素
+        this.connectAuthBtn = document.getElementById('connectAuthBtn');
+        this.disconnectAuthBtn = document.getElementById('disconnectAuthBtn');
+        this.authStatusDot = document.getElementById('authStatusDot');
+        this.authStatusText = document.getElementById('authStatusText');
+        this.authBaudRateSelect = document.getElementById('authBaudRate');
+        this.authDataBitsSelect = document.getElementById('authDataBits');
+        this.authStopBitsSelect = document.getElementById('authStopBits');
+        this.authParitySelect = document.getElementById('authParity');
+        
+        // 授权输入相关元素
+        this.uuidInput = document.getElementById('uuidInput');
+        this.authKeyInput = document.getElementById('authKeyInput');
+        this.authorizeBtn = document.getElementById('authorizeBtn');
+        
+        // 授权数据显示相关元素
+        this.authDataDisplay = document.getElementById('authDataDisplay');
+        this.authRxCountSpan = document.getElementById('authRxCount');
+        this.authTxCountSpan = document.getElementById('authTxCount');
+        this.clearAuthBtn = document.getElementById('clearAuthBtn');
+        this.saveAuthBtn = document.getElementById('saveAuthBtn');
+        this.authAutoScroll = document.getElementById('authAutoScroll');
+        this.authShowTimestamp = document.getElementById('authShowTimestamp');
+        
+        // 授权全屏相关元素
+        this.authFullscreenBtn = document.getElementById('authFullscreenBtn');
+        this.authFullscreenOverlay = document.getElementById('authFullscreenOverlay');
+        this.authFullscreenCloseBtn = document.getElementById('authFullscreenCloseBtn');
+        this.authFullscreenDataDisplay = document.getElementById('authFullscreenDataDisplay');
+        this.isAuthFullscreen = false;
     }
 
     bindEvents() {
@@ -335,7 +376,60 @@ class SerialTerminal {
                 if (this.isFlashFullscreen) {
                     this.exitFlashFullscreen();
                 }
+                if (this.isAuthFullscreen) {
+                    this.exitAuthFullscreen();
+                }
             }
+        });
+        
+        // TuyaOpen授权相关事件
+        this.connectAuthBtn.addEventListener('click', () => {
+            this.connectTuyaAuth();
+        });
+        
+        this.disconnectAuthBtn.addEventListener('click', () => {
+            this.disconnectTuyaAuth();
+        });
+        
+        this.authorizeBtn.addEventListener('click', () => {
+            this.sendTuyaAuth();
+        });
+        
+        // UUID和AUTH_KEY输入验证事件
+        if (this.uuidInput) {
+            this.uuidInput.addEventListener('input', () => {
+                this.validateAuthInputs();
+            });
+            this.uuidInput.addEventListener('keyup', () => {
+                this.validateAuthInputs();
+            });
+        }
+        
+        if (this.authKeyInput) {
+            this.authKeyInput.addEventListener('input', () => {
+                this.validateAuthInputs();
+            });
+            this.authKeyInput.addEventListener('keyup', () => {
+                this.validateAuthInputs();
+            });
+        }
+        
+        // 授权日志相关事件
+        this.clearAuthBtn.addEventListener('click', () => {
+            this.clearAuthDisplay();
+        });
+        
+        this.saveAuthBtn.addEventListener('click', () => {
+            this.saveAuthLog();
+        });
+        
+        // 授权全屏相关事件
+        this.authFullscreenBtn.addEventListener('click', () => {
+            this.toggleAuthFullscreen();
+        });
+        
+        this.authFullscreenCloseBtn.addEventListener('click', () => {
+            this.exitAuthFullscreen();
         });
 
         // 点击覆盖层外部退出全屏
@@ -2558,10 +2652,485 @@ class SerialTerminal {
 
     // 更新系统信息显示
     updateSystemInfoDisplay() {
-        const subtitleElement = document.getElementById('systemInfoSubtitle');
-        if (subtitleElement) {
-            const info = this.formatSystemInfo();
-            subtitleElement.textContent = info;
+        const systemInfoSubtitle = document.getElementById('systemInfoSubtitle');
+        if (systemInfoSubtitle) {
+            systemInfoSubtitle.textContent = this.formatSystemInfo();
+        }
+    }
+    
+    // ==================== TuyaOpen授权相关方法 ====================
+    
+    // 初始化TuyaOpen授权功能
+    initializeTuyaAuth() {
+        // 延迟执行以确保DOM完全加载
+        setTimeout(() => {
+            console.log('初始化TuyaOpen授权功能...');
+            
+            // 检查关键元素是否存在
+            const uuidInput = document.getElementById('uuidInput');
+            const authKeyInput = document.getElementById('authKeyInput');
+            
+            if (!uuidInput) {
+                console.error('UUID输入框未找到');
+                return;
+            }
+            if (!authKeyInput) {
+                console.error('AUTH_KEY输入框未找到');
+                return;
+            }
+            
+            console.log('TuyaOpen授权元素检查完成');
+            
+            // 初始化输入验证
+            this.validateAuthInputs();
+            
+            // 设置字符计数器
+            this.updateCharCount();
+            
+            console.log('TuyaOpen授权功能初始化完成');
+        }, 100);
+    }
+    
+    // 获取授权串口配置
+    getAuthSerialOptions() {
+        return {
+            baudRate: parseInt(this.authBaudRateSelect.value),
+            dataBits: parseInt(this.authDataBitsSelect.value),
+            stopBits: parseInt(this.authStopBitsSelect.value),
+            parity: this.authParitySelect.value
+        };
+    }
+    
+    // 连接TuyaOpen授权串口
+    async connectTuyaAuth() {
+        if (!navigator.serial) {
+            this.showError(i18n.t('browser_not_supported'));
+            return;
+        }
+
+        try {
+            // 请求串口
+            this.authPort = await navigator.serial.requestPort();
+            
+            // 打开串口
+            await this.authPort.open(this.getAuthSerialOptions());
+            
+            // 获取读写器
+            this.authReader = this.authPort.readable.getReader();
+            this.authWriter = this.authPort.writable.getWriter();
+            
+            this.isAuthConnected = true;
+            this.updateAuthConnectionStatus(true);
+            
+            // 开始读取数据
+            this.startAuthSerialReading();
+            
+            this.addToAuthDisplay(i18n.t('tuya_auth_serial_connected'), 'system');
+            
+        } catch (error) {
+            this.showError(i18n.t('connect_failed', error.message));
+            console.error('TuyaOpen授权串口连接失败:', error);
+        }
+    }
+    
+    // 断开TuyaOpen授权串口
+    async disconnectTuyaAuth() {
+        try {
+            if (this.authReader) {
+                await this.authReader.cancel();
+                await this.authReader.releaseLock();
+                this.authReader = null;
+            }
+            
+            if (this.authWriter) {
+                await this.authWriter.releaseLock();
+                this.authWriter = null;
+            }
+            
+            if (this.authPort) {
+                await this.authPort.close();
+                this.authPort = null;
+            }
+            
+            this.isAuthConnected = false;
+            this.updateAuthConnectionStatus(false);
+            
+            this.addToAuthDisplay(i18n.t('tuya_auth_serial_disconnected'), 'system');
+            
+        } catch (error) {
+            this.showError(i18n.t('disconnect_failed', error.message));
+            console.error('TuyaOpen授权串口断开失败:', error);
+        }
+    }
+    
+    // 更新授权连接状态
+    updateAuthConnectionStatus(connected) {
+        if (connected) {
+            this.connectAuthBtn.disabled = true;
+            this.disconnectAuthBtn.disabled = false;
+            this.authStatusDot.classList.add('connected');
+            this.authStatusText.textContent = window.i18n?.t('tuya_auth_connected') || '授权串口已连接';
+        } else {
+            this.connectAuthBtn.disabled = false;
+            this.disconnectAuthBtn.disabled = true;
+            this.authStatusDot.classList.remove('connected');
+            this.authStatusText.textContent = window.i18n?.t('status_disconnected') || '未连接';
+        }
+        
+        // 更新授权按钮状态
+        this.validateAuthInputs();
+    }
+    
+    // 开始读取授权串口数据
+    async startAuthSerialReading() {
+        try {
+            while (this.authReader && this.isAuthConnected) {
+                const { value, done } = await this.authReader.read();
+                if (done) break;
+                
+                this.handleAuthReceivedData(value);
+            }
+        } catch (error) {
+            if (this.isAuthConnected) {
+                console.error('TuyaOpen授权串口读取错误:', error);
+                this.addToAuthDisplay(i18n.t('read_error', error.message), 'error');
+                
+                // 处理串口异常断开
+                await this.handleAuthSerialDisconnection(error);
+            }
+        }
+    }
+    
+    // 处理授权接收到的数据
+    handleAuthReceivedData(data) {
+        const text = new TextDecoder().decode(data);
+        this.authRxCount += data.length;
+        this.authRxCountSpan.textContent = this.authRxCount;
+        
+        // 添加到缓冲区
+        this.authReceiveBuffer += text;
+        
+        // 处理缓冲区数据
+        this.processAuthReceiveBuffer();
+    }
+    
+    // 处理授权接收缓冲区
+    processAuthReceiveBuffer() {
+        const lines = this.authReceiveBuffer.split('\n');
+        
+        // 保留最后一行（可能不完整）
+        this.authReceiveBuffer = lines.pop() || '';
+        
+        // 处理完整的行
+        lines.forEach(line => {
+            if (line.trim()) {
+                this.addToAuthDisplay(line.trim(), 'received');
+            }
+        });
+    }
+    
+    // 验证授权输入
+    validateAuthInputs() {
+        // 首先更新字符计数
+        this.updateCharCount();
+        
+        const uuidInput = document.getElementById('uuidInput');
+        const authKeyInput = document.getElementById('authKeyInput');
+        const authorizeBtn = document.getElementById('authorizeBtn');
+        
+        if (!uuidInput || !authKeyInput || !authorizeBtn) return false;
+        
+        const uuid = uuidInput.value.trim();
+        const authKey = authKeyInput.value.trim();
+        
+        let isValid = true;
+        
+        // 验证UUID - 检查20字符
+        if (uuid.length === 0) {
+            uuidInput.classList.remove('success', 'error');
+            isValid = false;
+        } else if (uuid.length !== 20) {
+            uuidInput.classList.remove('success');
+            uuidInput.classList.add('error');
+            isValid = false;
+        } else {
+            uuidInput.classList.remove('error');
+            uuidInput.classList.add('success');
+        }
+        
+        // 验证AUTH_KEY - 检查32字符
+        if (authKey.length === 0) {
+            authKeyInput.classList.remove('success', 'error');
+            isValid = false;
+        } else if (authKey.length !== 32) {
+            authKeyInput.classList.remove('success');
+            authKeyInput.classList.add('error');
+            isValid = false;
+        } else {
+            authKeyInput.classList.remove('error');
+            authKeyInput.classList.add('success');
+        }
+        
+        authorizeBtn.disabled = !isValid;
+        return isValid;
+    }
+
+    updateCharCount() {
+        const uuidInput = document.getElementById('uuidInput');
+        const authKeyInput = document.getElementById('authKeyInput');
+        
+        if (uuidInput) {
+            const uuidLength = uuidInput.value.length;
+            const uuidGroup = uuidInput.closest('.auth-form-group');
+            if (uuidGroup) {
+                const charCount = uuidGroup.querySelector('.char-count');
+                if (charCount) {
+                    charCount.textContent = `${uuidLength}/20 字符`;
+                } else {
+                    console.warn('UUID字符计数器元素未找到');
+                }
+            } else {
+                console.warn('UUID输入框的父级form-group未找到');
+            }
+        } else {
+            console.warn('UUID输入框元素未找到');
+        }
+        
+        if (authKeyInput) {
+            const authKeyLength = authKeyInput.value.length;
+            const authKeyGroup = authKeyInput.closest('.auth-form-group');
+            if (authKeyGroup) {
+                const charCount = authKeyGroup.querySelector('.char-count');
+                if (charCount) {
+                    charCount.textContent = `${authKeyLength}/32 字符`;
+                } else {
+                    console.warn('AUTH_KEY字符计数器元素未找到');
+                }
+            } else {
+                console.warn('AUTH_KEY输入框的父级form-group未找到');
+            }
+        } else {
+            console.warn('AUTH_KEY输入框元素未找到');
+        }
+    }
+    
+    // 发送TuyaOpen授权
+    async sendTuyaAuth() {
+        if (!this.isAuthConnected || !this.authWriter) {
+            this.showError(window.i18n?.t('please_connect_serial') || '请先连接串口');
+            return;
+        }
+        
+        const uuidInput = document.getElementById('uuidInput');
+        const authKeyInput = document.getElementById('authKeyInput');
+        
+        const uuid = uuidInput.value.trim();
+        const authKey = authKeyInput.value.trim();
+        
+        // 验证输入
+        if (!uuid) {
+            this.showError(window.i18n?.t('uuid_empty_error') || '请输入UUID');
+            uuidInput.focus();
+            return;
+        }
+        
+        if (!authKey) {
+            this.showError(window.i18n?.t('auth_key_empty_error') || '请输入AUTH_KEY');
+            authKeyInput.focus();
+            return;
+        }
+        
+        // 验证长度 - 改为字符长度
+        if (uuid.length !== 20) {
+            this.showError(window.i18n?.t('uuid_length_error') || 'UUID长度错误！请输入20字符的UUID');
+            uuidInput.focus();
+            uuidInput.classList.add('shake');
+            setTimeout(() => uuidInput.classList.remove('shake'), 600);
+            return;
+        }
+        
+        if (authKey.length !== 32) {
+            this.showError(window.i18n?.t('auth_key_length_error') || 'AUTH_KEY长度错误！请输入32字符的AUTH_KEY');
+            authKeyInput.focus();
+            authKeyInput.classList.add('shake');
+            setTimeout(() => authKeyInput.classList.remove('shake'), 600);
+            return;
+        }
+        
+        try {
+            // 发送授权命令
+            const command = `auth ${uuid} ${authKey}\r\n`;
+            const encoder = new TextEncoder();
+            const data = encoder.encode(command);
+            
+            this.addToAuthDisplay(window.i18n?.t('tuya_auth_sending') || '正在发送授权信息...', 'info');
+            
+            await this.authWriter.write(data);
+            this.authTxCount += data.length;
+            document.getElementById('authTxCount').textContent = this.authTxCount;
+            
+            // 记录发送的命令
+            this.addToAuthDisplay(`${window.i18n?.t('tuya_auth_command_sent') || '授权命令已发送'}: auth ${uuid} ${authKey}`, 'sent');
+            
+            // 显示成功消息
+            this.addToAuthDisplay(window.i18n?.t('tuya_auth_success') || '✅ TuyaOpen授权信息写入成功！', 'success');
+            
+        } catch (error) {
+            console.error('发送授权失败:', error);
+            const errorMsg = window.i18n?.t('tuya_auth_failed', error.message) || `❌ TuyaOpen授权信息写入失败: ${error.message}`;
+            this.addToAuthDisplay(errorMsg, 'error');
+            this.showError(errorMsg);
+        }
+    }
+    
+    // 添加到授权显示区域
+    addToAuthDisplay(text, type = 'received') {
+        const timestamp = this.authShowTimestamp.checked ? this.generateTimestamp() : '';
+        const safeText = this.sanitizeDisplayText(text);
+        
+        const line = document.createElement('div');
+        line.className = 'data-line';
+        
+        let prefix = '';
+        let prefixClass = '';
+        
+        switch (type) {
+            case 'received':
+                prefix = i18n.t('received');
+                prefixClass = 'rx';
+                break;
+            case 'sent':
+                prefix = i18n.t('sent');
+                prefixClass = 'tx';
+                break;
+            case 'system':
+                prefix = 'SYS';
+                prefixClass = 'system';
+                break;
+            case 'error':
+                prefix = 'ERR';
+                prefixClass = 'error';
+                break;
+        }
+        
+        line.innerHTML = `
+            ${timestamp ? `<span class="timestamp">${timestamp}</span>` : ''}
+            <span class="prefix ${prefixClass}">[${prefix}]</span>
+            <span class="content">${safeText}</span>
+        `;
+        
+        this.authDataDisplay.appendChild(line);
+        
+        // 移除占位符
+        const placeholder = this.authDataDisplay.querySelector('.placeholder');
+        if (placeholder) {
+            placeholder.remove();
+        }
+        
+        // 自动滚动
+        if (this.authAutoScroll.checked) {
+            this.authDataDisplay.scrollTop = this.authDataDisplay.scrollHeight;
+        }
+        
+        // 同步到全屏显示
+        if (this.isAuthFullscreen) {
+            this.syncAuthDataToFullscreen();
+        }
+    }
+    
+    // 清空授权显示
+    clearAuthDisplay() {
+        this.authDataDisplay.innerHTML = '<div class="placeholder" data-i18n="tuya_auth_waiting">等待授权操作...</div>';
+        
+        // 重置计数器
+        this.authRxCount = 0;
+        this.authTxCount = 0;
+        this.authRxCountSpan.textContent = '0';
+        this.authTxCountSpan.textContent = '0';
+        
+        // 清空缓冲区
+        this.authReceiveBuffer = '';
+        
+        // 同步到全屏显示
+        if (this.isAuthFullscreen) {
+            this.syncAuthDataToFullscreen();
+        }
+    }
+    
+    // 保存授权日志
+    saveAuthLog() {
+        const lines = this.authDataDisplay.querySelectorAll('.data-line');
+        if (lines.length === 0) {
+            this.showError(i18n.t('no_log_to_save'));
+            return;
+        }
+        
+        let logContent = `TuyaOpen授权日志 - ${new Date().toLocaleString()}\n`;
+        logContent += `系统信息: ${this.formatSystemInfo()}\n`;
+        logContent += `接收字节数: ${this.authRxCount}, 发送字节数: ${this.authTxCount}\n`;
+        logContent += '=' .repeat(50) + '\n\n';
+        
+        lines.forEach(line => {
+            const timestamp = line.querySelector('.timestamp')?.textContent || '';
+            const prefix = line.querySelector('.prefix')?.textContent || '';
+            const content = line.querySelector('.content')?.textContent || '';
+            logContent += `${timestamp} ${prefix} ${content}\n`;
+        });
+        
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tuya_auth_log_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+    }
+    
+    // 处理授权串口异常断开
+    async handleAuthSerialDisconnection(error) {
+        console.error('TuyaOpen授权串口异常断开:', error);
+        
+        // 清理连接状态
+        this.isAuthConnected = false;
+        this.authReader = null;
+        this.authWriter = null;
+        this.authPort = null;
+        
+        // 更新UI状态
+        this.updateAuthConnectionStatus(false);
+        
+        // 显示错误信息
+        this.addToAuthDisplay(i18n.t('serial_disconnected_unexpectedly', error.message), 'error');
+    }
+    
+    // 授权全屏相关方法
+    toggleAuthFullscreen() {
+        if (this.isAuthFullscreen) {
+            this.exitAuthFullscreen();
+        } else {
+            this.enterAuthFullscreen();
+        }
+    }
+    
+    enterAuthFullscreen() {
+        this.authFullscreenOverlay.classList.add('active');
+        this.isAuthFullscreen = true;
+        this.syncAuthDataToFullscreen();
+    }
+    
+    exitAuthFullscreen() {
+        this.authFullscreenOverlay.classList.remove('active');
+        this.isAuthFullscreen = false;
+    }
+    
+    syncAuthDataToFullscreen() {
+        if (this.authFullscreenDataDisplay) {
+            this.authFullscreenDataDisplay.innerHTML = this.authDataDisplay.innerHTML;
+            this.authFullscreenDataDisplay.scrollTop = this.authFullscreenDataDisplay.scrollHeight;
         }
     }
 }

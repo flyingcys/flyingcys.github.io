@@ -383,7 +383,38 @@ const zhTw = {
     help_info_error: "具體錯誤訊息截圖",
     help_info_device_manager: "裝置管理員截圖（Windows）",
     
-    github_support_desc: "在GitHub上提交問題報告"
+    github_support_desc: "在GitHub上提交問題報告",
+    
+    // 新增：TuyaOpen授權相關
+    tab_tuya_auth: "TuyaOpen授權",
+    tuya_auth_title: "TuyaOpen授權碼寫入",
+    tuya_auth_subtitle: "向裝置寫入TuyaOpen專案授權資訊",
+    uuid_label: "UUID (20字元):",
+    auth_key_label: "AUTH_KEY (32字元):",
+    uuid_placeholder: "請輸入20字元的UUID...",
+    auth_key_placeholder: "請輸入32字元的AUTH_KEY...",
+    authorize_btn: "寫入授權",
+    tuya_auth_notice_title: "⚠️ 重要提示",
+    tuya_auth_notice_content: "目前授權功能僅適用於TuyaOpen工程的授權碼寫入，非TuyaOpen工程無法使用。",
+    tuya_auth_additional_info: "請確保裝置已進入授權模式，並正確連接串列埠後再進行授權操作。",
+    uuid_length_error: "UUID長度錯誤！請輸入20字元的UUID",
+    auth_key_length_error: "AUTH_KEY長度錯誤！請輸入32字元的AUTH_KEY",
+    uuid_empty_error: "請輸入UUID",
+    auth_key_empty_error: "請輸入AUTH_KEY",
+    tuya_auth_success: "✅ TuyaOpen授權資訊寫入成功！",
+    tuya_auth_failed: "❌ TuyaOpen授權資訊寫入失敗: {0}",
+    tuya_auth_sending: "正在發送授權資訊...",
+    tuya_auth_command_sent: "授權指令已發送: auth {0} {1}",
+    
+    // 授權相關狀態資訊
+    tuya_auth_waiting: "等待授權操作...",
+    tuya_auth_connected: "授權串列埠已連接",
+    tuya_auth_disconnected: "授權串列埠已斷開",
+    connect_tuya_auth: "連接授權串列埠",
+    disconnect_tuya_auth: "斷開授權串列埠",
+    tuya_auth_serial_connected: "TuyaOpen授權串列埠連接成功！",
+    tuya_auth_serial_disconnected: "TuyaOpen授權串列埠已斷開連接。",
+    tab_tuya_auth_name: "TuyaOpen授權"
 };
 
 // 導出到全局

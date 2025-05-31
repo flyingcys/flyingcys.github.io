@@ -383,7 +383,38 @@ const de = {
     help_info_error: "Spezifische Fehlermeldungs-Screenshots",
     help_info_device_manager: "Geräte-Manager Screenshots (Windows)",
     
-    github_support_desc: "Problembericht auf GitHub einreichen"
+    github_support_desc: "Problembericht auf GitHub einreichen",
+    
+    // Neu: TuyaOpen Authorization related
+    tab_tuya_auth: "TuyaOpen Autorisierung",
+    tuya_auth_title: "TuyaOpen Autorisierungscode Schreiben",
+    tuya_auth_subtitle: "TuyaOpen Projekt-Autorisierungsinformationen auf Gerät schreiben",
+    uuid_label: "UUID (20 Zeichen):",
+    auth_key_label: "AUTH_KEY (32 Zeichen):",
+    uuid_placeholder: "Geben Sie eine 20-stellige UUID ein...",
+    auth_key_placeholder: "Geben Sie einen 32-stelligen AUTH_KEY ein...",
+    authorize_btn: "Autorisierung Schreiben",
+    tuya_auth_notice_title: "⚠️ Wichtiger Hinweis",
+    tuya_auth_notice_content: "Diese Autorisierungsfunktion ist nur für das Schreiben von Autorisierungscodes für TuyaOpen-Projekte anwendbar und kann nicht für Nicht-TuyaOpen-Projekte verwendet werden.",
+    tuya_auth_additional_info: "Bitte stellen Sie sicher, dass sich das Gerät im Autorisierungsmodus befindet und der serielle Port korrekt angeschlossen ist, bevor Sie mit der Autorisierungsoperation fortfahren.",
+    uuid_length_error: "UUID-Längenfehler! Bitte geben Sie eine 20-stellige UUID ein",
+    auth_key_length_error: "AUTH_KEY-Längenfehler! Bitte geben Sie einen 32-stelligen AUTH_KEY ein",
+    uuid_empty_error: "Bitte geben Sie die UUID ein",
+    auth_key_empty_error: "Bitte geben Sie den AUTH_KEY ein",
+    tuya_auth_success: "✅ TuyaOpen Autorisierungsinformationen erfolgreich geschrieben!",
+    tuya_auth_failed: "❌ Fehler beim Schreiben der TuyaOpen Autorisierungsinformationen: {0}",
+    tuya_auth_sending: "Autorisierungsinformationen werden gesendet...",
+    tuya_auth_command_sent: "Autorisierungsbefehl gesendet: auth {0} {1}",
+    
+    // Autorisierungsbezogene Statusinformationen
+    tuya_auth_waiting: "Warten auf Autorisierungsoperation...",
+    tuya_auth_connected: "Autorisierungsport verbunden",
+    tuya_auth_disconnected: "Autorisierungsport getrennt",
+    connect_tuya_auth: "Autorisierungsport Verbinden",
+    disconnect_tuya_auth: "Autorisierungsport Trennen",
+    tuya_auth_serial_connected: "TuyaOpen Autorisierungsport erfolgreich verbunden!",
+    tuya_auth_serial_disconnected: "TuyaOpen Autorisierungsport getrennt.",
+    tab_tuya_auth_name: "TuyaOpen Autorisierung"
 };
 
 // In globalen Bereich exportieren

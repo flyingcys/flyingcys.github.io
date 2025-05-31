@@ -19,6 +19,7 @@ const en = {
     // Tab labels
     tab_serial: "Serial Debug",
     tab_flash: "Firmware Flash",
+    tab_tuya_auth: "TuyaOpen Auth",
     
     // Control panel
     control_title: "Serial Connection Control",
@@ -118,7 +119,7 @@ const en = {
     browser_not_supported: "Your browser does not support Web Serial API. Please use Chrome 89+ or Edge 89+ browser.",
     connect_failed: "Connection failed: {0}",
     disconnect_failed: "Disconnection failed: {0}",
-    read_error: "Data reading error: {0}",
+    read_error: "Read error: {0}",
     send_error: "Data sending error: {0}",
     hex_length_error: "HEX string length must be even",
     serial_not_connected: "Serial not connected",
@@ -397,7 +398,37 @@ const en = {
     help_info_error: "Specific error message screenshots",
     help_info_device_manager: "Device Manager screenshots (Windows)",
     
-    github_support_desc: "Submit issue report on GitHub"
+    github_support_desc: "Submit issue report on GitHub",
+    
+    // TuyaOpen Authorization related
+    tuya_auth_title: "TuyaOpen Authorization Code",
+    tuya_auth_subtitle: "Write TuyaOpen project authorization information to device",
+    uuid_label: "UUID (20 characters):",
+    auth_key_label: "AUTH_KEY (32 characters):",
+    uuid_placeholder: "Enter 20-character UUID...",
+    auth_key_placeholder: "Enter 32-character AUTH_KEY...",
+    authorize_btn: "Write Authorization",
+    tuya_auth_notice_title: "⚠️ Important Notice",
+    tuya_auth_notice_content: "This authorization feature is only applicable to TuyaOpen project authorization code writing, and cannot be used for non-TuyaOpen projects.",
+    tuya_auth_additional_info: "Please ensure the device is in authorization mode and the serial port is properly connected before proceeding with authorization.",
+    uuid_length_error: "UUID length error! Please enter a 20-character UUID",
+    auth_key_length_error: "AUTH_KEY length error! Please enter a 32-character AUTH_KEY",
+    uuid_empty_error: "Please enter UUID",
+    auth_key_empty_error: "Please enter AUTH_KEY",
+    tuya_auth_success: "✅ TuyaOpen authorization information written successfully!",
+    tuya_auth_failed: "❌ TuyaOpen authorization information writing failed: {0}",
+    tuya_auth_sending: "Sending authorization information...",
+    tuya_auth_command_sent: "Authorization command sent: auth {0} {1}",
+    
+    // Authorization related status information
+    tuya_auth_waiting: "Waiting for authorization operation...",
+    tuya_auth_connected: "Authorization serial connected",
+    tuya_auth_disconnected: "Authorization serial disconnected",
+    connect_tuya_auth: "Connect Auth Serial",
+    disconnect_tuya_auth: "Disconnect Auth Serial",
+    tuya_auth_serial_connected: "TuyaOpen authorization serial connected successfully!",
+    tuya_auth_serial_disconnected: "TuyaOpen authorization serial disconnected.",
+    tab_tuya_auth_name: "TuyaOpen Auth"
 };
 
 // Export to global

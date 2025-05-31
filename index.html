@@ -79,6 +79,7 @@
         <div class="tab-navigation">
             <button class="tab-btn active" data-tab="serial" data-i18n="tab_serial">📡 串口调试</button>
             <button class="tab-btn" data-tab="flash" data-i18n="tab_flash">💾 固件下载</button>
+            <button class="tab-btn" data-tab="tuyaauth" data-i18n="tab_tuya_auth">🔐 TuyaOpen授权</button>
         </div>
 
         <!-- Tab内容区域 -->
@@ -425,6 +426,182 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TuyaOpen授权Tab -->
+            <div id="tuyaauthTab" class="tab-panel">
+                <!-- TuyaOpen授权串口控制面板 -->
+                <div class="control-panel">
+                    <div class="control-header">
+                        <h3 data-i18n="control_title">🔧 串口连接控制</h3>
+                    </div>
+
+                    <div class="serial-config">
+                        <div class="config-group">
+                            <label for="authBaudRate" data-i18n="baud_rate">波特率:</label>
+                            <select id="authBaudRate">
+                                <option value="9600">9600</option>
+                                <option value="19200">19200</option>
+                                <option value="38400">38400</option>
+                                <option value="57600">57600</option>
+                                <option value="115200" selected>115200</option>
+                                <option value="230400">230400</option>
+                                <option value="460800">460800</option>
+                                <option value="921600">921600</option>
+                                <option value="1500000">1500000</option>
+                                <option value="2000000">2000000</option>
+                                <option value="3000000">3000000</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authDataBits" data-i18n="data_bits">数据位:</label>
+                            <select id="authDataBits">
+                                <option value="7">7</option>
+                                <option value="8" selected>8</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authStopBits" data-i18n="stop_bits">停止位:</label>
+                            <select id="authStopBits">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authParity" data-i18n="parity">校验位:</label>
+                            <select id="authParity">
+                                <option value="none" selected data-i18n="parity_none">无</option>
+                                <option value="even" data-i18n="parity_even">偶校验</option>
+                                <option value="odd" data-i18n="parity_odd">奇校验</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectAuthBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect_tuya_auth">连接授权串口</span>
+                        </button>
+                        <button id="disconnectAuthBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect_tuya_auth">断开授权串口</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="authStatusDot"></span>
+                            <span id="authStatusText" data-i18n="status_disconnected">未连接</span>
+                        </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TuyaOpen授权输入区域 -->
+                <div class="tuya-auth-panel">
+                    <div class="auth-header">
+                        <h3 data-i18n="tuya_auth_title">🔐 TuyaOpen授权码写入</h3>
+                        <p class="auth-subtitle" data-i18n="tuya_auth_subtitle">向设备写入TuyaOpen项目授权信息</p>
+                    </div>
+                    
+                    <div class="auth-input-area">
+                        <div class="auth-form">
+                            <div class="auth-form-group">
+                                <label for="uuidInput" data-i18n="uuid_label">UUID (20字符):</label>
+                                <input 
+                                    type="text" 
+                                    id="uuidInput" 
+                                    data-i18n-placeholder="uuid_placeholder"
+                                    placeholder="请输入20字符的UUID..."
+                                    maxlength="20"
+                                    class="auth-input"
+                                />
+                                <div class="input-help">
+                                    <span class="char-count">0/20 字符</span>
+                                </div>
+                            </div>
+                            
+                            <div class="auth-form-group">
+                                <label for="authKeyInput" data-i18n="auth_key_label">AUTH_KEY (32字符):</label>
+                                <input 
+                                    type="text" 
+                                    id="authKeyInput" 
+                                    data-i18n-placeholder="auth_key_placeholder"
+                                    placeholder="请输入32字符的AUTH_KEY..."
+                                    maxlength="32"
+                                    class="auth-input"
+                                />
+                                <div class="input-help">
+                                    <span class="char-count">0/32 字符</span>
+                                </div>
+                            </div>
+                            
+                            <div class="auth-button-area">
+                                <button id="authorizeBtn" class="btn btn-success" disabled>
+                                    <span class="icon">🔐</span>
+                                    <span data-i18n="authorize_btn">写入授权</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据接收显示区域 -->
+                <div class="receive-data-panel">
+                    <div class="data-header">
+                        <h3 data-i18n="receive_data">📨 接收数据</h3>
+                        <div class="data-controls">
+                            <div class="data-controls-left">
+                                <button id="clearAuthBtn" class="btn btn-small" data-i18n="clear_log">清空日志</button>
+                                <button id="saveAuthBtn" class="btn btn-small" data-i18n="save_log">保存日志</button>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="authShowTimestamp" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="show_timestamp">显示时间戳</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="authAutoScroll" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="auto_scroll">自动滚动</span>
+                                </label>
+                            </div>
+                            <div class="data-controls-right">
+                                <button id="authFullscreenBtn" class="btn btn-small btn-fullscreen" data-i18n-title="fullscreen">
+                                    <span class="icon">⛶</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-display" id="authDataDisplay">
+                        <div class="placeholder" data-i18n="tuya_auth_waiting">等待授权操作...</div>
+                    </div>
+                    <div class="data-stats">
+                        <span><span data-i18n="received">接收</span>: <span id="authRxCount">0</span> <span data-i18n="bytes">字节</span></span>
+                        <span><span data-i18n="sent">发送</span>: <span id="authTxCount">0</span> <span data-i18n="bytes">字节</span></span>
+                    </div>
+                </div>
+
+                <!-- 重要提示区域 -->
+                <div class="tuya-auth-notice">
+                    <div class="notice-content">
+                        <h4 data-i18n="tuya_auth_notice_title">⚠️ 重要提示</h4>
+                        <div class="notice-list">
+                            <p data-i18n="tuya_auth_notice_content">当前授权功能只适用于TuyaOpen工程的授权码写入，非TuyaOpen工程无法使用。</p>
+                            <p data-i18n="tuya_auth_additional_info">请确保设备已进入授权模式，并正确连接串口后再进行授权操作。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试版本说明 -->
+                <div class="beta-notice">
+                    <div class="beta-content">
+                        <span class="beta-icon">🧪</span>
+                        <span class="beta-text" data-i18n="beta_notice">当前功能属于测试版本，遇到问题请通过提交issue到</span>
+                        <a href="https://github.com/Tuya-Community/TuyaOpen-Tools" target="_blank" class="beta-link" data-i18n="repository_link">TuyaOpen-Tools 仓库</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -497,6 +674,19 @@
         </div>
         <div id="flashFullscreenDataDisplay" class="fullscreen-data-display">
             <div class="placeholder" data-i18n="waiting_download">等待下载操作...</div>
+        </div>
+    </div>
+
+    <!-- 授权日志全屏显示覆盖层 -->
+    <div id="authFullscreenOverlay" class="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <h3 data-i18n="receive_data">📨 接收数据</h3>
+            <button id="authFullscreenCloseBtn" class="fullscreen-close" data-i18n-title="exit_fullscreen">
+                <span class="icon">✕</span>
+            </button>
+        </div>
+        <div id="authFullscreenDataDisplay" class="fullscreen-data-display">
+            <div class="placeholder" data-i18n="tuya_auth_waiting">等待授权操作...</div>
         </div>
     </div>
 
