@@ -414,7 +414,64 @@ const zhTw = {
     disconnect_tuya_auth: "斷開授權串列埠",
     tuya_auth_serial_connected: "TuyaOpen授權串列埠連接成功！",
     tuya_auth_serial_disconnected: "TuyaOpen授權串列埠已斷開連接。",
-    tab_tuya_auth_name: "TuyaOpen授權"
+    tab_tuya_auth_name: "TuyaOpen授權",
+    
+    // TuyaOpen授權碼指南相關
+    license_guide: "授權碼取得指南",
+    license_guide_title: "TuyaOpen授權碼取得指南",
+    license_guide_subtitle: "了解TuyaOpen授權碼及取得方式",
+    
+    // 什麼是TuyaOpen專用授權碼
+    what_is_license: "什麼是TuyaOpen專用授權碼",
+    license_info: "TuyaOpen Framework的所有版本均需要專用授權碼才能正常連接塗鴉雲，使用其他授權碼無法正常工作。",
+    supported_frameworks: "支援的TuyaOpen框架",
+    c_version: "C 版 TuyaOpen",
+    arduino_version: "Arduino 版 TuyaOpen", 
+    lua_version: "Luanode 版 TuyaOpen",
+    
+    // 如何取得授權碼
+    how_to_get: "如何取得授權碼",
+    method1_title: "方式1：購買預燒錄模組",
+    method1_desc: "通過涂鴉開發者平台購買已燒錄 TuyaOpen 授權碼模組。該授權碼已經在出廠時燒錄在對應模組中，且不會丟失。TuyaOpen 在啟動時通過 `tuya_iot_license_read()` 接口讀取授權碼。請確認當前設備是否為燒錄了 TuyaOpen 授權碼。",
+    method1_advantage: "優勢：隨插即用，無需手動操作",
+    
+    method2_title: "方式2：涂鴉平台購買",
+    method2_desc: "通過涂鴉開發者平台購買TuyaOpen授權碼，然後通過串口工具寫入到模組中。",
+    method2_advantage: "優勢：官方平台，支援批量購買",
+    visit_platform: "訪問平台",
+    visit_platform_preburn: "購買預燒錄模組",
+    
+    method3_title: "方式3：淘寶購買",
+    method3_desc: "通過淘寶店鋪購買TuyaOpen授權碼，然後通過串口工具寫入到模組中。",
+    method3_advantage: "優勢：購買便捷，支付方式靈活",
+    visit_taobao: "訪問淘寶",
+    
+    // 使用指南
+    usage_guide: "使用指南",
+    check_existing: "步驟1：檢查現有授權碼",
+    check_warning: "請先確認當前設備是否已經燒錄了TuyaOpen授權碼，避免重複購買。",
+    write_license: "步驟2：寫入授權碼",
+    write_desc: "如果設備未燒錄授權碼，可以使用本工具的「TuyaOpen授權」功能進行寫入：",
+    write_step1: "連接設備到電腦",
+    write_step2: "切換到「TuyaOpen授權」標籤頁",
+    write_step3: "連接串口",
+    write_step4: "輸入購買的UUID和AUTH_KEY",
+    write_step5: "點擊「寫入授權」按鈕",
+    write_success: "授權碼寫入成功後，設備就可以正常使用TuyaOpen框架連接塗鴉雲了。",
+    
+    // 常見問題
+    faq_title: "常見問題",
+    q1: "Q: 其他類型的授權碼可以用嗎？",
+    a1: "A: 不可以。TuyaOpen框架只能使用TuyaOpen專用授權碼，其他授權碼無法正常連接塗鴉雲。",
+    q2: "Q: 授權碼會遺失嗎？",
+    a2: "A: 正常情況下授權碼不會遺失。預燒錄模組的授權碼是出廠燒錄的，手動寫入的授權碼會保存在模組的非易失性存儲區域。",
+    q3: "Q: 如何檢查設備是否已有授權碼？",
+    a3: "A: 可以通過TuyaOpen程序調用 `tuya_iot_license_read()` 接口來檢查。",
+    
+    // 技術支援
+    support_title: "技術支援",
+    support_desc: "如果在使用過程中遇到問題，請通過以下方式獲取幫助：",
+    github_support: "提交問題報告"
 };
 
 // 導出到全局

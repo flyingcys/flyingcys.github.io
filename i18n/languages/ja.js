@@ -408,10 +408,58 @@ const ja = {
     tuya_auth_serial_disconnected: "TuyaOpen認証シリアルが切断されました。",
     tab_tuya_auth_name: "TuyaOpen認証",
     
-    // 新增缺失的翻译项
-    no_log_to_save: "保存するログがありません",
-    serial_disconnected_unexpectedly: "シリアル接続が予期せず切断されました: {0}",
-    console_filtered_null_chars: "{0}個の0x00文字をフィルタリングしました"
+    // TuyaOpenライセンスガイド関連
+    license_guide: "ライセンスガイド",
+    license_guide_title: "TuyaOpenライセンスガイド",
+    license_guide_subtitle: "TuyaOpenライセンスと取得方法について学ぶ",
+    
+    what_is_license: "TuyaOpen専用ライセンスとは",
+    license_info: "TuyaOpen Frameworkのすべてのバージョンは、Tuya Cloudに適切に接続するために専用ライセンスが必要です。",
+    supported_frameworks: "サポートされているTuyaOpenフレームワーク",
+    c_version: "C版 TuyaOpen",
+    arduino_version: "Arduino版 TuyaOpen", 
+    lua_version: "Luanode版 TuyaOpen",
+    
+    how_to_get: "ライセンスの取得方法",
+    method1_title: "方法1：プリバーンモジュールの購入",
+    method1_desc: "Tuya開発者プラットフォームを通じてプリバーンされたTuyaOpenライセンスモジュールを購入します。ライセンスは製造時に対応するモジュールにプリバーンされており、失われることはありません。TuyaOpenは起動時に `tuya_iot_license_read()` インターフェースを通じてライセンスを読み取ります。現在のデバイスにTuyaOpenライセンスがバーンされているかどうかを確認してください。",
+    method1_advantage: "利点：プラグアンドプレイ、手動操作不要",
+    
+    method2_title: "方法2：Tuyaプラットフォームでの購入",
+    method2_desc: "Tuya開発者プラットフォームを通じてTuyaOpenライセンスを購入します。",
+    method2_advantage: "利点：公式プラットフォーム、一括購入対応",
+    visit_platform: "プラットフォームにアクセス",
+    visit_platform_preburn: "プリバーンモジュールを購入",
+    visit_taobao: "Taobaoにアクセス",
+    
+    method3_title: "方法3：Taobaoでの購入",
+    method3_desc: "Taobaoストアを通じてTuyaOpenライセンスを購入します。",
+    method3_advantage: "利点：便利な購入、柔軟な支払いオプション",
+    visit_taobao: "Taobaoを訪問",
+    
+    usage_guide: "使用ガイド",
+    check_existing: "ステップ1：既存ライセンスの確認",
+    check_warning: "現在のデバイスにTuyaOpenライセンスが既に書き込まれているかどうかを確認してください。",
+    write_license: "ステップ2：ライセンスの書き込み",
+    write_desc: "デバイスにライセンスが書き込まれていない場合、このツールの「TuyaOpen認証」機能を使用してください：",
+    write_step1: "デバイスをコンピューターに接続",
+    write_step2: "「TuyaOpen認証」タブに切り替え",
+    write_step3: "シリアルポートに接続",
+    write_step4: "購入したUUIDとAUTH_KEYを入力",
+    write_step5: "「認証書き込み」ボタンをクリック",
+    write_success: "ライセンスの書き込みが成功すると、デバイスはTuyaOpenフレームワークを使用してTuya Cloudに正常に接続できます。",
+    
+    faq_title: "よくある質問",
+    q1: "Q：他のタイプのライセンスは使用できますか？",
+    a1: "A：いいえ。TuyaOpenフレームワークはTuyaOpen専用ライセンスのみ使用できます。",
+    q2: "Q：ライセンスは失われますか？",
+    a2: "A：通常の状況下では、ライセンスは失われません。",
+    q3: "Q: デバイスに既に認証コードがあるかどうかを確認するにはどうすればよいですか？",
+    a3: "A: TuyaOpenプログラムで `tuya_iot_license_read()` インターフェースを呼び出すことで確認できます。",
+    
+    support_title: "技術サポート",
+    support_desc: "使用中に問題が発生した場合は、以下の方法でサポートを受けてください：",
+    github_support: "問題レポートを提出"
 };
 
 // グローバルにエクスポート

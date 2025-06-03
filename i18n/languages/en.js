@@ -428,7 +428,64 @@ const en = {
     disconnect_tuya_auth: "Disconnect Auth Serial",
     tuya_auth_serial_connected: "TuyaOpen authorization serial connected successfully!",
     tuya_auth_serial_disconnected: "TuyaOpen authorization serial disconnected.",
-    tab_tuya_auth_name: "TuyaOpen Auth"
+    tab_tuya_auth_name: "TuyaOpen Auth",
+    
+    // TuyaOpen License Guide Related
+    license_guide: "License Guide",
+    license_guide_title: "TuyaOpen License Guide",
+    license_guide_subtitle: "Learn about TuyaOpen licenses and how to obtain them",
+    
+    // What is TuyaOpen Exclusive License
+    what_is_license: "What is TuyaOpen Exclusive License",
+    license_info: "All versions of TuyaOpen Framework require exclusive licenses to connect to Tuya Cloud properly. Other licenses cannot work normally.",
+    supported_frameworks: "Supported TuyaOpen Frameworks",
+    c_version: "C Version TuyaOpen",
+    arduino_version: "Arduino Version TuyaOpen", 
+    lua_version: "Luanode Version TuyaOpen",
+    
+    // How to Obtain License
+    how_to_get: "How to Obtain License",
+    method1_title: "Method 1: Buy Pre-burned Modules",
+    method1_desc: "Purchase pre-burned TuyaOpen license modules through Tuya Developer Platform. The license is pre-burned in the corresponding module during manufacturing and will not be lost. TuyaOpen reads the license through the `tuya_iot_license_read()` interface at startup. Please confirm whether the current device has a TuyaOpen license burned.",
+    method1_advantage: "Advantage: Plug and play, no manual operation required",
+    
+    method2_title: "Method 2: Tuya Platform Purchase",
+    method2_desc: "Purchase TuyaOpen licenses through Tuya Developer Platform, then write them to the module using serial tools.",
+    method2_advantage: "Advantage: Official platform, supports bulk purchase",
+    visit_platform: "Visit Platform",
+    visit_platform_preburn: "Buy Pre-burned Module",
+    visit_taobao: "Visit Taobao",
+    
+    method3_title: "Method 3: Taobao Purchase",
+    method3_desc: "Purchase TuyaOpen licenses through Taobao store, then write them to the module using serial tools.",
+    method3_advantage: "Advantage: Convenient purchase, flexible payment options",
+    
+    // Usage Guide
+    usage_guide: "Usage Guide",
+    check_existing: "Step 1: Check Existing License",
+    check_warning: "Please confirm if the current device already has TuyaOpen license burned to avoid duplicate purchase.",
+    write_license: "Step 2: Write License",
+    write_desc: "If the device has no license burned, you can use the \"TuyaOpen Auth\" function of this tool to write:",
+    write_step1: "Connect device to computer",
+    write_step2: "Switch to \"TuyaOpen Auth\" tab",
+    write_step3: "Connect serial port",
+    write_step4: "Enter purchased UUID and AUTH_KEY",
+    write_step5: "Click \"Write Auth\" button",
+    write_success: "After successful license writing, the device can use TuyaOpen framework to connect to Tuya Cloud normally.",
+    
+    // FAQ
+    faq_title: "Frequently Asked Questions",
+    q1: "Q: Can other types of licenses be used?",
+    a1: "A: No. TuyaOpen framework can only use TuyaOpen exclusive licenses. Other licenses cannot connect to Tuya Cloud normally.",
+    q2: "Q: Will the license be lost?",
+    a2: "A: Under normal circumstances, the license will not be lost. Pre-burned module licenses are factory-burned, and manually written licenses are saved in the module's non-volatile storage area.",
+    q3: "Q: How to check if device already has a license?",
+    a3: "A: You can check by calling the `tuya_iot_license_read()` interface in TuyaOpen program.",
+    
+    // Technical support
+    support_title: "Technical Support",
+    support_desc: "If you encounter any issues during use, please get help through the following ways:",
+    github_support: "Submit Issue Report"
 };
 
 // Export to global

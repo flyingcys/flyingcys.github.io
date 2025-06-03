@@ -414,7 +414,59 @@ const de = {
     disconnect_tuya_auth: "Autorisierungsport Trennen",
     tuya_auth_serial_connected: "TuyaOpen Autorisierungsport erfolgreich verbunden!",
     tuya_auth_serial_disconnected: "TuyaOpen Autorisierungsport getrennt.",
-    tab_tuya_auth_name: "TuyaOpen Autorisierung"
+    tab_tuya_auth_name: "TuyaOpen Auth",
+    
+    // TuyaOpen Lizenz-Leitfaden
+    license_guide: "Lizenz-Leitfaden",
+    license_guide_title: "TuyaOpen Lizenz-Leitfaden",
+    license_guide_subtitle: "Erfahren Sie mehr über TuyaOpen-Lizenzen und deren Beschaffung",
+    
+    what_is_license: "Was ist eine exklusive TuyaOpen-Lizenz",
+    license_info: "Alle Versionen des TuyaOpen Framework benötigen exklusive Lizenzen für die ordnungsgemäße Verbindung zur Tuya Cloud.",
+    supported_frameworks: "Unterstützte TuyaOpen Frameworks",
+    c_version: "C Version TuyaOpen",
+    arduino_version: "Arduino Version TuyaOpen", 
+    lua_version: "Luanode Version TuyaOpen",
+    
+    how_to_get: "Wie man eine Lizenz erhält",
+    method1_title: "Methode 1: Vorgebrannte Module kaufen",
+    method1_desc: "Kaufen Sie vorgebrannte TuyaOpen-Lizenzmodule über die Tuya-Entwicklerplattform. Die Lizenz ist während der Herstellung im entsprechenden Modul vorgebrannt und geht nicht verloren. TuyaOpen liest die Lizenz beim Start über die `tuya_iot_license_read()` Schnittstelle. Bitte bestätigen Sie, ob das aktuelle Gerät eine TuyaOpen-Lizenz gebrannt hat.",
+    
+    method2_title: "Methode 2: Tuya Platform Kauf",
+    method2_desc: "Kaufen Sie TuyaOpen-Lizenzen über die Tuya Developer Platform.",
+    method2_advantage: "Vorteil: Offizielle Plattform, unterstützt Großeinkäufe",
+    visit_platform: "Plattform Besuchen",
+    visit_platform_preburn: "Vorgebranntes Modul Kaufen",
+    visit_taobao: "Taobao Besuchen",
+    
+    method3_title: "Methode 3: Taobao Kauf",
+    method3_desc: "Kaufen Sie TuyaOpen-Lizenzen über den Taobao Store.",
+    method3_advantage: "Vorteil: Bequemer Einkauf, flexible Zahlungsoptionen",
+    
+    // Nutzungsanleitung
+    usage_guide: "Nutzungsanleitung",
+    check_existing: "Schritt 1: Vorhandene Lizenz überprüfen",
+    check_warning: "Bitte bestätigen Sie, ob das aktuelle Gerät bereits eine TuyaOpen-Lizenz gebrannt hat.",
+    write_license: "Schritt 2: Lizenz schreiben",
+    write_desc: "Wenn das Gerät keine gebrannte Lizenz hat, verwenden Sie die \"TuyaOpen Auth\" Funktion:",
+    write_step1: "Gerät mit Computer verbinden",
+    write_step2: "Zum \"TuyaOpen Auth\" Tab wechseln",
+    write_step3: "Seriellen Port verbinden",
+    write_step4: "Gekaufte UUID und AUTH_KEY eingeben",
+    write_step5: "\"Auth schreiben\" Button klicken",
+    write_success: "Nach erfolgreichem Schreiben der Lizenz kann das Gerät das TuyaOpen Framework normal verwenden.",
+    
+    faq_title: "Häufig gestellte Fragen",
+    q1: "Q: Können andere Lizenztypen verwendet werden?",
+    a1: "A: Nein. Das TuyaOpen Framework kann nur exklusive TuyaOpen-Lizenzen verwenden.",
+    q2: "Q: Geht die Lizenz verloren?",
+    a2: "A: Unter normalen Umständen geht die Lizenz nicht verloren.",
+    q3: "Q: Wie überprüft man, ob das Gerät bereits einen Autorisierungscode hat?",
+    a3: "A: Sie können dies überprüfen, indem Sie die `tuya_iot_license_read()` Schnittstelle im TuyaOpen-Programm aufrufen.",
+    
+    support_title: "Technischer Support",
+    support_desc: "Wenn Sie während der Nutzung auf Probleme stoßen, erhalten Sie Hilfe über folgende Wege:",
+    github_support: "Problem-Bericht einreichen"
 };
 
 // In globalen Bereich exportieren

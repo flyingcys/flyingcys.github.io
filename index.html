@@ -504,6 +504,12 @@
                     <div class="auth-header">
                         <h3 data-i18n="tuya_auth_title">🔐 TuyaOpen授权码写入</h3>
                         <p class="auth-subtitle" data-i18n="tuya_auth_subtitle">向设备写入TuyaOpen项目授权信息</p>
+                        <div class="auth-header-right">
+                            <a href="#" class="help-link" onclick="openLicenseGuide(event)">
+                                <span class="icon">📖</span>
+                                <span data-i18n="license_guide">授权码获取指南</span>
+                            </a>
+                        </div>
                     </div>
                     
                     <div class="auth-input-area">
@@ -764,6 +770,13 @@
             event.preventDefault();
             const currentLang = localStorage.getItem('selectedLanguage') || 'zh';
             window.open(`troubleshooting.html?lang=${currentLang}`, '_blank');
+        }
+        
+        // 打开授权码获取指南页面，传递当前语言参数
+        function openLicenseGuide(event) {
+            event.preventDefault();
+            const currentLang = localStorage.getItem('selectedLanguage') || 'zh';
+            window.open(`license.html?lang=${currentLang}`, '_blank');
         }
         
         // 更新语言显示

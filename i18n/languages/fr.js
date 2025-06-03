@@ -414,7 +414,60 @@ const fr = {
     disconnect_tuya_auth: "Déconnecter le Port Série d'Autorisation",
     tuya_auth_serial_connected: "Port série d'autorisation TuyaOpen connecté avec succès!",
     tuya_auth_serial_disconnected: "Port série d'autorisation TuyaOpen déconnecté.",
-    tab_tuya_auth_name: "Autorisation TuyaOpen"
+    tab_tuya_auth_name: "Auth TuyaOpen",
+    
+    // Guide de licence TuyaOpen
+    license_guide: "Guide de licence",
+    license_guide_title: "Guide de licence TuyaOpen",
+    license_guide_subtitle: "Découvrez les licences TuyaOpen et comment les obtenir",
+    
+    what_is_license: "Qu'est-ce qu'une licence exclusive TuyaOpen",
+    license_info: "Toutes les versions du framework TuyaOpen nécessitent des licences exclusives pour se connecter correctement au cloud Tuya.",
+    supported_frameworks: "Frameworks TuyaOpen pris en charge",
+    c_version: "Version C TuyaOpen",
+    arduino_version: "Version Arduino TuyaOpen", 
+    lua_version: "Version Luanode TuyaOpen",
+    
+    how_to_get: "Comment obtenir une licence",
+    method1_title: "Méthode 1: Acheter des modules pré-gravés",
+    method1_desc: "Achetez des modules de licence TuyaOpen pré-gravés via la plateforme de développement Tuya. La licence est pré-gravée dans le module correspondant lors de la fabrication et ne sera pas perdue. TuyaOpen lit la licence via l'interface `tuya_iot_license_read()` au démarrage. Veuillez confirmer si l'appareil actuel a une licence TuyaOpen gravée.",
+    method1_advantage: "Avantage: Plug and play, aucune opération manuelle requise",
+    
+    method2_title: "Méthode 2: Achat sur la plateforme Tuya",
+    method2_desc: "Achetez des licences TuyaOpen via la plateforme de développement Tuya.",
+    method2_advantage: "Avantage: Plateforme officielle, prend en charge l'achat en gros",
+    visit_platform: "Visiter la Plateforme",
+    visit_platform_preburn: "Acheter Module Pré-gravé",
+    visit_taobao: "Visiter Taobao",
+    
+    method3_title: "Méthode 3: Achat Taobao",
+    method3_desc: "Achetez des licences TuyaOpen via le magasin Taobao.",
+    method3_advantage: "Avantage: Achat pratique, options de paiement flexibles",
+    
+    // Guide d'utilisation
+    usage_guide: "Guide d'Utilisation",
+    check_existing: "Étape 1: Vérifier la licence existante",
+    check_warning: "Veuillez confirmer si l'appareil actuel a déjà une licence TuyaOpen gravée.",
+    write_license: "Étape 2: Écrire la licence",
+    write_desc: "Si l'appareil n'a pas de licence gravée, utilisez la fonction \"Auth TuyaOpen\":",
+    write_step1: "Connecter l'appareil à l'ordinateur",
+    write_step2: "Basculer vers l'onglet \"Auth TuyaOpen\"",
+    write_step3: "Connecter le port série",
+    write_step4: "Entrer l'UUID et l'AUTH_KEY achetés",
+    write_step5: "Cliquer sur le bouton \"Écrire l'auth\"",
+    write_success: "Après l'écriture réussie de la licence, l'appareil peut utiliser le framework TuyaOpen normalement.",
+    
+    faq_title: "Questions fréquemment posées",
+    q1: "Q: D'autres types de licences peuvent-ils être utilisés?",
+    a1: "A: Non. Le framework TuyaOpen ne peut utiliser que des licences exclusives TuyaOpen.",
+    q2: "Q: La licence sera-t-elle perdue?",
+    a2: "A: Dans des circonstances normales, la licence ne sera pas perdue.",
+    q3: "Q: Comment vérifier si l'appareil a déjà un code d'autorisation ?",
+    a3: "A: Vous pouvez vérifier en appelant l'interface `tuya_iot_license_read()` dans le programme TuyaOpen.",
+    
+    support_title: "Support Technique",
+    support_desc: "Si vous rencontrez des problèmes lors de l'utilisation, veuillez obtenir de l'aide par les moyens suivants :",
+    github_support: "Soumettre un Rapport de Problème"
 };
 
 // Exporter vers global

@@ -421,7 +421,6 @@ const zh = {
     help_info_browser: "浏览器版本",
     help_info_device: "设备型号和芯片信息",
     help_info_error: "具体错误信息截图",
-    help_info_device_manager: "设备管理器截图（Windows）",
     
     github_support_desc: "在GitHub上提交问题报告",
     
@@ -453,7 +452,64 @@ const zh = {
     disconnect_tuya_auth: "断开授权串口",
     tuya_auth_serial_connected: "TuyaOpen授权串口连接成功！",
     tuya_auth_serial_disconnected: "TuyaOpen授权串口已断开连接。",
-    tab_tuya_auth_name: "TuyaOpen授权"
+    tab_tuya_auth_name: "TuyaOpen授权",
+    
+    // TuyaOpen授权码指南相关
+    license_guide: "授权码获取指南",
+    license_guide_title: "TuyaOpen授权码获取指南",
+    license_guide_subtitle: "了解TuyaOpen授权码及获取方式",
+    
+    // 什么是TuyaOpen专用授权码
+    what_is_license: "什么是TuyaOpen专用授权码",
+    license_info: "TuyaOpen Framework的所有版本均需要专用授权码才能正常连接涂鸦云，使用其他授权码无法正常工作。",
+    supported_frameworks: "支持的TuyaOpen框架",
+    c_version: "C 版 TuyaOpen",
+    arduino_version: "Arduino 版 TuyaOpen", 
+    lua_version: "Luanode 版 TuyaOpen",
+    
+    // 如何获取授权码
+    how_to_get: "如何获取授权码",
+    method1_title: "方式1：购买预烧录模块",
+    method1_desc: "通过涂鸦开发者平台购买已烧录 TuyaOpen 授权码模块。该授权码已经在出厂时烧录在对应模组中，且不会丢失。TuyaOpen 在启动时通过 `tuya_iot_license_read()` 接口读取授权码。请确认当前设备是否为烧录了 TuyaOpen 授权码。",
+    method1_advantage: "优势：即插即用，无需手动操作",
+    
+    method2_title: "方式2：涂鸦平台购买",
+    method2_desc: "通过涂鸦开发者平台购买TuyaOpen授权码，然后通过串口工具写入到模组中。",
+    method2_advantage: "优势：官方平台，支持批量购买",
+    visit_platform: "访问平台",
+    visit_platform_preburn: "购买预烧录模块",
+    
+    method3_title: "方式3：淘宝购买",
+    method3_desc: "通过淘宝店铺购买TuyaOpen授权码，然后通过串口工具写入到模组中。",
+    method3_advantage: "优势：购买便捷，支付方式灵活",
+    visit_taobao: "访问淘宝",
+    
+    // 使用指南
+    usage_guide: "使用指南",
+    check_existing: "步骤1：检查现有授权码",
+    check_warning: "请先确认当前设备是否已经烧录了TuyaOpen授权码，避免重复购买。",
+    write_license: "步骤2：写入授权码",
+    write_desc: "如果设备未烧录授权码，可以使用本工具的\"TuyaOpen授权\"功能进行写入：",
+    write_step1: "连接设备到电脑",
+    write_step2: "切换到\"TuyaOpen授权\"标签页",
+    write_step3: "连接串口",
+    write_step4: "输入购买的UUID和AUTH_KEY",
+    write_step5: "点击\"写入授权\"按钮",
+    write_success: "授权码写入成功后，设备就可以正常使用TuyaOpen框架连接涂鸦云了。",
+    
+    // 常见问题
+    faq_title: "常见问题",
+    q1: "Q: 其他类型的授权码可以用吗？",
+    a1: "A: 不可以。TuyaOpen框架只能使用TuyaOpen专用授权码，其他授权码无法正常连接涂鸦云。",
+    q2: "Q: 授权码会丢失吗？",
+    a2: "A: 正常情况下授权码不会丢失。预烧录模块的授权码是出厂烧录的，手动写入的授权码会保存在模组的非易失性存储区域。",
+    q3: "Q: 如何检查设备是否已有授权码？",
+    a3: "A: 可以通过TuyaOpen程序调用 `tuya_iot_license_read()` 接口来检查。",
+    
+    // 技术支持
+    support_title: "技术支持",
+    support_desc: "如果在使用过程中遇到问题，请通过以下方式获取帮助：",
+    github_support: "提交问题报告"
 };
 
 // 导出到全局

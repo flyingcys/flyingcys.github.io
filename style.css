@@ -2365,24 +2365,23 @@ header p {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #6c757d;
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
     text-decoration: none;
     font-size: 0.9em;
-    padding: 8px 12px;
-    border-radius: 6px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+    border: none;
 }
 
 .help-link:hover {
-    color: #4f46e5;
-    background: rgba(79, 70, 229, 0.1);
-    border-color: #4f46e5;
-    text-decoration: none;
+    background: linear-gradient(135deg, #047857, #065f46);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+    color: white;
+    text-decoration: none;
 }
 
 .help-link .icon {
@@ -2402,6 +2401,7 @@ header p {
 .auth-header {
     text-align: center;
     margin-bottom: 24px;
+    position: relative;
 }
 
 .auth-header h3 {
@@ -2409,6 +2409,13 @@ header p {
     font-size: 1.5em;
     margin: 0 0 8px 0;
     font-weight: 600;
+}
+
+.auth-header-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
 }
 
 .auth-subtitle {
