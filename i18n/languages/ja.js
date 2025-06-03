@@ -201,7 +201,7 @@ const ja = {
     // 新規: ダウンローダマネージャ関連
     downloader_manager_not_initialized: "ダウンローダマネージャが初期化されていません",
     loaded_chip_types: "{0}種類のサポート対象チップタイプを読み込みました",
-    using_default_chip_support: "デフォルトチップサポートを使用 (T5AI)",
+    using_default_chip_support: "デフォルトチップサポートを使用 (T5AI, T3)",
     unsupported_device_type: "サポートされていないデバイスタイプ: {0}",
     unsupported_chip_type: "サポートされていないチップタイプ: {0}",
     

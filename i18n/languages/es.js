@@ -201,7 +201,7 @@ const es = {
     // Nuevo: Relacionado con gestor de descarga
     downloader_manager_not_initialized: "Gestor de descarga no inicializado",
     loaded_chip_types: "Cargados {0} tipos de chip soportados",
-    using_default_chip_support: "Usando soporte de chip por defecto (T5AI)",
+    using_default_chip_support: "Usando soporte de chip por defecto (T5AI, T3)",
     unsupported_device_type: "Tipo de dispositivo no soportado: {0}",
     unsupported_chip_type: "Tipo de chip no soportado: {0}",
     

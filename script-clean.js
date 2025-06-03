@@ -1491,8 +1491,8 @@ class SerialTerminal {
                 true
             );
         } else {
-            // 如果下载器管理器未加载，使用默认的T5AI选项
-            this.deviceSelect.innerHTML = '<option value="T5AI">T5AI</option>';
+            // 如果下载器管理器未加载，使用默认的T5AI和T3选项
+            this.deviceSelect.innerHTML = '<option value="T5AI">T5AI</option><option value="T3">T3</option>';
             this.addToFlashLog(i18n.t('using_default_chip_support'), 'warning', true);
         }
     }

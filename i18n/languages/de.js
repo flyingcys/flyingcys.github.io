@@ -201,7 +201,7 @@ const de = {
     // Neu: Download-Manager-bezogen
     downloader_manager_not_initialized: "Download-Manager nicht initialisiert",
     loaded_chip_types: "{0} unterstützte Chip-Typen geladen",
-    using_default_chip_support: "Verwende Standard-Chip-Unterstützung (T5AI)",
+    using_default_chip_support: "Verwende Standard-Chip-Unterstützung (T5AI, T3)",
     unsupported_device_type: "Nicht unterstützter Gerätetyp: {0}",
     unsupported_chip_type: "Nicht unterstützter Chip-Typ: {0}",
     

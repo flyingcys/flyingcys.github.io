@@ -202,7 +202,7 @@ const zh = {
     // 新增：下载器管理相关
     downloader_manager_not_initialized: "下载器管理器未初始化",
     loaded_chip_types: "已加载 {0} 种支持的芯片类型",
-    using_default_chip_support: "使用默认芯片支持 (T5AI)",
+    using_default_chip_support: "使用默认芯片支持 (T5AI, T3)",
     unsupported_device_type: "不支持的设备类型: {0}",
     unsupported_chip_type: "不支持的芯片类型: {0}",
     

@@ -201,7 +201,7 @@ const ru = {
     // Новое: Связано с менеджером загрузки
     downloader_manager_not_initialized: "Менеджер загрузки не инициализирован",
     loaded_chip_types: "Загружено {0} поддерживаемых типов чипов",
-    using_default_chip_support: "Использование поддержки чипа по умолчанию (T5AI)",
+    using_default_chip_support: "Использование поддержки чипа по умолчанию (T5AI, T3)",
     unsupported_device_type: "Неподдерживаемый тип устройства: {0}",
     unsupported_chip_type: "Неподдерживаемый тип чипа: {0}",
     

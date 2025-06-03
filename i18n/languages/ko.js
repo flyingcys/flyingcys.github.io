@@ -201,7 +201,7 @@ const ko = {
     // 새로 추가: 다운로더 관리자 관련
     downloader_manager_not_initialized: "다운로더 관리자가 초기화되지 않음",
     loaded_chip_types: "{0}개의 지원되는 칩 유형이 로드됨",
-    using_default_chip_support: "기본 칩 지원 사용 (T5AI)",
+    using_default_chip_support: "기본 칩 지원 사용 (T5AI, T3)",
     unsupported_device_type: "지원되지 않는 장치 유형: {0}",
     unsupported_chip_type: "지원되지 않는 칩 유형: {0}",
     

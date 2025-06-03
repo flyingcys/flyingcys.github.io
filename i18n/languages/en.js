@@ -202,7 +202,7 @@ const en = {
     // New: Downloader manager related
     downloader_manager_not_initialized: "Downloader manager not initialized",
     loaded_chip_types: "Loaded {0} supported chip types",
-    using_default_chip_support: "Using default chip support (T5AI)",
+    using_default_chip_support: "Using default chip support (T5AI, T3)",
     unsupported_device_type: "Unsupported device type: {0}",
     unsupported_chip_type: "Unsupported chip type: {0}",
     

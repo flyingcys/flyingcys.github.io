@@ -201,7 +201,7 @@ const fr = {
     // Nouveau: Lié au gestionnaire de téléchargement
     downloader_manager_not_initialized: "Gestionnaire de téléchargement non initialisé",
     loaded_chip_types: "{0} types de puces supportés chargés",
-    using_default_chip_support: "Utilisation du support de puce par défaut (T5AI)",
+    using_default_chip_support: "Utilisation du support de puce par défaut (T5AI, T3)",
     unsupported_device_type: "Type d'appareil non supporté: {0}",
     unsupported_chip_type: "Type de puce non supporté: {0}",
     

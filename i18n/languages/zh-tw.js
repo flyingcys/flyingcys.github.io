@@ -201,7 +201,7 @@ const zhTw = {
     // 新增：下載管理器相關
     downloader_manager_not_initialized: "下載管理器未初始化",
     loaded_chip_types: "已載入{0}種支援的晶片類型",
-    using_default_chip_support: "使用預設晶片支援 (T5AI)",
+    using_default_chip_support: "使用預設晶片支援 (T5AI, T3)",
     unsupported_device_type: "不支援的裝置類型: {0}",
     unsupported_chip_type: "不支援的晶片類型: {0}",
     

@@ -12,6 +12,13 @@ class DownloaderManager {
                 description: 'T5AI系列芯片',
                 downloaderClass: 'T5Downloader',
                 scriptPath: 'downloaders/t5ai-downloader.js'
+            },
+            'T3': {
+                name: 'T3',
+                displayName: 'T3',
+                description: 'T3系列芯片',
+                downloaderClass: 'T5Downloader',  // 使用和T5AI相同的下载器
+                scriptPath: 'downloaders/t5ai-downloader.js'  // 使用和T5AI相同的脚本
             }
             // 后续可以添加更多芯片
             // 'BK7231N': {
