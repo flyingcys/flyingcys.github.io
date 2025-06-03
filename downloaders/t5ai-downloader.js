@@ -182,7 +182,7 @@ class T5Downloader extends BaseDownloader {
      *             break
      *     return read_buf
      */
-    async receiveResponse(expectedLength, timeout = 500) {
+    async receiveResponse(expectedLength, timeout = 100) {  // Python默认0.1秒即100ms
         let reader = null;
         try {
             reader = this.port.readable.getReader();
@@ -247,38 +247,55 @@ class T5Downloader extends BaseDownloader {
     }
 
     /**
-     * 步骤1：获取总线控制权 - 完全按照测试版本的逻辑
+     * 步骤1：获取总线控制权 - 完全按照Python的get_bus逻辑
+     * Python: max_try_count = 100, do_link_check_ex(max_try_count=60)
      */
     async getBusControl() {
         this.mainLog('=== 步骤1: 获取总线控制权 ===');
         
-        for (let round = 1; round <= 3 && !this.stopFlag; round++) {
-            this.commLog(`第${round}轮尝试`);
+        const maxTryCount = 100; // 与Python保持一致
+        for (let attempt = 1; attempt <= maxTryCount && !this.stopFlag; attempt++) {
+            if (attempt % 10 === 1) {  // 每10次尝试输出一次日志
+                this.commLog(`尝试 ${attempt}/${maxTryCount}`);
+            }
             
-            // 复位设备
+            // 复位设备 - 与Python do_reset一致
             await this.port.setSignals({ dataTerminalReady: false, requestToSend: true });
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 300)); // Python: time.sleep(0.3)
             await this.port.setSignals({ requestToSend: false });
-            await new Promise(resolve => setTimeout(resolve, 5));
+            await new Promise(resolve => setTimeout(resolve, 4)); // Python: time.sleep(0.004)
             
-            // LinkCheck握手
-            for (let i = 1; i <= 20 && !this.stopFlag; i++) {
-                await this.clearBuffer();
-                await this.sendCommand([0x01, 0xE0, 0xFC, 0x01, 0x00], 'LinkCheck');
-                
-                const response = await this.receiveResponse(8, 10);
-                if (response.length >= 8) {
-                    const r = response.slice(0, 8);
-                    if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0x05 && 
-                        r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && 
-                        r[6] === 0x01 && r[7] === 0x00) {
-                        this.mainLog(`✅ 第${round}轮成功获取总线控制权`);
-                        return true;
-                    }
-                }
+            // do_link_check_ex - 与Python一致，最多60次
+            const linkCheckSuccess = await this.doLinkCheckEx(60);
+            if (linkCheckSuccess) {
+                this.mainLog(`✅ 第${attempt}次尝试成功获取总线控制权`);
+                return true;
             }
         }
         
+        return false;
+    }
+
+    /**
+     * do_link_check_ex - 完全按照Python版本实现
+     * Python: max_try_count=60, timeout_sec=0.001
+     */
+    async doLinkCheckEx(maxTryCount = 60) {
+        for (let cnt = 0; cnt < maxTryCount && !this.stopFlag; cnt++) {
+            await this.clearBuffer();
+            await this.sendCommand([0x01, 0xE0, 0xFC, 0x01, 0x00], 'LinkCheck');
+            
+            // Python使用0.001秒超时，即1毫秒
+            const response = await this.receiveResponse(8, 1);
+            if (response.length >= 8) {
+                const r = response.slice(0, 8);
+                if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0x05 && 
+                    r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && 
+                    r[6] === 0x01 && r[7] === 0x00) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -294,7 +311,7 @@ class T5Downloader extends BaseDownloader {
         await this.clearBuffer();
         await this.sendCommand(command, 'GetChipId');
         
-        const response = await this.receiveResponse(15);
+        const response = await this.receiveResponse(15, 500); // Python使用0.5秒超时
         if (response.length >= 15) {
             const r = response.slice(0, 15);
             this.debugLog(`完整响应: ${r.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
@@ -330,7 +347,7 @@ class T5Downloader extends BaseDownloader {
         
         // 期望响应格式：[0x04, 0x0e, 0xff, 0x01, 0xe0, 0xfc, 0xf4, len_low, len_high, cmd, status, flash_id_bytes...]
         // 最少响应长度：11字节（基础头部） + 4字节（Flash ID数据）= 15字节
-        const response = await this.receiveResponse(15, 500);
+        const response = await this.receiveResponse(15); // 使用默认超时时间100ms
         if (response.length >= 11) {
             const r = response;
             this.debug('debug', `完整响应: ${r.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
