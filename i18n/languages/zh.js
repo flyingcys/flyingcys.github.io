@@ -51,7 +51,7 @@ const zh = {
     bytes: "字节",
     
     // 错误分析相关
-    error_analysis: "🔍 错误日志分析",
+    error_analysis: "错误日志分析",
     clear_analysis: "清空分析（重置检测）",
     auto_analysis: "自动分析",
     no_errors_detected: "暂未检测到错误...",

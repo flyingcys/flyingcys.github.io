@@ -697,7 +697,6 @@ header p {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    border: 2px solid #f0f9ff;
 }
 
 /* 固件下载面板样式 */
@@ -2659,25 +2658,29 @@ header p {
 /* 错误分析面板样式 */
 .error-analysis-panel {
     background: white;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border-radius: 12px; /* Updated */
+    border: 2px solid #e8f4fd; /* Updated to match receive-data-panel */
+    padding: 20px; /* Added */
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Updated */
 }
 
 .error-analysis-display {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    padding: 12px;
-    min-height: 200px;
-    max-height: 400px;
+    background: #f9fafb; /* Kept as requested */
+    border: 2px solid #d1d5db; /* Updated border thickness and color */
+    border-radius: 8px; /* Updated */
+    padding: 15px; /* Updated */
+    height: 300px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     overflow-y: auto;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.4;
     white-space: pre-wrap;
     word-break: break-word;
+    box-sizing: border-box;
 }
 
 .error-analysis-display .placeholder {
@@ -2709,6 +2712,35 @@ header p {
     font-size: 14px;
 }
 
+/* Style for the error analysis panel title to match other panel titles */
+.error-analysis-panel .data-header h3 {
+    color: #374151; /* Dark gray text */
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb); /* Light gray gradient */
+    border-radius: 6px;
+    margin: -5px 0 0 -5px;
+    display: inline-block;
+}
+
+/* 错误分析面板的控制按钮布局调整 - 完全重写布局逻辑 */
+.error-analysis-panel .data-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    /* 强制覆盖原来的space-between */
+}
+
+.error-analysis-panel .data-controls-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    /* 确保和发送控件的gap一致 */
+}
+
 /* 调试按钮样式 */
 .btn-debug {
     background-color: #8b5cf6;
@@ -2724,4 +2756,14 @@ header p {
 /* 隐藏测试错误分析按钮（保持功能但不显示） */
 #testErrorAnalysisBtn {
     display: none;
+}
+
+/* 响应式设计下的错误分析面板布局 */
+@media (max-width: 768px) {
+    .error-analysis-panel .data-controls,
+    .error-analysis-panel .data-controls-left,
+    .error-analysis-panel .data-controls-right {
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+    }
 }
