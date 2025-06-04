@@ -236,10 +236,19 @@ class FlashDownloader {
      */
     stop() {
         this.shouldStop = true;
+        this.mainLog('用户取消下载', 'warning');
+        
+        // 停止芯片下载器
         if (this.chipDownloader) {
-            this.chipDownloader.stop();
+            try {
+                this.chipDownloader.stop();
+                this.debugLog('已通知芯片下载器停止', null, 'info');
+            } catch (error) {
+                this.debugLog('停止芯片下载器时发生错误: ' + error.message, null, 'warning');
+            }
         }
-        this.mainLog('下载已停止', 'warning');
+        
+        // 注意：不在这里调用cleanup，因为cleanup会在finally块或stopFlashDownload中调用
     }
 
     /**
@@ -253,23 +262,91 @@ class FlashDownloader {
      * 清理资源
      */
     async cleanup() {
-        // 关键修复：清理时也重置波特率到115200
+        this.debugLog('开始清理下载器资源...', null, 'info');
+        
+        // 设置停止标志
+        this.shouldStop = true;
+        
         try {
-            if (this.chipDownloader && this.chipDownloader.setBaudrate) {
-                this.debugLog(i18n.t('cleanup_reset_baudrate'), null, 'info');
-                await this.chipDownloader.setBaudrate(115200);
-                this.debugLog(i18n.t('cleanup_baudrate_reset_success'), null, 'info');
+            // 首先尝试通过芯片下载器重置波特率（在清理之前）
+            let baudrateResetSuccess = false;
+            if (this.chipDownloader && typeof this.chipDownloader.setBaudrate === 'function') {
+                try {
+                    this.debugLog('通过芯片下载器重置波特率到115200...', null, 'info');
+                    await this.chipDownloader.setBaudrate(115200);
+                    this.debugLog('芯片下载器波特率重置成功', null, 'info');
+                    baudrateResetSuccess = true;
+                } catch (resetError) {
+                    this.debugLog('芯片下载器波特率重置失败: ' + resetError.message, null, 'warning');
+                }
             }
-        } catch (resetError) {
-            this.debugLog(i18n.t('cleanup_reset_failed'), resetError.message, 'warning');
+            
+            // 清理芯片下载器
+            if (this.chipDownloader) {
+                try {
+                    this.debugLog('正在清理芯片下载器...', null, 'info');
+                    
+                    // 调用芯片下载器的断开方法
+                    if (typeof this.chipDownloader.disconnect === 'function') {
+                        await this.chipDownloader.disconnect();
+                        this.debugLog('芯片下载器已断开', null, 'info');
+                    }
+                } catch (error) {
+                    this.debugLog('清理芯片下载器时出错: ' + error.message, null, 'warning');
+                }
+                
+                // 清理完成后设为null
+                this.chipDownloader = null;
+            }
+            
+            // 如果芯片下载器波特率重置失败，尝试其他方式
+            if (!baudrateResetSuccess && this.terminal.isFlashConnected && this.terminal.flashPort) {
+                try {
+                    this.debugLog('正在通过其他方式重置串口波特率...', null, 'info');
+                    
+                    // 通过串口管理器重置波特率（如果可用）
+                    if (this.terminal.eventBus) {
+                        this.terminal.eventBus.emit('flash:reset-baudrate', 115200);
+                        this.debugLog('已请求串口管理器重置波特率', null, 'info');
+                    } else {
+                        this.debugLog('注意：无法重置波特率，串口保持当前状态', null, 'warning');
+                    }
+                } catch (resetError) {
+                    this.debugLog('重置波特率时发生错误: ' + resetError.message, null, 'warning');
+                }
+            }
+            
+            // 确保reader和writer可用
+            if (this.terminal.isFlashConnected && this.terminal.flashPort) {
+                try {
+                    // 重新获取reader（如果需要）
+                    if (!this.terminal.flashReader && this.terminal.flashPort.readable) {
+                        this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
+                        this.debugLog('重新获取串口读取器成功', null, 'info');
+                    }
+                    
+                    // 重新获取writer（如果需要）
+                    if (!this.terminal.flashWriter && this.terminal.flashPort.writable) {
+                        this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
+                        this.debugLog('重新获取串口写入器成功', null, 'info');
+                    }
+                    
+                    this.debugLog('串口连接状态已保持', null, 'info');
+                } catch (readerWriterError) {
+                    this.debugLog('重新获取读写器时发生错误: ' + readerWriterError.message, null, 'warning');
+                }
+            }
+            
+        } catch (error) {
+            this.debugLog('清理资源时发生未预期的错误: ' + error.message, null, 'error');
         }
         
-        if (this.chipDownloader) {
-            await this.chipDownloader.disconnect();
-            this.chipDownloader = null;
-        }
+        // 重置状态
         this.isDownloading = false;
         this.shouldStop = false;
+        this.currentChip = null;
+        
+        this.debugLog('下载器资源清理完成，串口连接已保持', null, 'info');
     }
 }
 

@@ -21,8 +21,8 @@ class SerialManager {
         // 配置
         this.deviceConfig = window.DEVICE_BAUDRATE_CONFIG || {
             'custom': { baudrate: 115200, readonly: false },
-            'T5AI': { baudrate: 460800, readonly: true },
-            'T3': { baudrate: 460800, readonly: true },
+            'T5AI': { baudrate: 921600, readonly: true },
+            'T3': { baudrate: 921600, readonly: true },
             'T2': { baudrate: 115200, readonly: true },
             'ESP32': { baudrate: 115200, readonly: true },
             'ESP32C3': { baudrate: 115200, readonly: true },
@@ -166,6 +166,81 @@ class SerialManager {
      */
     async connectFlash(baudrate = 115200) {
         try {
+            // 关键修复：检查是否已经有打开的串口连接
+            if (this.flashPort && this.flashPort.readable && this.flashPort.writable) {
+                this.eventBus.emit('flash:log-add', {
+                    message: '检测到已有串口连接，正在验证连接状态...',
+                    type: 'info',
+                    isMainProcess: true
+                });
+                
+                // 验证reader和writer是否可用
+                if (!this.flashReader) {
+                    try {
+                        this.flashReader = this.flashPort.readable.getReader();
+                        this.eventBus.emit('flash:log-add', {
+                            message: '重新获取串口读取器成功',
+                            type: 'info',
+                            isMainProcess: true
+                        });
+                    } catch (readerError) {
+                        this.eventBus.emit('flash:log-add', {
+                            message: '获取串口读取器失败: ' + readerError.message,
+                            type: 'warning',
+                            isMainProcess: true
+                        });
+                    }
+                }
+                
+                if (!this.flashWriter) {
+                    try {
+                        this.flashWriter = this.flashPort.writable.getWriter();
+                        this.eventBus.emit('flash:log-add', {
+                            message: '重新获取串口写入器成功',
+                            type: 'info',
+                            isMainProcess: true
+                        });
+                    } catch (writerError) {
+                        this.eventBus.emit('flash:log-add', {
+                            message: '获取串口写入器失败: ' + writerError.message,
+                            type: 'warning',
+                            isMainProcess: true
+                        });
+                    }
+                }
+                
+                if (this.flashReader && this.flashWriter) {
+                    // 连接已可用，直接使用
+                    this.isFlashConnected = true;
+                    
+                    this.eventBus.emit('flash:connected', {
+                        config: { baudRate: 115200, dataBits: 8, stopBits: 1, parity: 'none' },
+                        requestedBaudrate: baudrate,
+                        port: this.flashPort,
+                        reader: this.flashReader,
+                        writer: this.flashWriter
+                    });
+                    
+                    this.eventBus.emit('flash:log-add', {
+                        message: '使用现有串口连接 (115200 bps)',
+                        type: 'success',
+                        isMainProcess: true
+                    });
+                    
+                    return { reader: this.flashReader, writer: this.flashWriter, port: this.flashPort };
+                } else {
+                    // reader或writer不可用，需要重新连接
+                    this.eventBus.emit('flash:log-add', {
+                        message: '现有连接状态异常，将重新连接',
+                        type: 'warning',
+                        isMainProcess: true
+                    });
+                    
+                    // 清理异常状态
+                    await this.disconnectFlash();
+                }
+            }
+
             // 如果没有请求过端口，则请求串口访问权限
             if (!this.flashPort) {
                 this.flashPort = await navigator.serial.requestPort();
@@ -329,12 +404,18 @@ class SerialManager {
     }
     
     /**
-     * 重置固件下载串口波特率（和原始版本完全一致的逻辑）
+     * 重置固件下载串口波特率（保持连接状态）
      */
     async resetFlashBaudrate(baudrate = 115200) {
         try {
             if (this.flashPort && this.isFlashConnected) {
-                // 直接重新配置串口（与原始逻辑完全一致）
+                this.eventBus.emit('flash:log-add', {
+                    message: `正在重置串口波特率到${baudrate}（保持连接）...`,
+                    type: 'info',
+                    isMainProcess: false
+                });
+                
+                // 临时释放reader和writer
                 if (this.flashReader) {
                     await this.flashReader.releaseLock();
                     this.flashReader = null;
@@ -344,6 +425,7 @@ class SerialManager {
                     this.flashWriter = null;
                 }
                 
+                // 重新配置串口波特率
                 await this.flashPort.close();
                 await this.flashPort.open({
                     baudRate: baudrate,
@@ -352,21 +434,50 @@ class SerialManager {
                     parity: 'none'
                 });
                 
+                // 重新创建reader和writer
                 this.flashReader = this.flashPort.readable.getReader();
                 this.flashWriter = this.flashPort.writable.getWriter();
                 
+                // 确保连接状态保持
+                this.isFlashConnected = true;
+                
                 this.eventBus.emit('flash:log-add', {
-                    message: i18n.t('direct_serial_reset_success'),
-                    type: 'info',
-                    isMainProcess: true
+                    message: `✅ 串口波特率已重置为${baudrate}，连接保持`,
+                    type: 'success',
+                    isMainProcess: false
                 });
             }
         } catch (resetError) {
             this.eventBus.emit('flash:log-add', {
-                message: i18n.t('baudrate_reset_failed') + ': ' + resetError.message,
+                message: `波特率重置失败: ${resetError.message}`,
                 type: 'warning',
-                isMainProcess: true
+                isMainProcess: false
             });
+            
+            // 即使重置失败，也尝试保持连接状态
+            try {
+                if (this.flashPort && this.flashPort.readable && this.flashPort.writable) {
+                    if (!this.flashReader) {
+                        this.flashReader = this.flashPort.readable.getReader();
+                    }
+                    if (!this.flashWriter) {
+                        this.flashWriter = this.flashPort.writable.getWriter();
+                    }
+                    this.isFlashConnected = true;
+                    this.eventBus.emit('flash:log-add', {
+                        message: '串口连接状态已恢复',
+                        type: 'info',
+                        isMainProcess: false
+                    });
+                }
+            } catch (recoverError) {
+                this.eventBus.emit('flash:log-add', {
+                    message: `连接状态恢复失败: ${recoverError.message}`,
+                    type: 'error',
+                    isMainProcess: false
+                });
+            }
+            
             throw resetError;
         }
     }

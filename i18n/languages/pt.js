@@ -49,7 +49,14 @@ const pt = {
     sent: "TX",
     bytes: "bytes",
     
-    send_data: "Enviar Dados",
+    // Análise de erro relacionada
+    error_analysis: "🔍 Análise de log de erro",
+    clear_analysis: "Limpar análise (redefinir detecção)",
+    auto_analysis: "Análise automática",
+    no_errors_detected: "Nenhum erro detectado...",
+    test_error_analysis: "Teste de análise de erro",
+    
+    send_data: "Enviar dados",
     hex_mode: "Modo HEX",
     add_newline: "Adicionar Nova Linha",
     input_placeholder: "Digite dados para enviar...",

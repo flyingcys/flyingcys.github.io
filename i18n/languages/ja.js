@@ -49,6 +49,13 @@ const ja = {
     sent: "TX",
     bytes: "バイト",
     
+    // エラー分析関連
+    error_analysis: "🔍 エラーログ分析",
+    clear_analysis: "分析をクリア（検出リセット）",
+    auto_analysis: "自動分析",
+    no_errors_detected: "エラーは検出されていません...",
+    test_error_analysis: "エラー分析テスト",
+    
     send_data: "データ送信",
     hex_mode: "HEXモード",
     add_newline: "改行追加",

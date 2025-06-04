@@ -6,43 +6,83 @@ class DownloaderManager {
     constructor() {
         // 支持的芯片列表
         this.supportedChips = {
-            'T5AI': {
-                name: 'T5AI',
+            T5AI: { 
                 displayName: 'T5AI',
-                description: 'T5AI系列芯片',
-                downloaderClass: 'T5Downloader',
-                scriptPath: 'downloaders/t5ai-downloader.js'
+                downloader: 'T5Downloader',
+                order: 1,
+                scriptPath: './downloaders/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader'
             },
-            'T3': {
-                name: 'T3',
+            T3: { 
                 displayName: 'T3',
-                description: 'T3系列芯片',
-                downloaderClass: 'T5Downloader',  // 使用和T5AI相同的下载器
-                scriptPath: 'downloaders/t5ai-downloader.js'  // 使用和T5AI相同的脚本
+                downloader: 'T5Downloader',
+                order: 2,
+                scriptPath: './downloaders/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader'
+            },
+            T2: { 
+                displayName: 'T2',
+                downloader: 'T5Downloader',
+                order: 3,
+                scriptPath: './downloaders/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader'
+            },
+            BK7231N: { 
+                displayName: 'BK7231N',
+                downloader: 'BK7231NDownloader',
+                order: 4,
+                scriptPath: './downloaders/bk7231n-downloader.js',
+                downloaderClass: 'BK7231NDownloader'
+            },
+            LN882H: { 
+                displayName: 'LN882H',
+                downloader: 'LN882HDownloader',
+                order: 5,
+                scriptPath: './downloaders/ln882h-downloader.js',
+                downloaderClass: 'LN882HDownloader'
             }
-            // 后续可以添加更多芯片
-            // 'BK7231N': {
-            //     name: 'BK7231N',
-            //     displayName: 'BK7231N',
-            //     description: 'BK7231N系列芯片',
-            //     downloaderClass: 'BK7231NDownloader',
-            //     scriptPath: 'downloaders/bk7231n-downloader.js'
-            // }
         };
         
         // 已加载的下载器类
         this.loadedDownloaders = {};
+        
+        // 当前可见的芯片列表（统一管理）
+        this.visibleChips = ['T5AI', 'T3'];
+    }
+
+    /**
+     * 获取当前可见的芯片列表
+     */
+    getVisibleChips() {
+        return this.visibleChips;
+    }
+
+    /**
+     * 设置可见的芯片列表
+     */
+    setVisibleChips(chipList) {
+        this.visibleChips = chipList;
     }
 
     /**
      * 获取支持的芯片列表
      */
     getSupportedChips() {
-        return Object.keys(this.supportedChips).map(chipName => ({
-            name: chipName,
-            displayName: this.supportedChips[chipName].displayName,
-            description: this.supportedChips[chipName].description
-        }));
+        // 使用统一的可见芯片列表
+        const visibleChips = this.getVisibleChips();
+        
+        return Object.keys(this.supportedChips)
+            .filter(chipName => visibleChips.includes(chipName)) // 只返回可见的芯片
+            .map(chipName => ({
+                name: chipName,
+                displayName: this.supportedChips[chipName].displayName,
+                description: this.supportedChips[chipName].description
+            }))
+            .sort((a, b) => {
+                const orderA = this.supportedChips[a.name].order || 999;
+                const orderB = this.supportedChips[b.name].order || 999;
+                return orderA - orderB;
+            });
     }
 
     /**
@@ -156,6 +196,40 @@ class DownloaderManager {
      */
     clearLoadedDownloaders() {
         this.loadedDownloaders = {};
+    }
+
+    initializeSupportedChips() {
+        const deviceSelect = document.getElementById('deviceSelect');
+        if (!deviceSelect) {
+            console.warn('Device select element not found');
+            return;
+        }
+
+        // 清空现有选项
+        deviceSelect.innerHTML = '';
+
+        // 使用统一的可见芯片列表
+        const visibleChips = this.getVisibleChips();
+
+        // 按order字段排序获取支持的芯片，但只显示指定的设备
+        const sortedChips = Object.keys(this.supportedChips)
+            .filter(chipId => visibleChips.includes(chipId)) // 只显示指定设备
+            .map(chipId => ({
+                id: chipId,
+                ...this.supportedChips[chipId]
+            }))
+            .sort((a, b) => a.order - b.order);
+
+        // 添加选项
+        sortedChips.forEach(chip => {
+            const option = document.createElement('option');
+            option.value = chip.id;
+            option.textContent = chip.displayName;
+            deviceSelect.appendChild(option);
+        });
+
+        console.log('Visible chips initialized:', sortedChips);
+        console.log('All supported chips (including hidden):', Object.keys(this.supportedChips));
     }
 }
 

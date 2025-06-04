@@ -6,8 +6,8 @@
 // 设备波特率配置
 window.DEVICE_BAUDRATE_CONFIG = {
     'custom': { baudrate: 115200, readonly: false },
-    'T5AI': { baudrate: 460800, readonly: true },
-    'T3': { baudrate: 460800, readonly: true },
+    'T5AI': { baudrate: 921600, readonly: true },
+    'T3': { baudrate: 921600, readonly: true },
     'T2': { baudrate: 115200, readonly: true },
     'ESP32': { baudrate: 115200, readonly: true },
     'ESP32C3': { baudrate: 115200, readonly: true },

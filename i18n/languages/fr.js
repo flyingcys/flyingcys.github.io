@@ -49,6 +49,13 @@ const fr = {
     sent: "TX",
     bytes: "octets",
     
+    // Analyse d'erreur associée
+    error_analysis: "🔍 Analyse du journal d'erreurs",
+    clear_analysis: "Effacer l'analyse (réinitialiser la détection)",
+    auto_analysis: "Analyse automatique",
+    no_errors_detected: "Aucune erreur détectée...",
+    test_error_analysis: "Test d'analyse d'erreur",
+    
     send_data: "Envoyer des données",
     hex_mode: "Mode HEX",
     add_newline: "Ajouter une nouvelle ligne",

@@ -49,6 +49,13 @@ const de = {
     sent: "TX",
     bytes: "Bytes",
     
+    // Fehleranalyse-bezogen
+    error_analysis: "🔍 Fehlerprotokoll-Analyse",
+    clear_analysis: "Analyse löschen (Erkennung zurücksetzen)",
+    auto_analysis: "Automatische Analyse",
+    no_errors_detected: "Keine Fehler erkannt...",
+    test_error_analysis: "Fehleranalyse-Test",
+    
     send_data: "Daten senden",
     hex_mode: "HEX-Modus",
     add_newline: "Neue Zeile hinzufügen",

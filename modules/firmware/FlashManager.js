@@ -329,32 +329,58 @@ class FlashManager {
                 isMainProcess: true
             });
             
-            // 关键修复：停止下载时重置串口波特率到115200
+            // 关键修复：用户主动停止下载，绝对保持串口连接状态
             try {
                 this.eventBus.emit('flash:log-add', {
-                    message: i18n.t('resetting_baudrate_115200'),
+                    message: '用户主动停止下载，正在清理下载器资源...',
                     type: 'info',
                     isMainProcess: true
                 });
                 
-                // 如果有芯片下载器且有setBaudrate方法，优先使用它
-                if (this.flashDownloader.chipDownloader && this.flashDownloader.chipDownloader.setBaudrate) {
-                    await this.flashDownloader.chipDownloader.setBaudrate(115200);
+                // 等待下载过程完全停止
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // 清理下载器资源（绝对不关闭串口）
+                if (this.flashDownloader.cleanup) {
+                    await this.flashDownloader.cleanup();
+                }
+                
+                this.eventBus.emit('flash:log-add', {
+                    message: '下载器资源清理完成',
+                    type: 'info',
+                    isMainProcess: true
+                });
+                
+                // 关键修复：确保连接状态正确，用户主动停止应保持连接
+                if (this.isFlashConnected()) {
                     this.eventBus.emit('flash:log-add', {
-                        message: i18n.t('baudrate_reset_success'),
-                        type: 'info',
+                        message: '✅ 串口连接已保持，可以继续下载',
+                        type: 'success',
                         isMainProcess: true
                     });
                 } else {
-                    // 通过串口管理器重置波特率
-                    this.eventBus.emit('flash:reset-baudrate', 115200);
+                    this.eventBus.emit('flash:log-add', {
+                        message: '⚠️ 串口连接异常，需要重新连接',
+                        type: 'warning',
+                        isMainProcess: true
+                    });
                 }
+                
             } catch (resetError) {
                 this.eventBus.emit('flash:log-add', {
-                    message: i18n.t('baudrate_reset_failed') + ': ' + resetError.message,
+                    message: '停止下载时发生错误: ' + resetError.message,
                     type: 'warning',
                     isMainProcess: true
                 });
+                
+                // 即使出错，也尝试保持连接状态
+                if (this.isFlashConnected()) {
+                    this.eventBus.emit('flash:log-add', {
+                        message: '发生错误但串口连接已保持',
+                        type: 'warning',
+                        isMainProcess: true
+                    });
+                }
             }
         }
         

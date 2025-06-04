@@ -414,7 +414,16 @@ const ko = {
     disconnect_tuya_auth: "인증 시리얼 포트 연결 해제",
     tuya_auth_serial_connected: "TuyaOpen 인증 시리얼 포트가 성공적으로 연결되었습니다!",
     tuya_auth_serial_disconnected: "TuyaOpen 인증 시리얼 포트 연결이 해제되었습니다.",
-    tab_tuya_auth_name: "TuyaOpen 인증"
+    tab_tuya_auth_name: "TuyaOpen 인증",
+    
+    // 오류 분석 관련
+    error_analysis: '🔍 오류 로그 분석',
+    clear_analysis: '분석 지우기 (감지 재설정)',
+    auto_analysis: '자동 분석',
+    no_errors_detected: '오류가 감지되지 않았습니다...',
+    test_error_analysis: '오류 분석 테스트',
+    
+    // 데이터 전송
 };
 
 // 전역으로 내보내기

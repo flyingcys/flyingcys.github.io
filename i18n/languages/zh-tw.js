@@ -49,6 +49,13 @@ const zhTw = {
     sent: "發送",
     bytes: "位元組",
     
+    // 錯誤分析相關
+    error_analysis: "🔍 錯誤日誌分析",
+    clear_analysis: "清空分析（重置檢測）",
+    auto_analysis: "自動分析",
+    no_errors_detected: "暫未檢測到錯誤...",
+    test_error_analysis: "測試錯誤分析",
+    
     send_data: "發送資料",
     hex_mode: "HEX模式",
     add_newline: "新增換行符",

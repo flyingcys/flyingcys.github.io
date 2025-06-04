@@ -206,6 +206,27 @@
                     </div>
                 </div>
 
+                <!-- 错误日志分析区域 -->
+                <div class="error-analysis-panel">
+                    <div class="data-header">
+                        <h3 data-i18n="error_analysis">🔍 错误日志分析</h3>
+                        <div class="data-controls">
+                            <div class="data-controls-left">
+                                <button id="clearErrorAnalysisBtn" class="btn btn-small btn-secondary" data-i18n="clear_analysis">清空分析（重置检测）</button>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="autoErrorAnalysis" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="auto_analysis">自动分析</span>
+                                </label>
+                                <button id="testErrorAnalysisBtn" class="btn btn-small btn-debug" data-i18n="test_error_analysis">测试错误分析</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="error-analysis-display" id="errorAnalysisDisplay">
+                        <div class="placeholder" data-i18n="no_errors_detected">暂未检测到错误...</div>
+                    </div>
+                </div>
+
                 <!-- 发送数据区域 -->
                 <div class="send-panel">
                     <div class="send-header">
@@ -343,6 +364,13 @@
                                 <select id="deviceSelect">
                                     <option value="T5AI">T5AI</option>
                                     <option value="T3">T3</option>
+                                    <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
+                                    <!-- <option value="T2">T2</option> -->
+                                    <!-- <option value="ESP32">ESP32</option>
+                                    <option value="ESP32C3">ESP32-C3</option>
+                                    <option value="ESP32S3">ESP32-S3</option> -->
+                                    <!-- <option value="BK7231N">BK7231N</option> -->
+                                    <!-- <option value="LN882H">LN882H</option> -->
                                 </select>
                             </div>
                         </div>

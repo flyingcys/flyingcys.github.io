@@ -50,6 +50,13 @@ const zh = {
     sent: "发送",
     bytes: "字节",
     
+    // 错误分析相关
+    error_analysis: "🔍 错误日志分析",
+    clear_analysis: "清空分析（重置检测）",
+    auto_analysis: "自动分析",
+    no_errors_detected: "暂未检测到错误...",
+    test_error_analysis: "测试错误分析",
+    
     send_data: "发送数据",
     hex_mode: "HEX模式",
     add_newline: "添加换行符",

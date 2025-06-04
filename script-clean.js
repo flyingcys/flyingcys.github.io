@@ -47,6 +47,31 @@ class SerialTerminal {
         if (window.i18nLanguages && i18n.getCurrentLanguage()) {
             this.initializeLanguage();
         }
+        
+        // 错误日志数据库（基于error.md文件）
+        this.errorDatabase = [
+            {
+                id: 1,
+                pattern: /lfs open uuidx+\s+-2\s+err/i,  // 只匹配默认占位符UUID（uuidxxxxxxxxxxxxxxxx），不匹配真实UUID
+                analysis: '未读取到授权码，未修改config.h中的UUID和AUTH_KEY，相关信息可查看<a href="#" onclick="openLicenseGuide(event)">TuyaOpen授权码获取指南</a>',
+                isRegex: true
+            },
+            {
+                id: 2,
+                pattern: 'ble packet len err:',
+                analysis: '使用了错误的授权码，请使用串口写入TuyaOpen授权码或修改config.h中的UUID和AUTH_KEY，相关信息可查看<a href="#" onclick="openLicenseGuide(event)">TuyaOpen授权码获取指南</a>'
+            },
+            {
+                id: 3,
+                pattern: 'tuya_ble_data_proc fail.',
+                analysis: '使用了错误的授权码，请使用串口写入TuyaOpen授权码或修改config.h中的UUID和AUTH_KEY，相关信息可查看<a href="#" onclick="openLicenseGuide(event)">TuyaOpen授权码获取指南</a>'
+            },
+            {
+                id: 4,
+                pattern: 'ACTIVE_OPEN_SDK_NOT_MATCHED',
+                analysis: '未使用TuyaOpen授权码，相关信息可查看<a href="#" onclick="openLicenseGuide(event)">TuyaOpen授权码获取指南</a>'
+            }
+        ];
     }
 
     initializeElements() {
@@ -193,6 +218,13 @@ class SerialTerminal {
         this.authFullscreenCloseBtn = document.getElementById('authFullscreenCloseBtn');
         this.authFullscreenDataDisplay = document.getElementById('authFullscreenDataDisplay');
         this.isAuthFullscreen = false;
+
+        // 错误日志分析相关元素
+        this.errorAnalysisDisplay = document.getElementById('errorAnalysisDisplay');
+        this.clearErrorAnalysisBtn = document.getElementById('clearErrorAnalysisBtn');
+        this.autoErrorAnalysis = document.getElementById('autoErrorAnalysis');
+        this.testErrorAnalysisBtn = document.getElementById('testErrorAnalysisBtn');
+        this.detectedErrors = new Set(); // 用于避免重复显示相同错误
     }
 
     bindEvents() {
@@ -444,6 +476,15 @@ class SerialTerminal {
                 this.exitFlashFullscreen();
             }
         });
+
+        // 错误分析相关事件
+        if (this.clearErrorAnalysisBtn) {
+            this.clearErrorAnalysisBtn.addEventListener('click', () => this.clearErrorAnalysis());
+        }
+        
+        if (this.testErrorAnalysisBtn) {
+            this.testErrorAnalysisBtn.addEventListener('click', () => this.testErrorAnalysis());
+        }
     }
 
     checkWebSerialSupport() {
@@ -580,9 +621,56 @@ class SerialTerminal {
     // 固件下载连接串口
     async connectFlash(baudrate = 115200) {
         try {
+            // 关键修复：检查是否已经有打开的串口连接
+            if (this.flashPort && this.flashPort.readable && this.flashPort.writable) {
+                this.addToFlashLog('检测到已有串口连接，正在验证连接状态...', 'info');
+                
+                // 验证reader和writer是否可用
+                if (!this.flashReader) {
+                    try {
+                        this.flashReader = this.flashPort.readable.getReader();
+                        this.addToFlashLog('重新获取串口读取器成功', 'info');
+                    } catch (readerError) {
+                        this.addToFlashLog('获取串口读取器失败: ' + readerError.message, 'warning');
+                    }
+                }
+                
+                if (!this.flashWriter) {
+                    try {
+                        this.flashWriter = this.flashPort.writable.getWriter();
+                        this.addToFlashLog('重新获取串口写入器成功', 'info');
+                    } catch (writerError) {
+                        this.addToFlashLog('获取串口写入器失败: ' + writerError.message, 'warning');
+                    }
+                }
+                
+                if (this.flashReader && this.flashWriter) {
+                    // 连接已可用，直接使用
+                    this.isFlashConnected = true;
+                    this.updateFlashConnectionStatus(true);
+                    this.addToFlashLog('使用现有串口连接 (115200 bps)', 'success');
+                    return { reader: this.flashReader, writer: this.flashWriter, port: this.flashPort };
+                } else {
+                    // reader或writer不可用，需要重新连接
+                    this.addToFlashLog('现有连接状态异常，将重新连接', 'warning');
+                    await this.forceCleanupFlashPort();
+                }
+            }
+
             // 如果没有请求过端口，则请求串口访问权限
             if (!this.flashPort) {
                 this.flashPort = await navigator.serial.requestPort();
+            }
+
+            // 关键修复：彻底检查并清理可能存在的连接状态
+            if (this.flashPort.readable || this.flashPort.writable) {
+                this.addToFlashLog('检测到串口可能已被占用，正在彻底重置...', 'warning');
+                
+                // 强制清理所有可能的资源
+                await this.forceCleanupFlashPort();
+                
+                // 等待串口完全释放
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
 
             // 固件下载必须先用115200连接（与Python逻辑一致）
@@ -627,9 +715,68 @@ class SerialTerminal {
                 throw error; // 仍然抛出错误以保持函数行为一致
             }
             
-            this.showError(i18n.t('connect_failed', error.message));
+            // 检查是否为串口已被占用的错误
+            if (error.message && error.message.includes('already open')) {
+                this.addToFlashLog('错误: 串口仍被占用，尝试强制清理...', 'error');
+                
+                // 尝试强制清理并重试
+                try {
+                    await this.forceCleanupFlashPort();
+                    await new Promise(resolve => setTimeout(resolve, 500)); // 等待更长时间
+                    
+                    // 重试连接
+                    this.addToFlashLog('正在重试连接...', 'info');
+                    return await this.connectFlash(baudrate);
+                } catch (retryError) {
+                    this.showError('连接失败: 串口被占用且无法释放。请重启浏览器或检查其他应用程序是否在使用该串口。');
+                    throw retryError;
+                }
+            } else {
+                this.showError(i18n.t('connect_failed', error.message));
+            }
+            
             throw error;
         }
+    }
+
+    // 新增：强制清理串口资源的辅助方法
+    async forceCleanupFlashPort() {
+        this.addToFlashLog('开始强制清理串口资源...', 'debug');
+        
+        // 释放reader
+        if (this.flashReader) {
+            try {
+                await this.flashReader.cancel();
+                await this.flashReader.releaseLock();
+            } catch (e) {
+                this.addToFlashLog('清理flashReader时忽略错误: ' + e.message, 'debug');
+            }
+            this.flashReader = null;
+        }
+        
+        // 释放writer
+        if (this.flashWriter) {
+            try {
+                await this.flashWriter.releaseLock();
+            } catch (e) {
+                this.addToFlashLog('清理flashWriter时忽略错误: ' + e.message, 'debug');
+            }
+            this.flashWriter = null;
+        }
+        
+        // 关闭串口
+        if (this.flashPort && (this.flashPort.readable || this.flashPort.writable)) {
+            try {
+                await this.flashPort.close();
+                this.addToFlashLog('串口已强制关闭', 'debug');
+            } catch (e) {
+                this.addToFlashLog('关闭串口时忽略错误: ' + e.message, 'debug');
+            }
+        }
+        
+        // 重置连接状态
+        this.isFlashConnected = false;
+        this.addToFlashLog('串口资源强制清理完成', 'debug');
     }
 
     // 固件下载断开连接
@@ -1078,6 +1225,11 @@ class SerialTerminal {
             console.log(i18n.t('console_data_char_codes'), Array.from(text).map(c => c.charCodeAt(0)));
             console.log(i18n.t('console_contains_ansi_escape'), /(?:\x1b|\u001b)\[([0-9;]*)m/g.test(text));
             console.log(i18n.t('console_contains_missing_escape'), /\[([0-9;]*)m/g.test(text));
+            
+            // 如果启用了自动错误分析，分析接收到的数据
+            if (this.autoErrorAnalysis && this.autoErrorAnalysis.checked) {
+                this.analyzeErrors(text);
+            }
         }
         
         // 移除占位符
@@ -1567,47 +1719,92 @@ class SerialTerminal {
 
     // 停止固件下载
     async stopFlashDownload() {
-        if (this.flashDownloader) {
+        if (!this.flashDownloader) {
+            return;
+        }
+
+        try {
+            // 简单直接地停止下载器
             this.flashDownloader.stop();
             this.addToFlashLog(i18n.t('user_cancelled'), 'warning');
             
-            // 关键修复：停止下载时重置串口波特率到115200
+            // 给下载器一点时间停止
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // 调用清理方法（清理方法内部已经有错误处理）
             try {
-                this.addToFlashLog(i18n.t('resetting_baudrate_115200'), 'info');
-                
-                // 如果有芯片下载器且有setBaudrate方法，优先使用它
-                if (this.flashDownloader.chipDownloader && this.flashDownloader.chipDownloader.setBaudrate) {
-                    await this.flashDownloader.chipDownloader.setBaudrate(115200);
-                    this.addToFlashLog(i18n.t('baudrate_reset_success'), 'info');
-                } else if (this.flashPort && this.isFlashConnected) {
-                    // 直接重新配置串口
-                    if (this.flashReader) {
-                        await this.flashReader.releaseLock();
-                        this.flashReader = null;
-                    }
-                    if (this.flashWriter) {
-                        await this.flashWriter.releaseLock();
-                        this.flashWriter = null;
-                    }
-                    
-                    await this.flashPort.close();
-                    await this.flashPort.open({
-                        baudRate: 115200,
-                        dataBits: 8,
-                        stopBits: 1,
-                        parity: 'none'
-                    });
-                    
-                    this.flashReader = this.flashPort.readable.getReader();
-                    this.flashWriter = this.flashPort.writable.getWriter();
-                    this.addToFlashLog(i18n.t('direct_serial_reset_success'), 'info');
-                }
-            } catch (resetError) {
-                this.addToFlashLog(i18n.t('baudrate_reset_failed') + ': ' + resetError.message, 'warning');
+                await this.flashDownloader.cleanup();
+                this.addToFlashLog('下载器资源清理完成', 'info');
+            } catch (cleanupError) {
+                this.addToFlashLog('清理过程中出现错误，但已尝试恢复: ' + cleanupError.message, 'warning');
             }
+            
+            // 简单验证连接状态
+            if (this.flashPort && this.flashPort.readable && this.flashPort.writable) {
+                this.isFlashConnected = true;
+                this.updateFlashConnectionStatus(true);
+                this.addToFlashLog('✅ 串口连接已保持，可以继续下载', 'success');
+            } else {
+                this.isFlashConnected = false;
+                this.updateFlashConnectionStatus(false);
+                this.addToFlashLog('⚠️ 串口连接异常，需要重新连接', 'warning');
+            }
+            
+        } catch (error) {
+            console.error('停止下载时发生错误:', error);
+            this.addToFlashLog('停止下载时发生错误: ' + error.message, 'error');
+            
+            // 简化错误处理，避免复杂的嵌套异步调用
+            if (this.flashPort) {
+                this.isFlashConnected = true;
+                this.updateFlashConnectionStatus(true);
+                this.addToFlashLog('尝试保持串口连接状态', 'info');
+            } else {
+                this.isFlashConnected = false;
+                this.updateFlashConnectionStatus(false);
+            }
+        } finally {
+            // 更新按钮状态
+            this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
+            this.stopDownloadBtn.disabled = true;
         }
-        this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
-        this.stopDownloadBtn.disabled = true;
+    }
+
+    // 新增：强制断开固件下载连接
+    async forceDisconnectFlash() {
+        // 先释放所有reader和writer
+        if (this.flashReader) {
+            try {
+                await this.flashReader.cancel();
+                await this.flashReader.releaseLock();
+            } catch (e) {
+                // 忽略错误
+            }
+            this.flashReader = null;
+        }
+
+        if (this.flashWriter) {
+            try {
+                await this.flashWriter.releaseLock();
+            } catch (e) {
+                // 忽略错误
+            }
+            this.flashWriter = null;
+        }
+
+        // 关闭串口
+        if (this.flashPort) {
+            try {
+                await this.flashPort.close();
+            } catch (e) {
+                // 忽略错误
+            }
+            this.flashPort = null;
+        }
+
+        // 更新连接状态
+        this.isFlashConnected = false;
+        this.updateFlashConnectionStatus(false);
     }
 
     // 读取文件为ArrayBuffer
@@ -2256,8 +2453,8 @@ class SerialTerminal {
         // 定义设备对应的波特率配置
         const deviceBaudrateConfig = {
             'custom': { baudrate: 115200, readonly: false }, // 自定义时恢复到默认值115200
-            'T5AI': { baudrate: 460800, readonly: true },
-            'T3': { baudrate: 460800, readonly: true },
+            'T5AI': { baudrate: 921600, readonly: true },
+            'T3': { baudrate: 921600, readonly: true },
             'T2': { baudrate: 115200, readonly: true },
             'ESP32': { baudrate: 115200, readonly: true },
             'ESP32C3': { baudrate: 115200, readonly: true },
@@ -3132,6 +3329,163 @@ class SerialTerminal {
             this.authFullscreenDataDisplay.innerHTML = this.authDataDisplay.innerHTML;
             this.authFullscreenDataDisplay.scrollTop = this.authFullscreenDataDisplay.scrollHeight;
         }
+    }
+
+    // 错误日志分析相关方法
+    analyzeErrors(text) {
+        if (!text || !this.errorDatabase) return;
+        
+        const lowerText = text.toLowerCase();
+        let foundErrors = [];
+
+        this.errorDatabase.forEach(errorInfo => {
+            let matched = false;
+            let matchedText = '';
+            
+            if (errorInfo.isRegex && errorInfo.pattern instanceof RegExp) {
+                // 使用正则表达式匹配
+                const match = errorInfo.pattern.exec(text);
+                if (match) {
+                    matched = true;
+                    matchedText = match[0];
+                }
+            } else {
+                // 使用字符串匹配
+                if (lowerText.includes(errorInfo.pattern.toLowerCase())) {
+                    matched = true;
+                    // 提取具体的错误代码或关键词
+                    const pattern = errorInfo.pattern;
+                    const index = lowerText.indexOf(pattern.toLowerCase());
+                    if (index !== -1) {
+                        // 从原文本中提取，保持大小写
+                        matchedText = text.substr(index, pattern.length);
+                    } else {
+                        matchedText = pattern;
+                    }
+                }
+            }
+            
+            if (matched) {
+                const errorKey = `${errorInfo.id}-${errorInfo.pattern}`;
+                if (!this.detectedErrors.has(errorKey)) {
+                    this.detectedErrors.add(errorKey);
+                    foundErrors.push({
+                        ...errorInfo,
+                        originalText: matchedText || errorInfo.pattern
+                    });
+                }
+            }
+        });
+
+        // 显示新发现的错误
+        foundErrors.forEach(errorInfo => {
+            this.addErrorToDisplay(errorInfo);
+        });
+    }
+
+    addErrorToDisplay(errorInfo) {
+        if (!this.errorAnalysisDisplay) return;
+
+        // 移除占位符
+        const placeholder = this.errorAnalysisDisplay.querySelector('.placeholder');
+        if (placeholder) {
+            placeholder.remove();
+        }
+
+        // 创建整体错误容器（外层框架）
+        const errorWrapper = document.createElement('div');
+        errorWrapper.className = 'error-wrapper';
+
+        // 创建错误代码区域（粉红色背景）
+        const errorCodeSection = document.createElement('div');
+        errorCodeSection.className = 'error-code-section';
+
+        // 创建错误头部（图标 + 错误代码 + 时间戳）
+        const errorHeader = document.createElement('div');
+        errorHeader.style.display = 'flex';
+        errorHeader.style.justifyContent = 'space-between';
+        errorHeader.style.alignItems = 'center';
+
+        // 左侧：图标 + 错误代码
+        const errorLeft = document.createElement('div');
+        errorLeft.style.display = 'flex';
+        errorLeft.style.alignItems = 'center';
+        errorLeft.style.gap = '8px';
+
+        // 黄色感叹号图标
+        const errorIcon = document.createElement('span');
+        errorIcon.textContent = '⚠️';
+        errorIcon.style.fontSize = '16px';
+
+        // 红色错误代码
+        const errorCode = document.createElement('span');
+        errorCode.textContent = errorInfo.originalText || 'ACTIVE_OPEN_SDK_NOT_MATCHED';
+        errorCode.style.color = '#ef4444';
+        errorCode.style.fontWeight = '600';
+        errorCode.style.fontFamily = 'monospace';
+
+        errorLeft.appendChild(errorIcon);
+        errorLeft.appendChild(errorCode);
+
+        // 右侧：时间戳
+        const timestamp = document.createElement('span');
+        timestamp.textContent = this.generateTimestamp();
+        timestamp.style.color = '#6b7280';
+        timestamp.style.fontSize = '12px';
+        timestamp.style.fontFamily = 'monospace';
+
+        errorHeader.appendChild(errorLeft);
+        errorHeader.appendChild(timestamp);
+        errorCodeSection.appendChild(errorHeader);
+
+        // 创建解释文字区域（白色背景）
+        const errorDescriptionSection = document.createElement('div');
+        errorDescriptionSection.className = 'error-description-section';
+        errorDescriptionSection.innerHTML = errorInfo.analysis;
+
+        errorWrapper.appendChild(errorCodeSection);
+        errorWrapper.appendChild(errorDescriptionSection);
+
+        this.errorAnalysisDisplay.appendChild(errorWrapper);
+
+        // 自动滚动到底部
+        this.errorAnalysisDisplay.scrollTop = this.errorAnalysisDisplay.scrollHeight;
+    }
+
+    clearErrorAnalysis() {
+        if (!this.errorAnalysisDisplay) return;
+
+        // 清空显示区域
+        this.errorAnalysisDisplay.innerHTML = `
+            <div class="placeholder" data-i18n="no_errors_detected">暂未检测到错误...</div>
+        `;
+
+        // 清空已检测的错误记录
+        this.detectedErrors.clear();
+
+        // 更新多语言
+        if (window.i18n) {
+            window.i18n.updatePage();
+        }
+    }
+
+    testErrorAnalysis() {
+        // 测试错误分析功能，模拟各种错误
+        const testErrors = [
+            'lfs open uuidxxxxxxxxxxxxxxxx -2 err',
+            'ble packet len err: invalid length',
+            'tuya_ble_data_proc fail.',
+            'ACTIVE_OPEN_SDK_NOT_MATCHED'
+        ];
+
+        testErrors.forEach((errorText, index) => {
+            setTimeout(() => {
+                console.log(`测试错误 ${index + 1}:`, errorText);
+                // 模拟接收到包含错误的完整日志行
+                const fullLogLine = `[${this.generateTimestamp()}] ${errorText}`;
+                this.analyzeErrors(fullLogLine);
+            }, index * 500); // 每个错误间隔500ms
+        });
     }
 }
 

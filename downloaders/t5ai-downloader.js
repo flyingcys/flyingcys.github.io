@@ -282,20 +282,20 @@ class T5Downloader extends BaseDownloader {
      */
     async doLinkCheckEx(maxTryCount = 60) {
         for (let cnt = 0; cnt < maxTryCount && !this.stopFlag; cnt++) {
-            await this.clearBuffer();
-            await this.sendCommand([0x01, 0xE0, 0xFC, 0x01, 0x00], 'LinkCheck');
-            
+                await this.clearBuffer();
+                await this.sendCommand([0x01, 0xE0, 0xFC, 0x01, 0x00], 'LinkCheck');
+                
             // Python使用0.001秒超时，即1毫秒
             const response = await this.receiveResponse(8, 1);
-            if (response.length >= 8) {
-                const r = response.slice(0, 8);
-                if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0x05 && 
-                    r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && 
-                    r[6] === 0x01 && r[7] === 0x00) {
-                    return true;
+                if (response.length >= 8) {
+                    const r = response.slice(0, 8);
+                    if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0x05 && 
+                        r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && 
+                        r[6] === 0x01 && r[7] === 0x00) {
+                        return true;
+                    }
                 }
             }
-        }
         return false;
     }
 

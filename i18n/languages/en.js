@@ -50,6 +50,13 @@ const en = {
     sent: "TX",
     bytes: "bytes",
     
+    // Error analysis related
+    error_analysis: "🔍 Error Log Analysis",
+    clear_analysis: "Clear Analysis (Reset Detection)",
+    auto_analysis: "Auto Analysis",
+    no_errors_detected: "No errors detected...",
+    test_error_analysis: "Test Error Analysis",
+    
     send_data: "Send Data",
     hex_mode: "HEX Mode",
     add_newline: "Add Newline",
