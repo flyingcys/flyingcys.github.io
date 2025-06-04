@@ -2658,18 +2658,19 @@ header p {
 /* 错误分析面板样式 */
 .error-analysis-panel {
     background: white;
-    border-radius: 12px; /* Updated */
-    border: 2px solid #e8f4fd; /* Updated to match receive-data-panel */
-    padding: 20px; /* Added */
+    border-radius: 12px;
+    border: 2px solid #e8f4fd; /* 改回浅色边框，与接收数据面板一致 */
+    padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Updated */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
 .error-analysis-display {
-    background: #f9fafb; /* Kept as requested */
-    border: 2px solid #d1d5db; /* Updated border thickness and color */
-    border-radius: 8px; /* Updated */
-    padding: 15px; /* Updated */
+    background: white; /* Changed to white */
+    color: #374151;
+    border: 2px solid #e1e5e9; /* Matched to sendInput border */
+    border-radius: 8px;
+    padding: 15px;
     height: 300px;
     width: 100%;
     max-width: 100%;
@@ -2683,16 +2684,33 @@ header p {
     box-sizing: border-box;
 }
 
+.error-analysis-display::-webkit-scrollbar {
+    width: 8px;
+}
+
+.error-analysis-display::-webkit-scrollbar-track {
+    background: #f1f5f9; /* 浅色滚动条轨道 */
+}
+
+.error-analysis-display::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* 浅色滚动条 */
+    border-radius: 4px;
+}
+
+.error-analysis-display::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* 滚动条悬停状态 */
+}
+
 .error-analysis-display .placeholder {
-    color: #6b7280;
+    color: #6b7280; /* 改回深色占位符文字 */
     font-style: italic;
     text-align: center;
-    padding: 40px;
+    margin-top: 50px;
 }
 
 .error-wrapper {
     margin-bottom: 12px;
-    border: 1px solid #f9a8b2;
+    border: 1px solid #f59e0b; /* 琥珀色边框 */
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -2700,23 +2718,23 @@ header p {
 
 .error-code-section {
     padding: 12px;
-    background: #fde2e8;
-    border-bottom: 1px solid #f9a8b2;
+    background: #fef3c7; /* 琥珀色背景 */
+    border-bottom: 1px solid #f59e0b;
 }
 
 .error-description-section {
     padding: 12px;
-    background: white;
-    color: #374151;
+    background: #fefbf3; /* 浅琥珀色背景 */
+    color: #92400e; /* 琥珀色文字 */
     line-height: 1.5;
     font-size: 14px;
 }
 
 /* Style for the error analysis panel title to match other panel titles */
 .error-analysis-panel .data-header h3 {
-    color: #374151; /* Dark gray text */
+    color: #92400e; /* 琥珀色文字 */
     padding: 8px 12px;
-    background: linear-gradient(135deg, #f3f4f6, #e5e7eb); /* Light gray gradient */
+    background: linear-gradient(135deg, #fde68a, #fbbf24); /* 琥珀色渐变背景 */
     border-radius: 6px;
     margin: -5px 0 0 -5px;
     display: inline-block;
@@ -2756,6 +2774,20 @@ header p {
 /* 隐藏测试错误分析按钮（保持功能但不显示） */
 #testErrorAnalysisBtn {
     display: none;
+}
+
+/* 清空分析按钮样式调整，与清空日志/保存日志按钮保持一致 */
+#clearErrorAnalysisBtn {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+#clearErrorAnalysisBtn:hover:not(:disabled) {
+    background: #e9ecef !important;
+    color: #495057 !important;
+    border-color: #adb5bd !important;
+    /* transform: translateY(-2px); Removed hover effect */
 }
 
 /* 响应式设计下的错误分析面板布局 */
