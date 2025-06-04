@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 to C Array Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .file-upload.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .language-section {
+            margin-bottom: 30px;
+        }
+
+        .language-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+        }
+
+        .language-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-size {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff3742;
+            transform: scale(1.05);
+        }
+
+        .generate-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+            font-size: 1.2em;
+            padding: 15px 40px;
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .output-files {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .output-file {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 200px;
+            border: 1px solid #eee;
+        }
+
+        .output-file h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .language-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .output-files {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 MP3 to C Array Converter</h1>
+            <p>将MP3文件转换为C语言数组，支持中英文分类</p>
+        </div>
+        
+        <div class="content">
+            <!-- 文件上传区域 -->
+            <div class="upload-section">
+                <h3 class="section-title">📁 上传MP3文件</h3>
+                <div class="file-upload" id="fileUpload">
+                    <div class="upload-icon">📎</div>
+                    <div class="upload-text">点击或拖拽MP3文件到此处</div>
+                    <div style="font-size: 0.9em; color: #999;">支持多文件选择</div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept=".mp3">
+                </div>
+                
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <!-- 语言选择 -->
+            <div class="language-section">
+                <h3 class="section-title">🌐 选择语言类型</h3>
+                <div class="language-options">
+                    <label class="language-option">
+                        <input type="radio" name="language" value="zh" checked>
+                        <span>🇨🇳 中文 (zh)</span>
+                    </label>
+                    <label class="language-option">
+                        <input type="radio" name="language" value="en">
+                        <span>🇺🇸 英文 (en)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 生成按钮 -->
+            <div class="generate-section">
+                <button class="btn generate-btn" id="generateBtn" disabled>
+                    🚀 生成C文件
+                </button>
+            </div>
+
+            <!-- 输出区域 -->
+            <div class="output-section" id="outputSection">
+                <h3 class="section-title">📥 下载生成的文件</h3>
+                <div class="output-files" id="outputFiles"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let generatedFiles = {}; // 存储生成的文件内容
+
+        // DOM 元素
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputSection = document.getElementById('outputSection');
+        const outputFiles = document.getElementById('outputFiles');
+
+        // 文件上传事件
+        fileUpload.addEventListener('click', () => fileInput.click());
+        fileUpload.addEventListener('dragover', handleDragOver);
+        fileUpload.addEventListener('dragleave', handleDragLeave);
+        fileUpload.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        generateBtn.addEventListener('click', generateCFiles);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.name.endsWith('.mp3'));
+            addFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addFiles(files);
+        }
+
+        function addFiles(files) {
+            files.forEach(file => {
+                if (!uploadedFiles.find(f => f.name === file.name)) {
+                    uploadedFiles.push(file);
+                }
+            });
+            updateFileList();
+            updateGenerateButton();
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+            updateGenerateButton();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">🎵</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button class="remove-btn" data-index="${index}">移除</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+
+            // 添加移除按钮事件监听器
+            fileList.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    removeFile(index);
+                });
+            });
+        }
+
+        function updateGenerateButton() {
+            generateBtn.disabled = uploadedFiles.length === 0;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function generateCFiles() {
+            if (uploadedFiles.length === 0) return;
+
+            const language = document.querySelector('input[name="language"]:checked').value;
+            const mp3Files = [];
+
+            // 读取所有文件
+            for (const file of uploadedFiles) {
+                const arrayBuffer = await file.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const filename = file.name.replace('.mp3', '');
+                mp3Files.push([filename, data]);
+            }
+
+            // 生成头文件和源文件
+            const headerContent = generateCHeader(mp3Files, language);
+            const sourceContent = generateCSource(mp3Files, language);
+
+            // 存储生成的文件内容
+            generatedFiles = {
+                header: {
+                    filename: `media_src_${language}.h`,
+                    content: headerContent
+                },
+                source: {
+                    filename: `media_src_${language}.c`,
+                    content: sourceContent
+                }
+            };
+
+            // 显示下载选项
+            showDownloadOptions(language);
+        }
+
+        function generateCHeader(mp3Files, suffix) {
+            let headerContent = `#ifndef __MEDIA_SRC_${suffix.toUpperCase()}_H__
+#define __MEDIA_SRC_${suffix.toUpperCase()}_H__
+
+#include "tuya_cloud_types.h"
+`;
+
+            mp3Files.forEach(([filename, data]) => {
+                const arrayName = `media_src_${filename.replace(/-/g, '_')}`;
+                headerContent += `\nextern CONST CHAR_T ${arrayName}[${data.length}];`;
+            });
+
+            headerContent += `\n\n#endif // __MEDIA_SRC_${suffix.toUpperCase()}_H__\n`;
+            return headerContent;
+        }
+
+        function generateCSource(mp3Files, suffix) {
+            let sourceContent = `#include "media_src_${suffix}.h"\n\n`;
+
+            mp3Files.forEach(([filename, data]) => {
+                const arrayName = `media_src_${filename.replace(/-/g, '_')}`;
+                const hexArray = Array.from(data).map(byte => `0x${byte.toString(16).toUpperCase().padStart(2, '0')}`).join(', ');
+                
+                sourceContent += `// ${filename}\n`;
+                sourceContent += `CONST CHAR_T ${arrayName}[${data.length}] = {\n    ${hexArray}\n};\n\n`;
+            });
+
+            return sourceContent;
+        }
+
+        function showDownloadOptions(language) {
+            outputFiles.innerHTML = `
+                <div class="output-file">
+                    <h4>📄 ${generatedFiles.header.filename}</h4>
+                    <button class="btn download-btn" data-type="header">
+                        下载头文件
+                    </button>
+                </div>
+                <div class="output-file">
+                    <h4>📄 ${generatedFiles.source.filename}</h4>
+                    <button class="btn download-btn" data-type="source">
+                        下载源文件
+                    </button>
+                </div>
+            `;
+            
+            // 添加下载按钮事件监听器
+            outputFiles.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const type = e.target.dataset.type;
+                    const fileData = generatedFiles[type];
+                    downloadFile(fileData.filename, fileData.content);
+                });
+            });
+
+            outputSection.style.display = 'block';
+        }
+
+        function downloadFile(filename, content) {
+            try {
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // 显示下载成功提示
+                console.log(`成功下载: ${filename}`);
+            } catch (error) {
+                console.error('下载失败:', error);
+                alert('下载失败，请重试');
+            }
+        }
+    </script>
+</body>
+</html> 
