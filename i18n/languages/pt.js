@@ -50,7 +50,7 @@ const pt = {
     bytes: "bytes",
     
     // Análise de erro relacionada
-    error_analysis: "🔍 Análise de log de erro",
+    error_analysis: "Análise de log de erro",
     clear_analysis: "Limpar análise (redefinir detecção)",
     auto_analysis: "Análise automática",
     no_errors_detected: "Nenhum erro detectado...",
@@ -421,7 +421,64 @@ const pt = {
     disconnect_tuya_auth: "Desconectar Porta Serial de Autorização",
     tuya_auth_serial_connected: "Porta serial de autorização TuyaOpen conectada com sucesso!",
     tuya_auth_serial_disconnected: "Porta serial de autorização TuyaOpen desconectada.",
-    tab_tuya_auth_name: "Autorização TuyaOpen"
+    tab_tuya_auth_name: "Autorização TuyaOpen",
+    
+    // TuyaOpen授权码指南相关
+    license_guide: "Guia de Obtenção de Código de Autorização",
+    license_guide_title: "Guia de Obtenção de Código de Autorização TuyaOpen",
+    license_guide_subtitle: "Entender o código de autorização TuyaOpen e métodos de obtenção",
+    
+    // 什么是TuyaOpen专用授权码
+    what_is_license: "O que é o Código de Autorização Exclusivo TuyaOpen?",
+    license_info: "Todas as versões do TuyaOpen Framework requerem um código de autorização exclusivo para se conectar normalmente à nuvem Tuya. Outros códigos de autorização não podem funcionar corretamente.",
+    supported_frameworks: "Frameworks TuyaOpen Suportados",
+    c_version: "TuyaOpen versão C",
+    arduino_version: "TuyaOpen versão Arduino", 
+    lua_version: "TuyaOpen versão Luanode",
+    
+    // 如何获取授权码
+    how_to_get: "Como Obter o Código de Autorização",
+    method1_title: "Método 1: Comprar Módulos Pré-gravados",
+    method1_desc: "Comprar módulos com código de autorização TuyaOpen pré-gravado através da plataforma de desenvolvedores Tuya. Este código está gravado no módulo correspondente de fábrica e não será perdido. O TuyaOpen lê o código de autorização através da interface `tuya_iot_license_read()` ao inicializar. Confirme se o dispositivo atual tem o código de autorização TuyaOpen gravado.",
+    method1_advantage: "Vantagem: Plug and play, sem operação manual necessária",
+    
+    method2_title: "Método 2: Compra na Plataforma Tuya",
+    method2_desc: "Comprar código de autorização TuyaOpen através da plataforma de desenvolvedores Tuya, depois escrever no módulo usando ferramentas de porta serial.",
+    method2_advantage: "Vantagem: Plataforma oficial, suporte para compras em lote",
+    visit_platform: "Visitar Plataforma",
+    visit_platform_preburn: "Comprar Módulos Pré-gravados",
+    
+    method3_title: "Método 3: Compra no Taobao",
+    method3_desc: "Comprar código de autorização TuyaOpen através de lojas Taobao, depois escrever no módulo usando ferramentas de porta serial.",
+    method3_advantage: "Vantagem: Compra conveniente, métodos de pagamento flexíveis",
+    visit_taobao: "Visitar Taobao",
+    
+    // 使用指南
+    usage_guide: "Guia de Uso",
+    check_existing: "Passo 1: Verificar Código de Autorização Existente",
+    check_warning: "Primeiro confirme se o dispositivo atual já tem o código de autorização TuyaOpen gravado para evitar compras duplicadas.",
+    write_license: "Passo 2: Escrever Código de Autorização",
+    write_desc: "Se o dispositivo não tem código de autorização gravado, pode usar a função \"TuyaOpen Auth\" desta ferramenta para escrever:",
+    write_step1: "Conectar dispositivo ao computador",
+    write_step2: "Mudar para a aba \"TuyaOpen Auth\"",
+    write_step3: "Conectar porta serial",
+    write_step4: "Inserir UUID e AUTH_KEY comprados",
+    write_step5: "Clicar no botão \"Escrever Autorização\"",
+    write_success: "Depois de escrever com sucesso o código de autorização, o dispositivo pode usar normalmente o framework TuyaOpen para se conectar à nuvem Tuya.",
+    
+    // 常见问题
+    faq_title: "Perguntas Frequentes",
+    q1: "P: Outros tipos de códigos de autorização podem ser usados?",
+    a1: "R: Não. O framework TuyaOpen só pode usar códigos de autorização exclusivos TuyaOpen. Outros códigos de autorização não podem se conectar normalmente à nuvem Tuya.",
+    q2: "P: O código de autorização será perdido?",
+    a2: "R: Em circunstâncias normais, o código de autorização não será perdido. O código de autorização de módulos pré-gravados é gravado de fábrica, e o código escrito manualmente é salvo na área de armazenamento não volátil do módulo.",
+    q3: "P: Como verificar se o dispositivo já tem código de autorização?",
+    a3: "R: Pode ser verificado chamando a interface `tuya_iot_license_read()` através do programa TuyaOpen.",
+    
+    // 技术支持
+    support_title: "Suporte Técnico",
+    support_desc: "Se encontrar problemas durante o uso, obtenha ajuda através dos seguintes métodos:",
+    github_support: "Enviar Relatório de Problema"
 };
 
 // Exportar para global

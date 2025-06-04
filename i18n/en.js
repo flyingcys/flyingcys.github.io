@@ -45,7 +45,7 @@ const en = {
     bytes: 'bytes',
     
     // Error analysis related
-    error_analysis: '🔍 Error Log Analysis',
+    error_analysis: 'Error Log Analysis',
     clear_analysis: 'Clear Analysis (Reset Detection)',
     auto_analysis: 'Auto Analysis',
     no_errors_detected: 'No errors detected...',

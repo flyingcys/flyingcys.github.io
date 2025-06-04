@@ -50,11 +50,11 @@ const es = {
     bytes: "bytes",
     
     // Análisis de errores relacionado
-    error_analysis: "🔍 Análisis de registro de errores",
-    clear_analysis: "Limpiar análisis (restablecer detección)",
-    auto_analysis: "Análisis automático",
+    error_analysis: "Análisis de Log de Errores",
+    clear_analysis: "Limpiar Análisis (Restablecer Detección)",
+    auto_analysis: "Análisis Automático",
     no_errors_detected: "No se detectaron errores...",
-    test_error_analysis: "Prueba de análisis de errores",
+    test_error_analysis: "Probar Análisis de Errores",
     
     send_data: "Enviar datos",
     hex_mode: "Modo HEX",
@@ -421,7 +421,64 @@ const es = {
     disconnect_tuya_auth: "Desconectar Puerto Serie de Autorización",
     tuya_auth_serial_connected: "¡Puerto serie de autorización TuyaOpen conectado exitosamente!",
     tuya_auth_serial_disconnected: "Puerto serie de autorización TuyaOpen desconectado.",
-    tab_tuya_auth_name: "Autorización TuyaOpen"
+    tab_tuya_auth_name: "Autorización TuyaOpen",
+    
+    // TuyaOpen授权码指南相关
+    license_guide: "Guía de Obtención de Código de Autorización",
+    license_guide_title: "Guía de Obtención de Código de Autorización TuyaOpen",
+    license_guide_subtitle: "Entender el código de autorización TuyaOpen y métodos de obtención",
+    
+    // 什么是TuyaOpen专用授权码
+    what_is_license: "¿Qué es el Código de Autorización Exclusivo TuyaOpen?",
+    license_info: "Todas las versiones del TuyaOpen Framework requieren un código de autorización exclusivo para conectarse normalmente a la nube Tuya. Otros códigos de autorización no pueden funcionar correctamente.",
+    supported_frameworks: "Frameworks TuyaOpen Soportados",
+    c_version: "TuyaOpen versión C",
+    arduino_version: "TuyaOpen versión Arduino", 
+    lua_version: "TuyaOpen versión Luanode",
+    
+    // 如何获取授权码
+    how_to_get: "Cómo Obtener el Código de Autorización",
+    method1_title: "Método 1: Comprar Módulos Pre-grabados",
+    method1_desc: "Comprar módulos con código de autorización TuyaOpen pre-grabado a través de la plataforma de desarrolladores Tuya. Este código está grabado en el módulo correspondiente de fábrica y no se perderá. TuyaOpen lee el código de autorización a través de la interfaz `tuya_iot_license_read()` al iniciar. Confirme si el dispositivo actual tiene grabado el código de autorización TuyaOpen.",
+    method1_advantage: "Ventaja: Plug and play, sin operación manual requerida",
+    
+    method2_title: "Método 2: Compra en Plataforma Tuya",
+    method2_desc: "Comprar código de autorización TuyaOpen a través de la plataforma de desarrolladores Tuya, luego escribirlo en el módulo usando herramientas de puerto serie.",
+    method2_advantage: "Ventaja: Plataforma oficial, soporte compras en lotes",
+    visit_platform: "Visitar Plataforma",
+    visit_platform_preburn: "Comprar Módulos Pre-grabados",
+    
+    method3_title: "Método 3: Compra en Taobao",
+    method3_desc: "Comprar código de autorización TuyaOpen a través de tiendas Taobao, luego escribirlo en el módulo usando herramientas de puerto serie.",
+    method3_advantage: "Ventaja: Compra conveniente, métodos de pago flexibles",
+    visit_taobao: "Visitar Taobao",
+    
+    // 使用指南
+    usage_guide: "Guía de Uso",
+    check_existing: "Paso 1: Verificar Código de Autorización Existente",
+    check_warning: "Primero confirme si el dispositivo actual ya tiene grabado el código de autorización TuyaOpen para evitar compras duplicadas.",
+    write_license: "Paso 2: Escribir Código de Autorización",
+    write_desc: "Si el dispositivo no tiene código de autorización grabado, puede usar la función \"TuyaOpen Auth\" de esta herramienta para escribirlo:",
+    write_step1: "Conectar dispositivo a la computadora",
+    write_step2: "Cambiar a la pestaña \"TuyaOpen Auth\"",
+    write_step3: "Conectar puerto serie",
+    write_step4: "Ingresar UUID y AUTH_KEY comprados",
+    write_step5: "Hacer clic en el botón \"Escribir Autorización\"",
+    write_success: "Después de escribir exitosamente el código de autorización, el dispositivo puede usar normalmente el framework TuyaOpen para conectarse a la nube Tuya.",
+    
+    // 常见问题
+    faq_title: "Preguntas Frecuentes",
+    q1: "P: ¿Se pueden usar otros tipos de códigos de autorización?",
+    a1: "R: No. El framework TuyaOpen solo puede usar códigos de autorización exclusivos TuyaOpen. Otros códigos de autorización no pueden conectarse normalmente a la nube Tuya.",
+    q2: "P: ¿Se perderá el código de autorización?",
+    a2: "R: En circunstancias normales, el código de autorización no se perderá. El código de autorización de módulos pre-grabados está grabado de fábrica, y el código escrito manualmente se guarda en el área de almacenamiento no volátil del módulo.",
+    q3: "P: ¿Cómo verificar si el dispositivo ya tiene código de autorización?",
+    a3: "R: Se puede verificar llamando la interfaz `tuya_iot_license_read()` a través del programa TuyaOpen.",
+    
+    // 技术支持
+    support_title: "Soporte Técnico",
+    support_desc: "Si encuentra problemas durante el uso, obtenga ayuda a través de los siguientes métodos:",
+    github_support: "Enviar Reporte de Problema"
 };
 
 // Exportar a global

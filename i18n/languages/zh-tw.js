@@ -50,7 +50,7 @@ const zhTw = {
     bytes: "位元組",
     
     // 錯誤分析相關
-    error_analysis: "🔍 錯誤日誌分析",
+    error_analysis: "錯誤日誌分析",
     clear_analysis: "清空分析（重置檢測）",
     auto_analysis: "自動分析",
     no_errors_detected: "暫未檢測到錯誤...",

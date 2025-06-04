@@ -417,13 +417,68 @@ const ko = {
     tab_tuya_auth_name: "TuyaOpen 인증",
     
     // 오류 분석 관련
-    error_analysis: '🔍 오류 로그 분석',
+    error_analysis: '오류 로그 분석',
     clear_analysis: '분석 지우기 (감지 재설정)',
     auto_analysis: '자동 분석',
     no_errors_detected: '오류가 감지되지 않았습니다...',
     test_error_analysis: '오류 분석 테스트',
     
-    // 데이터 전송
+    // TuyaOpen授权码指南相关
+    license_guide: "인증 코드 획득 가이드",
+    license_guide_title: "TuyaOpen 인증 코득 가이드",
+    license_guide_subtitle: "TuyaOpen 인증 코드 이해 및 획득 방법",
+    
+    // 什么是TuyaOpen专用授权码
+    what_is_license: "TuyaOpen 전용 인증 코드란 무엇인가요?",
+    license_info: "TuyaOpen Framework의 모든 버전은 Tuya 클라우드에 정상적으로 연결하기 위해 전용 인증 코드가 필요합니다. 다른 인증 코드는 정상적으로 작동할 수 없습니다.",
+    supported_frameworks: "지원되는 TuyaOpen 프레임워크",
+    c_version: "TuyaOpen C 버전",
+    arduino_version: "TuyaOpen Arduino 버전", 
+    lua_version: "TuyaOpen Luanode 버전",
+    
+    // 如何获取授权码
+    how_to_get: "인증 코득 방법",
+    method1_title: "방법 1: 사전 기록된 모듈 구매",
+    method1_desc: "Tuya 개발자 플랫폼을 통해 TuyaOpen 인증 코드가 사전 기록된 모듈을 구매합니다. 이 인증 코드는 출고 시 해당 모듈에 기록되어 있으며 손실되지 않습니다. TuyaOpen은 시작할 때 `tuya_iot_license_read()` 인터페이스를 통해 인증 코드를 읽습니다. 현재 기기에 TuyaOpen 인증 코드가 기록되어 있는지 확인하세요.",
+    method1_advantage: "장점: 즉시 사용 가능, 수동 작업 불필요",
+    
+    method2_title: "방법 2: Tuya 플랫폼에서 구매",
+    method2_desc: "Tuya 개발자 플랫폼을 통해 TuyaOpen 인증 코드를 구매한 후 시리얼 포트 도구를 사용하여 모듈에 작성합니다.",
+    method2_advantage: "장점: 공식 플랫폼, 대량 구매 지원",
+    visit_platform: "플랫폼 방문",
+    visit_platform_preburn: "사전 기록된 모듈 구매",
+    
+    method3_title: "방법 3: 타오바오에서 구매",
+    method3_desc: "타오바오 상점을 통해 TuyaOpen 인증 코드를 구매한 후 시리얼 포트 도구를 사용하여 모듈에 작성합니다.",
+    method3_advantage: "장점: 편리한 구매, 유연한 결제 방법",
+    visit_taobao: "타오바오 방문",
+    
+    // 使用指南
+    usage_guide: "사용 가이드",
+    check_existing: "단계 1: 기존 인증 코드 확인",
+    check_warning: "먼저 현재 기기에 이미 TuyaOpen 인증 코드가 기록되어 있는지 확인하여 중복 구매를 피하세요.",
+    write_license: "단계 2: 인증 코드 작성",
+    write_desc: "기기에 인증 코드가 기록되어 있지 않은 경우, 이 도구의 \"TuyaOpen 인증\" 기능을 사용하여 작성할 수 있습니다:",
+    write_step1: "기기를 컴퓨터에 연결",
+    write_step2: "\"TuyaOpen 인증\" 탭으로 전환",
+    write_step3: "시리얼 포트 연결",
+    write_step4: "구매한 UUID 및 AUTH_KEY 입력",
+    write_step5: "\"인증 작성\" 버튼 클릭",
+    write_success: "인증 코드를 성공적으로 작성한 후, 기기는 TuyaOpen 프레임워크를 정상적으로 사용하여 Tuya 클라우드에 연결할 수 있습니다.",
+    
+    // 常见问题
+    faq_title: "자주 묻는 질문",
+    q1: "Q: 다른 유형의 인증 코드를 사용할 수 있나요?",
+    a1: "A: 아니요. TuyaOpen 프레임워크는 TuyaOpen 전용 인증 코드만 사용할 수 있습니다. 다른 인증 코드는 Tuya 클라우드에 정상적으로 연결할 수 없습니다.",
+    q2: "Q: 인증 코드가 손실될까요?",
+    a2: "A: 정상적인 상황에서 인증 코드는 손실되지 않습니다. 사전 기록된 모듈의 인증 코드는 출고 시 기록되며, 수동으로 작성된 코드는 모듈의 비휘발성 저장 영역에 저장됩니다.",
+    q3: "Q: 기기에 이미 인증 코드가 있는지 어떻게 확인하나요?",
+    a3: "A: TuyaOpen 프로그램을 통해 `tuya_iot_license_read()` 인터페이스를 호출하여 확인할 수 있습니다.",
+    
+    // 技术支持
+    support_title: "기술 지원",
+    support_desc: "사용 중 문제가 발생하면 다음 방법으로 도움을 받으세요:",
+    github_support: "문제 보고서 제출"
 };
 
 // 전역으로 내보내기

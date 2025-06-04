@@ -2787,7 +2787,6 @@ header p {
     background: #e9ecef !important;
     color: #495057 !important;
     border-color: #adb5bd !important;
-    /* transform: translateY(-2px); Removed hover effect */
 }
 
 /* 响应式设计下的错误分析面板布局 */
