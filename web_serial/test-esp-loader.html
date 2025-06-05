@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP下载器加载测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-panel { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #log { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; min-height: 200px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>ESP下载器加载测试</h1>
+    
+    <div class="test-panel info">
+        <h3>测试步骤：</h3>
+        <ol>
+            <li>点击"测试加载BaseDownloader"</li>
+            <li>点击"测试加载DownloaderManager"</li>
+            <li>点击"测试加载ESP32下载器"</li>
+            <li>查看控制台输出和下面的日志</li>
+        </ol>
+    </div>
+
+    <div class="test-panel">
+        <button onclick="testBaseDownloader()">测试加载BaseDownloader</button>
+        <button onclick="testDownloaderManager()">测试加载DownloaderManager</button>
+        <button onclick="testESPDownloader()">测试加载ESP32下载器</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+
+    <div class="test-panel">
+        <h3>测试日志：</h3>
+        <div id="log"></div>
+    </div>
+
+    <!-- 加载必要的脚本 -->
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/downloader-manager.js"></script>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        function testBaseDownloader() {
+            log('=== 测试BaseDownloader ===');
+            if (typeof BaseDownloader !== 'undefined') {
+                log('✅ BaseDownloader 类已加载');
+                try {
+                    const mockPort = { readable: null, writable: null };
+                    const downloader = new BaseDownloader(mockPort, log);
+                    log('✅ BaseDownloader 实例创建成功');
+                    log(`✅ 芯片名称: ${downloader.getChipName()}`);
+                } catch (error) {
+                    log(`❌ BaseDownloader 实例创建失败: ${error.message}`);
+                }
+            } else {
+                log('❌ BaseDownloader 类未找到');
+            }
+        }
+
+        function testDownloaderManager() {
+            log('=== 测试DownloaderManager ===');
+            if (typeof DownloaderManager !== 'undefined') {
+                log('✅ DownloaderManager 类已加载');
+                if (typeof downloaderManager !== 'undefined') {
+                    log('✅ 全局 downloaderManager 实例已创建');
+                    const supportedChips = downloaderManager.getSupportedChips();
+                    log(`✅ 支持的芯片数量: ${supportedChips.length}`);
+                    supportedChips.forEach(chip => {
+                        log(`  - ${chip.name}: ${chip.displayName}`);
+                    });
+                } else {
+                    log('❌ 全局 downloaderManager 实例未找到');
+                }
+            } else {
+                log('❌ DownloaderManager 类未找到');
+            }
+        }
+
+        async function testESPDownloader() {
+            log('=== 测试ESP32下载器 ===');
+            if (typeof downloaderManager === 'undefined') {
+                log('❌ downloaderManager 未找到，请先测试DownloaderManager');
+                return;
+            }
+
+            try {
+                log('开始加载ESP32下载器...');
+                const ESPDownloaderClass = await downloaderManager.loadDownloaderScript('ESP32');
+                log('✅ ESP32下载器脚本加载成功');
+                
+                if (ESPDownloaderClass) {
+                    log('✅ ESPDownloaderComplete 类获取成功');
+                    
+                    // 创建模拟串口
+                    const mockPort = { 
+                        readable: null, 
+                        writable: null,
+                        getInfo: () => ({ vendorId: 0x10C4, productId: 0xEA60 })
+                    };
+                    
+                    const downloader = new ESPDownloaderClass(mockPort, log, 'ESP32');
+                    log('✅ ESP32下载器实例创建成功');
+                    log(`✅ 芯片类型: ${downloader.chipType}`);
+                    log(`✅ 芯片名称: ${downloader.chipName}`);
+                    log(`✅ 默认超时: ${downloader.DEFAULT_TIMEOUT}ms`);
+                    
+                    // 测试基本方法
+                    if (typeof downloader.downloadFirmware === 'function') {
+                        log('✅ downloadFirmware 方法存在');
+                    } else {
+                        log('❌ downloadFirmware 方法不存在');
+                    }
+                    
+                    if (typeof downloader.connect === 'function') {
+                        log('✅ connect 方法存在');
+                    } else {
+                        log('❌ connect 方法不存在');
+                    }
+                    
+                } else {
+                    log('❌ ESPDownloaderComplete 类为空');
+                }
+            } catch (error) {
+                log(`❌ ESP32下载器加载失败: ${error.message}`);
+                console.error('详细错误信息:', error);
+            }
+        }
+
+        // 页面加载完成后的初始化检查
+        window.addEventListener('load', () => {
+            log('=== 页面初始化检查 ===');
+            log(`BaseDownloader: ${typeof BaseDownloader !== 'undefined' ? '✅ 已加载' : '❌ 未加载'}`);
+            log(`DownloaderManager: ${typeof DownloaderManager !== 'undefined' ? '✅ 已加载' : '❌ 未加载'}`);
+            log(`downloaderManager实例: ${typeof downloaderManager !== 'undefined' ? '✅ 已创建' : '❌ 未创建'}`);
+            log('请点击按钮进行详细测试');
+        });
+    </script>
+</body>
+</html> 

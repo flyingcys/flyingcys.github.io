@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP设备测试页面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .device-list {
+            margin: 10px 0;
+        }
+        .device-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP设备测试页面</h1>
+        
+        <div class="test-section">
+            <h2>1. 下载器管理器状态</h2>
+            <div id="manager-status">检查中...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. 支持的设备列表</h2>
+            <div id="supported-devices">加载中...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. 可见设备列表</h2>
+            <div id="visible-devices">加载中...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 设备选择器测试</h2>
+            <select id="deviceSelect">
+                <option value="">加载中...</option>
+            </select>
+            <button onclick="testDeviceSelection()">测试选中设备</button>
+            <div id="selection-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. ESP下载器测试</h2>
+            <button onclick="testESP32Downloader()">测试 ESP32 下载器</button>
+            <button onclick="testESP32C3Downloader()">测试 ESP32-C3 下载器</button>
+            <button onclick="testESP32S3Downloader()">测试 ESP32-S3 下载器</button>
+            <div id="downloader-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>6. 详细信息</h2>
+            <button onclick="showDetails()">显示详细信息</button>
+            <pre id="details" style="display: none;"></pre>
+        </div>
+    </div>
+
+    <!-- 加载必要的脚本 -->
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/downloader-manager.js"></script>
+
+    <script>
+        // 等待页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runTests, 100); // 给脚本一些时间加载
+        });
+
+        function runTests() {
+            console.log('开始运行ESP设备测试...');
+            
+            // 测试1: 检查下载器管理器
+            testDownloaderManager();
+            
+            // 测试2: 检查支持的设备
+            testSupportedDevices();
+            
+            // 测试3: 检查可见设备
+            testVisibleDevices();
+            
+            // 测试4: 初始化设备选择器
+            initDeviceSelector();
+        }
+
+        function testDownloaderManager() {
+            const statusDiv = document.getElementById('manager-status');
+            
+            if (typeof window.downloaderManager !== 'undefined') {
+                statusDiv.innerHTML = '<span class="success">✅ 下载器管理器已加载</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="error">❌ 下载器管理器未加载</span>';
+            }
+        }
+
+        function testSupportedDevices() {
+            const devicesDiv = document.getElementById('supported-devices');
+            
+            if (typeof window.downloaderManager !== 'undefined') {
+                try {
+                    const allChips = Object.keys(window.downloaderManager.supportedChips);
+                    let html = '<div class="device-list">';
+                    html += `<p class="info">所有支持的设备 (${allChips.length} 个):</p>`;
+                    
+                    allChips.forEach(chip => {
+                        const config = window.downloaderManager.supportedChips[chip];
+                        html += `<div class="device-item">
+                            <strong>${chip}</strong> (${config.displayName}) - 
+                            顺序: ${config.order}, 
+                            下载器: ${config.downloaderClass}
+                        </div>`;
+                    });
+                    html += '</div>';
+                    
+                    devicesDiv.innerHTML = html;
+                } catch (error) {
+                    devicesDiv.innerHTML = `<span class="error">❌ 错误: ${error.message}</span>`;
+                }
+            } else {
+                devicesDiv.innerHTML = '<span class="error">❌ 下载器管理器未加载</span>';
+            }
+        }
+
+        function testVisibleDevices() {
+            const devicesDiv = document.getElementById('visible-devices');
+            
+            if (typeof window.downloaderManager !== 'undefined') {
+                try {
+                    const visibleChips = window.downloaderManager.getVisibleChips();
+                    const supportedChips = window.downloaderManager.getSupportedChips();
+                    
+                    let html = '<div class="device-list">';
+                    html += `<p class="info">可见设备列表 (${visibleChips.length} 个):</p>`;
+                    html += `<p>原始列表: [${visibleChips.join(', ')}]</p>`;
+                    
+                    html += `<p class="info">处理后的设备信息 (${supportedChips.length} 个):</p>`;
+                    supportedChips.forEach(chip => {
+                        const isESP = chip.name.startsWith('ESP32');
+                        html += `<div class="device-item" style="background: ${isESP ? '#e8f4ff' : 'white'}">
+                            <strong>${chip.name}</strong> - ${chip.displayName}
+                            ${isESP ? '<span class="success">🔥 ESP设备</span>' : ''}
+                        </div>`;
+                    });
+                    html += '</div>';
+                    
+                    devicesDiv.innerHTML = html;
+                } catch (error) {
+                    devicesDiv.innerHTML = `<span class="error">❌ 错误: ${error.message}</span>`;
+                }
+            } else {
+                devicesDiv.innerHTML = '<span class="error">❌ 下载器管理器未加载</span>';
+            }
+        }
+
+        function initDeviceSelector() {
+            const select = document.getElementById('deviceSelect');
+            
+            if (typeof window.downloaderManager !== 'undefined') {
+                try {
+                    // 模拟真实的初始化过程
+                    const supportedChips = window.downloaderManager.getSupportedChips();
+                    
+                    // 清空现有选项
+                    select.innerHTML = '';
+                    
+                    // 添加设备选项
+                    supportedChips.forEach(chip => {
+                        const option = document.createElement('option');
+                        option.value = chip.name;
+                        option.textContent = chip.displayName;
+                        option.title = chip.description;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('设备选择器初始化完成:', supportedChips);
+                } catch (error) {
+                    select.innerHTML = `<option value="">错误: ${error.message}</option>`;
+                }
+            } else {
+                select.innerHTML = '<option value="">下载器管理器未加载</option>';
+            }
+        }
+
+        function testDeviceSelection() {
+            const select = document.getElementById('deviceSelect');
+            const resultDiv = document.getElementById('selection-result');
+            
+            const selectedDevice = select.value;
+            if (selectedDevice) {
+                const isSupported = window.downloaderManager?.isChipSupported(selectedDevice);
+                const chipInfo = window.downloaderManager?.getChipInfo(selectedDevice);
+                
+                let html = `<p><strong>选中设备:</strong> ${selectedDevice}</p>`;
+                html += `<p><strong>是否支持:</strong> ${isSupported ? '✅ 是' : '❌ 否'}</p>`;
+                
+                if (chipInfo) {
+                    html += `<p><strong>设备信息:</strong></p>`;
+                    html += `<pre>${JSON.stringify(chipInfo, null, 2)}</pre>`;
+                }
+                
+                resultDiv.innerHTML = html;
+            } else {
+                resultDiv.innerHTML = '<p class="error">请先选择一个设备</p>';
+            }
+        }
+
+        async function testESP32Downloader() {
+            await testDownloader('ESP32');
+        }
+
+        async function testESP32C3Downloader() {
+            await testDownloader('ESP32-C3');
+        }
+
+        async function testESP32S3Downloader() {
+            await testDownloader('ESP32-S3');
+        }
+
+        async function testDownloader(chipName) {
+            const resultDiv = document.getElementById('downloader-result');
+            
+            try {
+                resultDiv.innerHTML = `<p class="info">正在测试 ${chipName} 下载器...</p>`;
+                
+                if (!window.downloaderManager) {
+                    throw new Error('下载器管理器未加载');
+                }
+                
+                // 模拟串口对象
+                const mockPort = {
+                    readable: { getReader: () => ({}) },
+                    writable: { getWriter: () => ({}) }
+                };
+                
+                // 模拟调试回调
+                const debugCallback = (level, message, data) => {
+                    console.log(`[${level}] ${message}`, data);
+                };
+                
+                // 创建下载器实例
+                const downloader = await window.downloaderManager.createDownloader(
+                    chipName, 
+                    mockPort, 
+                    debugCallback
+                );
+                
+                let html = `<p class="success">✅ ${chipName} 下载器创建成功!</p>`;
+                html += `<p><strong>下载器类型:</strong> ${downloader.constructor.name}</p>`;
+                html += `<p><strong>芯片名称:</strong> ${downloader.chipName}</p>`;
+                html += `<p><strong>芯片类型:</strong> ${downloader.chipType}</p>`;
+                
+                // 测试下载器方法
+                const methods = ['connect', 'disconnect', 'downloadFirmware', 'setDebugMode', 'setProgressCallback'];
+                html += '<p><strong>可用方法:</strong></p><ul>';
+                methods.forEach(method => {
+                    const hasMethod = typeof downloader[method] === 'function';
+                    html += `<li>${method}: ${hasMethod ? '✅' : '❌'}</li>`;
+                });
+                html += '</ul>';
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ 测试失败: ${error.message}</p>`;
+                console.error('下载器测试失败:', error);
+            }
+        }
+
+        function showDetails() {
+            const detailsDiv = document.getElementById('details');
+            
+            const details = {
+                window_downloaderManager: typeof window.downloaderManager,
+                DownloaderManager: typeof window.DownloaderManager,
+                BaseDownloader: typeof window.BaseDownloader,
+                ESPDownloaderComplete: typeof window.ESPDownloaderComplete,
+                supportedChips: window.downloaderManager ? Object.keys(window.downloaderManager.supportedChips) : 'N/A',
+                visibleChips: window.downloaderManager ? window.downloaderManager.getVisibleChips() : 'N/A',
+                loadedDownloaders: window.downloaderManager ? window.downloaderManager.getLoadedDownloaders() : 'N/A'
+            };
+            
+            detailsDiv.textContent = JSON.stringify(details, null, 2);
+            detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html> 

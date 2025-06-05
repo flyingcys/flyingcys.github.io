@@ -40,6 +40,27 @@ class DownloaderManager {
                 order: 5,
                 scriptPath: './downloaders/ln882h-downloader.js',
                 downloaderClass: 'LN882HDownloader'
+            },
+            ESP32: { 
+                displayName: 'ESP32',
+                downloader: 'ESPDownloaderComplete',
+                order: 6,
+                scriptPath: './downloaders/esp-downloader-complete.js',
+                downloaderClass: 'ESPDownloaderComplete'
+            },
+            'ESP32-C3': { 
+                displayName: 'ESP32-C3',
+                downloader: 'ESPDownloaderComplete',
+                order: 7,
+                scriptPath: './downloaders/esp-downloader-complete.js',
+                downloaderClass: 'ESPDownloaderComplete'
+            },
+            'ESP32-S3': { 
+                displayName: 'ESP32-S3',
+                downloader: 'ESPDownloaderComplete',
+                order: 8,
+                scriptPath: './downloaders/esp-downloader-complete.js',
+                downloaderClass: 'ESPDownloaderComplete'
             }
         };
         
@@ -47,7 +68,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32-C3', 'ESP32-S3'];
     }
 
     /**
@@ -114,20 +135,28 @@ class DownloaderManager {
             
             return new Promise((resolve, reject) => {
                 script.onload = () => {
+                    console.log(`脚本已加载: ${chipConfig.scriptPath}`);
+                    console.log(`正在查找类: ${chipConfig.downloaderClass}`);
+                    console.log('当前window对象中的类:', Object.keys(window).filter(key => key.includes('Downloader')));
+                    
                     // 检查下载器类是否已加载
                     const DownloaderClass = window[chipConfig.downloaderClass];
                     if (DownloaderClass) {
+                        console.log(`成功找到下载器类: ${chipConfig.downloaderClass}`);
                         this.loadedDownloaders[chipName] = DownloaderClass;
                         resolve(DownloaderClass);
                     } else {
+                        console.error(`下载器类 ${chipConfig.downloaderClass} 未找到在window对象中`);
                         reject(new Error(`下载器类 ${chipConfig.downloaderClass} 未找到`));
                     }
                 };
                 
-                script.onerror = () => {
+                script.onerror = (error) => {
+                    console.error(`脚本加载失败: ${chipConfig.scriptPath}`, error);
                     reject(new Error(`加载下载器脚本失败: ${chipConfig.scriptPath}`));
                 };
                 
+                console.log(`开始加载脚本: ${chipConfig.scriptPath}`);
                 document.head.appendChild(script);
             });
         } catch (error) {
@@ -146,8 +175,13 @@ class DownloaderManager {
         // 加载下载器类
         const DownloaderClass = await this.loadDownloaderScript(chipName);
         
-        // 创建实例
-        const downloader = new DownloaderClass(serialPort, debugCallback);
+        // 创建实例，特殊处理ESP系列芯片传递芯片类型参数
+        let downloader;
+        if (chipName.startsWith('ESP32')) {
+            downloader = new DownloaderClass(serialPort, debugCallback, chipName);
+        } else {
+            downloader = new DownloaderClass(serialPort, debugCallback);
+        }
         
         return downloader;
     }
