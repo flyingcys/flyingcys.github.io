@@ -916,8 +916,9 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
     async write(startAddr = 0x00) {
         this.debugLog("=== ESP写入流程开始 ===");
         
-        // 设置波特率
-        if (!await this.setBaudrate(this.baudrate || 921600)) {
+        // 设置波特率 - 使用更保守的波特率确保flash操作稳定
+        const flashBaudrate = this.baudrate || 460800; // 降低到460800以提高稳定性
+        if (!await this.setBaudrate(flashBaudrate)) {
             return false;
         }
         
@@ -949,6 +950,12 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         const uncsize = this.binfileData.uncsize;
         const uncimage = this.binfileData.uncimage;
         const image = await this.compress(uncimage);
+        
+        // 在flash操作前确保通信稳定
+        this.debugLog("📡 准备flash操作，清理缓冲区并稳定通信");
+        await this.flushInput();
+        await this.flushOutput();
+        await new Promise(resolve => setTimeout(resolve, 100)); // 100ms延时确保通信稳定
         
         const blocks = 1 + await this.flashDeflBegin(uncsize, image.length, startAddr);
         
@@ -1283,7 +1290,9 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         params[14] = (offset >> 16) & 0xFF;
         params[15] = (offset >> 24) & 0xFF;
         
-        await this.checkCommand("进入压缩Flash模式", this.ESP_FLASH_DEFL_BEGIN, params, 0, this.DEFAULT_TIMEOUT);
+        // 使用更长的超时时间，因为flash_defl_begin可能需要更多时间来准备flash操作
+        const flashDeflBeginTimeout = this.DEFAULT_TIMEOUT * 2; // 6秒超时
+        await this.checkCommand("进入压缩Flash模式", this.ESP_FLASH_DEFL_BEGIN, params, 0, flashDeflBeginTimeout);
         return numBlocks;
     }
     
