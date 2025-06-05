@@ -117,14 +117,24 @@ class ESPDownloaderNew extends BaseDownloader {
             let partialPacket = null;
             let inEscape = false;
             let successfulSlip = false;
+            let packetBuffer = []; // 缓冲多个完整的包
+            
+            // 保存对主对象的引用
+            const self = this;
             
             return {
-                async readPacket(timeout = this.DEFAULT_TIMEOUT) {
+                async readPacket(timeout = self.DEFAULT_TIMEOUT) {
+                    // 首先检查缓冲区是否有现成的包
+                    if (packetBuffer.length > 0) {
+                        const packet = packetBuffer.shift();
+                        self.debugLog(`📦 从缓冲区返回数据包: ${Array.from(packet).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                        return packet;
+                    }
                     const startTime = Date.now();
                     let reader = null;
                     
                     try {
-                        reader = this.port.readable.getReader();
+                        reader = self.port.readable.getReader();
                         
                         while (Date.now() - startTime < timeout) {
                             // 读取可用数据
@@ -151,7 +161,7 @@ class ESPDownloaderNew extends BaseDownloader {
                             const readBytes = result.value;
                             if (!readBytes || readBytes.length === 0) continue;
                             
-                            this.debugLog(`SLIP读取 ${readBytes.length} 字节: ${Array.from(readBytes).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                            self.debugLog(`SLIP读取 ${readBytes.length} 字节: ${Array.from(readBytes).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
                             
                             // 处理每个字节
                             for (let i = 0; i < readBytes.length; i++) {
@@ -161,32 +171,53 @@ class ESPDownloaderNew extends BaseDownloader {
                                     if (b === 0xc0) {
                                         partialPacket = new Uint8Array(0);
                                     } else {
-                                        this.debugLog(`SLIP读取到无效数据: ${readBytes}`);
-                                        // 检测panic错误 - 简化版本
-                                        throw new Error("Invalid head of packet.");
+                                        // 按照Python版本，忽略无效字节，继续寻找数据包头
+                                        // 只在首次遇到时记录日志，避免日志过多
+                                        if (i === 0) {
+                                            self.debugLog(`SLIP读取到无效数据: ${Array.from(readBytes).map(b => b.toString(16).padStart(2, '0')).join(',')}`);
+                                        }
+                                        continue; // 跳过无效字节，继续寻找0xc0
                                     }
                                 } else if (inEscape) { // 处理转义序列
                                     inEscape = false;
                                     if (b === 0xdc) {
-                                        partialPacket = this.concatUint8Arrays(partialPacket, new Uint8Array([0xc0]));
+                                        partialPacket = self.concatUint8Arrays(partialPacket, new Uint8Array([0xc0]));
                                     } else if (b === 0xdd) {
-                                        partialPacket = this.concatUint8Arrays(partialPacket, new Uint8Array([0xdb]));
+                                        partialPacket = self.concatUint8Arrays(partialPacket, new Uint8Array([0xdb]));
                                     } else {
-                                        this.debugLog(`SLIP读取到无效转义: ${readBytes}`);
-                                        throw new Error(`Invalid SLIP escape (0xdb, ${b.toString(16)})`);
+                                        // 按照Python版本，对无效转义序列记录日志但继续处理
+                                        self.debugLog(`SLIP读取到无效转义: 0xdb ${b.toString(16)}`);
+                                        // 将原始0xdb和当前字节都加入数据包
+                                        partialPacket = self.concatUint8Arrays(partialPacket, new Uint8Array([0xdb, b]));
                                     }
                                 } else if (b === 0xdb) { // 开始转义序列
                                     inEscape = true;
                                 } else if (b === 0xc0) { // 数据包结束
-                                    this.debugLog(`✅ SLIP接收到完整数据包: ${Array.from(partialPacket).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                                    self.debugLog(`✅ SLIP接收到完整数据包: ${Array.from(partialPacket).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
                                     const packet = partialPacket;
                                     partialPacket = null;
                                     successfulSlip = true;
-                                    return packet;
+                                    
+                                    // 将包添加到缓冲区而不是立即返回
+                                    packetBuffer.push(packet);
                                 } else { // 普通字节
-                                    partialPacket = this.concatUint8Arrays(partialPacket, new Uint8Array([b]));
+                                    partialPacket = self.concatUint8Arrays(partialPacket, new Uint8Array([b]));
                                 }
                             }
+                            
+                            // 在每次读取后检查是否有完整的包可以返回
+                            if (packetBuffer.length > 0) {
+                                const packet = packetBuffer.shift();
+                                self.debugLog(`📦 中途返回数据包: ${Array.from(packet).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                                return packet;
+                            }
+                        }
+                        
+                        // 处理完所有数据后，检查是否有完整的包可以返回
+                        if (packetBuffer.length > 0) {
+                            const packet = packetBuffer.shift();
+                            self.debugLog(`📦 读取完成，返回数据包: ${Array.from(packet).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                            return packet;
                         }
                         
                         throw new Error("SLIP读取超时");
