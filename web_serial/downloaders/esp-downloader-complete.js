@@ -21,6 +21,8 @@ class ESPDownloaderNew extends BaseDownloader {
             
             // 命令常量
             this.ESP_FLASH_BEGIN = 0x02;
+            this.ESP_FLASH_DATA = 0x03;   // 非压缩flash数据写入命令
+            this.ESP_FLASH_END = 0x04;    // 非压缩flash结束命令
             this.ESP_MEM_BEGIN = 0x05;
             this.ESP_MEM_END = 0x06;
             this.ESP_MEM_DATA = 0x07;
@@ -297,7 +299,7 @@ class ESPDownloaderNew extends BaseDownloader {
             // 发送7个空命令清空缓冲区 - 完全按照Python版本
             for (let i = 0; i < 7; i++) {
                 this.debugLog(`发送空命令 ${i + 1}/7`);
-                const emptyResult = await this.command();
+                const emptyResult = await this.command(this.ESP_SYNC, new Uint8Array(0));
                 this.syncStubDetected = this.syncStubDetected && (emptyResult.val === 0);
                 this.debugLog(`空命令 ${i + 1} 完成，val=${emptyResult.val}, syncStubDetected=${this.syncStubDetected}`);
             }
@@ -339,7 +341,7 @@ class ESPDownloaderNew extends BaseDownloader {
                 return;
             }
             
-            // 读取响应 - 重试100次，按照Python版本
+            // 读取响应 - 重试100次，按照Python版本，但改进响应匹配逻辑
             for (let retry = 0; retry < 100; retry++) {
                 const p = await this.slipReader.readPacket(timeout);
                 
@@ -362,8 +364,18 @@ class ESPDownloaderNew extends BaseDownloader {
                     continue;
                 }
                 
-                if (op === null || opRet === op) {
+                // 改进的响应匹配逻辑：对于flash_begin等关键命令，更严格地匹配操作码
+                if (op === null) {
                     return { val, data: responseData };
+                } else if (opRet === op) {
+                    this.debugLog(`✅ 收到预期的命令响应: op=0x${op.toString(16)}`);
+                    return { val, data: responseData };
+                } else if (opRet === this.ESP_SYNC && op !== this.ESP_SYNC) {
+                    // 跳过残留的SYNC响应包，这些可能是之前命令的延迟响应
+                    this.debugLog(`⚠️ 跳过残留的SYNC响应包 (期望 op=0x${op.toString(16)})`);
+                    continue;
+                } else {
+                    this.debugLog(`⚠️ 响应操作码不匹配: 收到 0x${opRet.toString(16)}, 期望 0x${op.toString(16)}`);
                 }
                 
                 if (responseData.length > 0 && responseData[0] !== 0 && responseData[1] === this.ROM_INVALID_RECV_MSG) {
@@ -880,7 +892,7 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         }
         
         this.infoLog("Stub flash success");
-        this.isStub = true;
+        // 注意：this.isStub的值由runStub()方法决定，不在这里覆盖
         return true;
     }
     
@@ -923,6 +935,10 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         if (!await this.setBaudrate(flashBaudrate)) {
             return false;
         }
+        
+        // 波特率变更后需要稳定时间
+        this.debugLog("⏳ 波特率设置后稳定等待...");
+        await new Promise(resolve => setTimeout(resolve, 200)); // 200ms稳定延迟
         
         if (this.stopFlag) {
             return false;
@@ -1025,11 +1041,12 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
             seq += 1;
         }
         
-        // 完成写入
+        // 完成写入 - 完全按照Python版本的逻辑
         await this.readReg(this.CHIP_DETECT_MAGIC_REG_ADDR, timeout);
         
         if (this.isStub) {
-            // Stub模式：结束压缩flash操作
+            // Stub模式：按照Python的顺序 - 先flash_begin(0, 0)，再flash_defl_finish(False)
+            await this.flashBegin(0, 0);
             await this.flashDeflFinish(false);
         } else {
             // ROM模式：结束非压缩flash操作
@@ -1398,17 +1415,16 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         this.debugLog("开始压缩Flash写入模式");
         const numBlocks = Math.floor((compsize + this.FLASH_WRITE_SIZE - 1) / this.FLASH_WRITE_SIZE);
         
-        // 重要：根据Python esptool的实现，第一个参数应该是erase_size，需要考虑块对齐
-        const eraseBlocks = Math.floor((size + this.FLASH_WRITE_SIZE - 1) / this.FLASH_WRITE_SIZE);
-        const eraseSize = eraseBlocks * this.FLASH_WRITE_SIZE;
+        // 重要：按照Python的实现，第一个参数是write_size，即原始大小size
+        const writeSize = size; // Python: write_size = size
         
-        this.debugLog(`压缩 ${size} 字节到 ${compsize}，擦除大小: ${eraseSize}`);
+        this.debugLog(`压缩 ${size} 字节到 ${compsize}`);
         const params = new Uint8Array(16);
-        // Python: struct.pack("<IIII", erase_size, num_blocks, FLASH_WRITE_SIZE, offset)
-        params[0] = eraseSize & 0xFF;
-        params[1] = (eraseSize >> 8) & 0xFF;
-        params[2] = (eraseSize >> 16) & 0xFF;
-        params[3] = (eraseSize >> 24) & 0xFF;
+        // Python: struct.pack("<IIII", write_size, num_blocks, FLASH_WRITE_SIZE, offset)
+        params[0] = writeSize & 0xFF;
+        params[1] = (writeSize >> 8) & 0xFF;
+        params[2] = (writeSize >> 16) & 0xFF;
+        params[3] = (writeSize >> 24) & 0xFF;
         params[4] = numBlocks & 0xFF;
         params[5] = (numBlocks >> 8) & 0xFF;
         params[6] = (numBlocks >> 16) & 0xFF;
@@ -1504,26 +1520,91 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
         const numBlocks = Math.floor((size + this.FLASH_WRITE_SIZE - 1) / this.FLASH_WRITE_SIZE);
         const eraseSize = size; // 简化的擦除大小计算
         
-        const params = new Uint8Array(16);
-        params[0] = eraseSize & 0xFF;
-        params[1] = (eraseSize >> 8) & 0xFF;
-        params[2] = (eraseSize >> 16) & 0xFF;
-        params[3] = (eraseSize >> 24) & 0xFF;
-        params[4] = numBlocks & 0xFF;
-        params[5] = (numBlocks >> 8) & 0xFF;
-        params[6] = (numBlocks >> 16) & 0xFF;
-        params[7] = (numBlocks >> 24) & 0xFF;
-        params[8] = this.FLASH_WRITE_SIZE & 0xFF;
-        params[9] = (this.FLASH_WRITE_SIZE >> 8) & 0xFF;
-        params[10] = (this.FLASH_WRITE_SIZE >> 16) & 0xFF;
-        params[11] = (this.FLASH_WRITE_SIZE >> 24) & 0xFF;
-        params[12] = offset & 0xFF;
-        params[13] = (offset >> 8) & 0xFF;
-        params[14] = (offset >> 16) & 0xFF;
-        params[15] = (offset >> 24) & 0xFF;
+        this.debugLog(`flashBegin参数: size=${size}, numBlocks=${numBlocks}, eraseSize=${eraseSize}, offset=${offset}`);
         
-        await this.checkCommand("进入Flash下载模式", this.ESP_FLASH_BEGIN, params, 0, this.DEFAULT_TIMEOUT);
-        return numBlocks;
+        // 使用DataView确保正确的小端序写入
+        const params = new Uint8Array(16);
+        const view = new DataView(params.buffer);
+        view.setUint32(0, eraseSize, true);     // 小端序写入eraseSize
+        view.setUint32(4, numBlocks, true);     // 小端序写入numBlocks  
+        view.setUint32(8, this.FLASH_WRITE_SIZE, true); // 小端序写入FLASH_WRITE_SIZE
+        view.setUint32(12, offset, true);       // 小端序写入offset
+        
+        this.debugLog(`flashBegin参数字节: ${Array.from(params).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+        
+        // 在发送flash_begin前增加稳定措施和详细状态检查
+        this.debugLog("📡 Flash操作前最后检查 - 清理缓冲区并稳定通信");
+        this.debugLog(`🔍 当前连接状态: isStub=${this.isStub}, chipType=${this.chipType}`);
+        this.debugLog(`🔍 SLIP Reader状态: ${this.slipReader ? '已初始化' : '未初始化'}`);
+        this.debugLog(`🔍 端口状态: ${this.port ? '已连接' : '未连接'}`);
+        
+        // 更彻底的缓冲区清理 - 多次清理确保ESP32状态稳定
+        for (let i = 0; i < 3; i++) {
+            await this.flushInput();
+            await new Promise(resolve => setTimeout(resolve, 100)); // 稳定延迟
+            await this.flushOutput();
+            await new Promise(resolve => setTimeout(resolve, 100)); // 稳定延迟
+        }
+        
+        // 发送一个简单的读寄存器命令来确认ESP32响应正常
+        this.debugLog("🔍 发送测试命令验证ESP32响应状态");
+        try {
+            await this.readReg(this.CHIP_DETECT_MAGIC_REG_ADDR, 1000);
+            this.debugLog("✅ ESP32响应测试正常");
+        } catch (error) {
+            this.debugLog(`⚠️ ESP32响应测试异常: ${error.message}`);
+            // 再次清理并重试
+            await this.flushInput();
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // 使用更长的超时时间，因为flash_begin可能需要更多时间进行初始化
+        const flashBeginTimeout = this.DEFAULT_TIMEOUT * 5; // 15秒超时，更保守
+        
+        // 对于大文件，使用分段擦除策略减少单次操作负载
+        let actualEraseSize = eraseSize;
+        if (eraseSize > 512 * 1024) { // 大于512KB时使用保守策略
+            actualEraseSize = Math.min(eraseSize, 1024 * 1024); // 限制在1MB
+            this.debugLog(`⚠️ 大文件优化：erase size从 ${eraseSize} 调整为 ${actualEraseSize}`);
+            
+            // 重新计算参数
+            const view2 = new DataView(params.buffer);
+            view2.setUint32(0, actualEraseSize, true);
+        }
+        
+        // 尝试发送flash_begin命令，如果失败则使用备用策略
+        try {
+            await this.checkCommand("进入Flash下载模式", this.ESP_FLASH_BEGIN, params, 0, flashBeginTimeout);
+            this.debugLog("✅ Flash下载模式启动成功");
+            return numBlocks;
+        } catch (error) {
+            this.debugLog(`❌ Flash下载模式启动失败: ${error.message}`);
+            
+            // 备用策略1: 尝试更小的erase size
+            if (actualEraseSize === eraseSize && eraseSize > 256 * 1024) {
+                this.debugLog("🔄 尝试备用策略：使用更小的erase size");
+                actualEraseSize = 256 * 1024; // 256KB
+                const view3 = new DataView(params.buffer);
+                view3.setUint32(0, actualEraseSize, true);
+                
+                this.debugLog(`flashBegin备用参数字节: ${Array.from(params).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                
+                // 清理缓冲区后重试
+                await this.flushInput();
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                try {
+                    await this.checkCommand("进入Flash下载模式(备用)", this.ESP_FLASH_BEGIN, params, 0, flashBeginTimeout);
+                    this.debugLog("✅ Flash下载模式启动成功(备用策略)");
+                    return numBlocks;
+                } catch (error2) {
+                    this.debugLog(`❌ 备用策略也失败: ${error2.message}`);
+                }
+            }
+            
+            // 如果所有策略都失败，抛出原始错误
+            throw error;
+        }
     }
     
     async flashDeflFinish(reboot) {
@@ -1551,23 +1632,39 @@ class ESPDownloaderComplete extends ESPDownloaderNew {
     
     // 检查命令结果 - 完全按照Python check_command()方法
     async checkCommand(opDescription, op = null, data = new Uint8Array(0), chk = 0, timeout = this.DEFAULT_TIMEOUT) {
-        const result = await this.command(op, data, chk, true, timeout);
+        this.debugLog(`🔧 执行checkCommand: ${opDescription}, op=0x${op?.toString(16)}, timeout=${timeout}ms`);
         
-        if (result.data.length < this.STATUS_BYTES_LENGTH) {
-            this.errorLog(`${opDescription}失败。状态响应长度不足: ${result.data.length}`);
-            throw new Error(`${opDescription}失败`);
-        }
-        
-        const statusBytes = result.data.slice(-this.STATUS_BYTES_LENGTH);
-        if (statusBytes[0] !== 0) {
-            this.errorLog(`${opDescription}失败: ${Array.from(statusBytes).map(b => b.toString(16)).join(' ')}`);
-            throw new Error(`${opDescription}失败`);
-        }
-        
-        if (result.data.length > this.STATUS_BYTES_LENGTH) {
-            return result.data.slice(0, -this.STATUS_BYTES_LENGTH);
-        } else {
-            return result.val;
+        try {
+            const result = await this.command(op, data, chk, true, timeout);
+            
+            if (!result || !result.data) {
+                this.errorLog(`${opDescription}失败。无效的响应结果`);
+                throw new Error(`${opDescription}失败: 无效响应`);
+            }
+            
+            if (result.data.length < this.STATUS_BYTES_LENGTH) {
+                this.errorLog(`${opDescription}失败。状态响应长度不足: ${result.data.length} (需要 ${this.STATUS_BYTES_LENGTH})`);
+                throw new Error(`${opDescription}失败: 响应长度不足`);
+            }
+            
+            const statusBytes = result.data.slice(-this.STATUS_BYTES_LENGTH);
+            this.debugLog(`📦 状态字节: ${Array.from(statusBytes).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+            
+            if (statusBytes[0] !== 0) {
+                this.errorLog(`${opDescription}失败: ${Array.from(statusBytes).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                throw new Error(`${opDescription}失败: 状态错误 ${statusBytes[0]}`);
+            }
+            
+            this.debugLog(`✅ ${opDescription}成功`);
+            
+            if (result.data.length > this.STATUS_BYTES_LENGTH) {
+                return result.data.slice(0, -this.STATUS_BYTES_LENGTH);
+            } else {
+                return result.val;
+            }
+        } catch (error) {
+            this.errorLog(`${opDescription}失败: ${error.message}`);
+            throw error;
         }
     }
     
