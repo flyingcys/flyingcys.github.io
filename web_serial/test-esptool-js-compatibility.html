@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 esptool-js兼容性测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 ESP32 esptool-js兼容性测试</h1>
+        
+        <div class="test-section">
+            <h3>📡 串口连接测试</h3>
+            <button id="connectBtn" class="button">连接ESP32设备</button>
+            <button id="disconnectBtn" class="button" disabled>断开连接</button>
+            <div id="connectionStatus" class="status info">未连接</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Transport兼容性测试</h3>
+            <button id="testTransportBtn" class="button" disabled>测试Transport方法</button>
+            <div id="transportResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 调试日志</h3>
+            <button id="clearLogBtn" class="button">清空日志</button>
+            <div id="debugLog" class="log"></div>
+        </div>
+    </div>
+
+    <!-- 加载依赖脚本 -->
+    <script src="./script-clean.js"></script>
+    <script src="./downloaders/base-downloader.js"></script>
+    <script src="./downloaders/esp32-series-downloader.js"></script>
+
+    <script>
+        class ESPToolCompatibilityTester {
+            constructor() {
+                this.port = null;
+                this.downloader = null;
+                this.debugLog = document.getElementById('debugLog');
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.getElementById('connectBtn').addEventListener('click', () => this.connectDevice());
+                document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnectDevice());
+                document.getElementById('testTransportBtn').addEventListener('click', () => this.testTransport());
+                document.getElementById('clearLogBtn').addEventListener('click', () => this.clearLog());
+            }
+
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logMessage = `[${timestamp}] ${message}\n`;
+                this.debugLog.textContent += logMessage;
+                this.debugLog.scrollTop = this.debugLog.scrollHeight;
+                
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            }
+
+            showStatus(elementId, message, type) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.className = `status ${type}`;
+            }
+
+            async connectDevice() {
+                try {
+                    this.log('🔌 请求串口连接...');
+                    
+                    if (!navigator.serial) {
+                        throw new Error('Web Serial API不支持，请使用Chrome/Edge浏览器');
+                    }
+
+                    this.port = await navigator.serial.requestPort();
+                    await this.port.open({ baudRate: 115200 });
+                    
+                    this.downloader = new ESP32SeriesDownloader(this.port, (msg) => this.log(msg));
+                    await this.downloader.connect();
+                    
+                    this.log('✅ 设备连接成功');
+                    this.showStatus('connectionStatus', '已连接', 'success');
+                    
+                    // 启用测试按钮
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = false;
+                    document.getElementById('testTransportBtn').disabled = false;
+                    
+                } catch (error) {
+                    this.log(`❌ 连接失败: ${error.message}`, 'error');
+                    this.showStatus('connectionStatus', `连接失败: ${error.message}`, 'error');
+                }
+            }
+
+            async disconnectDevice() {
+                try {
+                    if (this.downloader) {
+                        await this.downloader.disconnect();
+                        this.downloader = null;
+                    }
+                    
+                    if (this.port) {
+                        await this.port.close();
+                        this.port = null;
+                    }
+                    
+                    this.log('🔌 设备已断开连接');
+                    this.showStatus('connectionStatus', '未连接', 'info');
+                    
+                    // 禁用测试按钮
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    document.getElementById('testTransportBtn').disabled = true;
+                    
+                } catch (error) {
+                    this.log(`❌ 断开连接失败: ${error.message}`, 'error');
+                }
+            }
+
+            async testTransport() {
+                this.log('🧪 开始Transport兼容性测试...');
+                const results = document.getElementById('transportResults');
+                results.innerHTML = '';
+                
+                try {
+                    const transport = this.downloader.createCustomTransport();
+                    
+                    // 测试esptool-js标准方法
+                    const tests = [
+                        { name: 'getInfo()', test: () => transport.getInfo() },
+                        { name: 'getPid()', test: () => transport.getPid() },
+                        { name: 'hexConvert()', test: () => transport.hexConvert(new Uint8Array([0x00, 0xFF, 0x42])) },
+                        { name: 'slipWriter()', test: () => transport.slipWriter(new Uint8Array([0xC0, 0xDB])) },
+                        { name: 'appendArray()', test: () => transport.appendArray(new Uint8Array([1, 2]), new Uint8Array([3, 4])) },
+                        { name: 'inWaiting()', test: () => transport.inWaiting() },
+                        { name: 'trace()', test: () => { transport.trace('测试消息'); return '已执行'; } }
+                    ];
+                    
+                    let passed = 0;
+                    let total = tests.length;
+                    
+                    for (const test of tests) {
+                        try {
+                            const result = test.test();
+                            this.log(`✅ ${test.name}: 通过`);
+                            passed++;
+                        } catch (error) {
+                            this.log(`❌ ${test.name}: 失败 - ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = passed === total ? 'status success' : 'status error';
+                    resultDiv.textContent = `测试结果: ${passed}/${total} 通过`;
+                    results.appendChild(resultDiv);
+                    
+                } catch (error) {
+                    this.log(`❌ Transport测试失败: ${error.message}`, 'error');
+                    results.innerHTML = `<div class="status error">测试失败: ${error.message}</div>`;
+                }
+            }
+
+            clearLog() {
+                this.debugLog.textContent = '';
+            }
+        }
+
+        // 初始化测试器
+        document.addEventListener('DOMContentLoaded', () => {
+            new ESPToolCompatibilityTester();
+        });
+    </script>
+</body>
+</html> 

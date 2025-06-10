@@ -137,14 +137,16 @@ class FlashDownloader {
             throw new Error(i18n.t('serial_not_connected_connect_first'));
         }
         
-        // 临时释放SerialTerminal的reader/writer，让芯片下载器获取独占访问权
-        if (this.terminal.flashReader) {
-            await this.terminal.flashReader.releaseLock();
-            this.terminal.flashReader = null;
-        }
-        if (this.terminal.flashWriter) {
-            await this.terminal.flashWriter.releaseLock();
-            this.terminal.flashWriter = null;
+        // 完全释放SerialTerminal的reader/writer，并等待锁定完全解除
+        await this.completelyReleaseStreams();
+        
+        // 等待一段时间确保流锁定完全解除
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // 验证流状态
+        const streamStatus = this.verifyStreamAvailability();
+        if (!streamStatus.available) {
+            throw new Error(`无法获取串口流控制权: ${streamStatus.reason}`);
         }
         
         // 使用下载器管理器创建芯片下载器实例
@@ -185,17 +187,34 @@ class FlashDownloader {
                 // 检查是否是ESP32设备
                 if (device.includes('ESP32')) {
                     this.debugLog('ESP32设备连接失败，提供额外指导...', connectError.message, 'warning');
-                    this.mainLog(`
+                    
+                    // 检查是否是流锁定问题
+                    if (connectError.message.includes('ReadableStreamDefaultReader') || 
+                        connectError.message.includes('locked')) {
+                        this.mainLog(`
+ESP32设备流锁定冲突，尝试自动修复:
+- 正在重新初始化串口连接...
+- 如果仍然失败，请刷新页面重新连接
+                        `.trim(), 'warning');
+                        
+                        // 尝试完全重新初始化串口连接
+                        await this.attemptStreamRecovery();
+                        
+                        // 再次尝试连接
+                        connectionResult = await this.chipDownloader.connect();
+                    } else {
+                        this.mainLog(`
 ESP32设备连接提示: 
 - 确保设备处于下载模式（按住BOOT键并按一下RST键）
 - 检查USB连接是否牢固
 - 确认设备驱动已正确安装（CP210x/CH340/FTDI）
 - 确保其他应用程序未占用串口
-                    `.trim(), 'warning');
-                    
-                    // 重新尝试一次连接
-                    this.mainLog('正在重新尝试连接ESP32设备...', 'info');
-                    connectionResult = await this.chipDownloader.connect();
+                        `.trim(), 'warning');
+                        
+                        // 重新尝试一次连接
+                        this.mainLog('正在重新尝试连接ESP32设备...', 'info');
+                        connectionResult = await this.chipDownloader.connect();
+                    }
                 } else {
                     // 其他设备直接抛出错误
                     throw connectError;
@@ -264,32 +283,159 @@ ESP32设备连接提示:
                 }
             }
             
-            // 下载完成后，恢复SerialTerminal的reader/writer
-            if (this.terminal.flashPort && this.terminal.isFlashConnected) {
-                try {
-                    // 确保之前没有reader/writer还在锁定状态
-                    if (!this.terminal.flashReader) {
-                    this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
-                    }
-                    if (!this.terminal.flashWriter) {
-                    this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
-                    }
-                } catch (error) {
-                    this.debugLog(i18n.t('restoring_serial_reader_writer_failed'), error.message, 'warning');
-                    // 如果恢复失败，尝试等待一下再重试
-                    await new Promise(resolve => setTimeout(resolve, 100));
+            // 下载完成后，智能恢复SerialTerminal的reader/writer
+            await this.intelligentRestore();
+        }
+    }
+
+    /**
+     * 完全释放串口流
+     */
+    async completelyReleaseStreams() {
+        this.debugLog('正在完全释放串口流...', null, 'info');
+        
+        try {
+            // 释放现有的reader
+            if (this.terminal.flashReader) {
+                await this.terminal.flashReader.releaseLock();
+                this.terminal.flashReader = null;
+                this.debugLog('已释放 flashReader', null, 'debug');
+            }
+            
+            // 释放现有的writer
+            if (this.terminal.flashWriter) {
+                await this.terminal.flashWriter.releaseLock();
+                this.terminal.flashWriter = null;
+                this.debugLog('已释放 flashWriter', null, 'debug');
+            }
+            
+            // 等待锁定完全解除
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            this.debugLog('串口流释放完成', null, 'info');
+        } catch (error) {
+            this.debugLog(`释放串口流时出错: ${error.message}`, null, 'warning');
+            // 继续执行，不抛出错误
+        }
+    }
+
+    /**
+     * 验证流可用性
+     */
+    verifyStreamAvailability() {
+        try {
+            if (!this.terminal.flashPort) {
+                return { available: false, reason: '串口未连接' };
+            }
+            
+            if (!this.terminal.flashPort.readable) {
+                return { available: false, reason: '可读流不可用' };
+            }
+            
+            if (!this.terminal.flashPort.writable) {
+                return { available: false, reason: '可写流不可用' };
+            }
+            
+            if (this.terminal.flashPort.readable.locked) {
+                return { available: false, reason: '可读流被锁定' };
+            }
+            
+            if (this.terminal.flashPort.writable.locked) {
+                return { available: false, reason: '可写流被锁定' };
+            }
+            
+            return { available: true, reason: '流状态正常' };
+        } catch (error) {
+            return { available: false, reason: `检查失败: ${error.message}` };
+        }
+    }
+
+    /**
+     * 尝试流恢复
+     */
+    async attemptStreamRecovery() {
+        this.debugLog('尝试进行流恢复...', null, 'info');
+        
+        try {
+            // 强制等待更长时间
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 如果仍然锁定，尝试重新连接串口
+            const streamStatus = this.verifyStreamAvailability();
+            if (!streamStatus.available) {
+                this.debugLog(`流仍不可用: ${streamStatus.reason}，尝试重新连接...`, null, 'warning');
+                
+                // 重新打开串口连接
+                if (this.terminal.flashPort) {
+                    await this.terminal.flashPort.close();
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await this.terminal.flashPort.open({
+                        baudRate: 115200,
+                        dataBits: 8,
+                        stopBits: 1,
+                        parity: 'none'
+                    });
+                    this.debugLog('串口重新连接完成', null, 'info');
+                }
+            }
+        } catch (error) {
+            this.debugLog(`流恢复失败: ${error.message}`, null, 'error');
+            throw new Error(`无法恢复串口流状态，请刷新页面重新连接: ${error.message}`);
+        }
+    }
+
+    /**
+     * 智能恢复SerialTerminal的reader/writer
+     */
+    async intelligentRestore() {
+        this.debugLog('开始智能恢复串口读写器...', null, 'info');
+        
+        if (this.terminal.flashPort && this.terminal.isFlashConnected) {
+            try {
+                // 等待芯片下载器完全释放资源
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // 多次尝试恢复
+                for (let attempt = 1; attempt <= 3; attempt++) {
                     try {
+                        const streamStatus = this.verifyStreamAvailability();
+                        if (!streamStatus.available) {
+                            this.debugLog(`第${attempt}次尝试 - 流不可用: ${streamStatus.reason}`, null, 'debug');
+                            if (attempt < 3) {
+                                await new Promise(resolve => setTimeout(resolve, 300));
+                                continue;
+                            } else {
+                                throw new Error(streamStatus.reason);
+                            }
+                        }
+                        
+                        // 恢复reader
                         if (!this.terminal.flashReader && this.terminal.flashPort.readable) {
                             this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
+                            this.debugLog('成功恢复 flashReader', null, 'debug');
                         }
+                        
+                        // 恢复writer
                         if (!this.terminal.flashWriter && this.terminal.flashPort.writable) {
                             this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
+                            this.debugLog('成功恢复 flashWriter', null, 'debug');
                         }
-                        this.debugLog('延迟恢复reader/writer成功', null, 'info');
-                    } catch (retryError) {
-                        this.debugLog('延迟恢复reader/writer也失败: ' + retryError.message, null, 'warning');
+                        
+                        this.debugLog(`第${attempt}次尝试成功 - 串口读写器恢复完成`, null, 'info');
+                        break;
+                        
+                    } catch (error) {
+                        this.debugLog(`第${attempt}次恢复尝试失败: ${error.message}`, null, 'warning');
+                        if (attempt === 3) {
+                            // 最后一次尝试失败，记录警告但不阻止程序继续
+                            this.debugLog('⚠️ 所有恢复尝试都失败，串口可能需要手动重新连接', null, 'warning');
+                        } else {
+                            await new Promise(resolve => setTimeout(resolve, 400));
+                        }
                     }
                 }
+            } catch (error) {
+                this.debugLog('智能恢复过程发生错误: ' + error.message, null, 'warning');
             }
         }
     }

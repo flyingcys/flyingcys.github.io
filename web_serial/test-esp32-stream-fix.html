@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 流管理修复测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .test-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a8c;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .status.info { background: #cce7ff; color: #004085; border: 1px solid #99d3ff; }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #007cba, #28a745);
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+        .chip-info {
+            background: #e7f3ff;
+            padding: 10px;
+            border-left: 4px solid #007cba;
+            margin: 10px 0;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .test-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .test-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .test-item.pass { border-left: 4px solid #28a745; }
+        .test-item.fail { border-left: 4px solid #dc3545; }
+        .test-item.pending { border-left: 4px solid #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 ESP32 流管理修复测试</h1>
+        <p>测试修复后的ESP32下载器的流管理功能，验证reader/writer锁定冲突问题是否已解决。</p>
+
+        <!-- 依赖加载测试 -->
+        <div class="test-section">
+            <div class="test-header">📦 依赖加载测试</div>
+            <button onclick="testDependencies()">检查依赖</button>
+            <div id="dependencies-status" class="status info">等待测试...</div>
+        </div>
+
+        <!-- 串口连接测试 -->
+        <div class="test-section">
+            <div class="test-header">🔌 串口连接测试</div>
+            <button onclick="connectSerial()">连接串口</button>
+            <button onclick="disconnectSerial()" disabled>断开串口</button>
+            <div id="serial-status" class="status info">未连接</div>
+            <div id="chip-info" class="chip-info" style="display: none;">
+                <h4>芯片信息</h4>
+                <div id="chip-details"></div>
+            </div>
+        </div>
+
+        <!-- 流状态测试 -->
+        <div class="test-section">
+            <div class="test-header">🌊 流状态测试</div>
+            <button onclick="testStreamStatus()">检查流状态</button>
+            <button onclick="testStreamLocking()">测试流锁定处理</button>
+            <div id="stream-status" class="status info">等待测试...</div>
+        </div>
+
+        <!-- 固件下载测试 -->
+        <div class="test-section">
+            <div class="test-header">📥 固件下载测试</div>
+            <div class="file-input">
+                <input type="file" id="firmware-file" accept=".bin" />
+                <p>选择固件文件 (.bin)</p>
+            </div>
+            <div>
+                起始地址: <input type="text" id="start-addr" value="0x10000" style="margin-left: 10px;" />
+            </div>
+            <button onclick="testFirmwareDownload()">开始下载测试</button>
+            <button onclick="stopDownload()" disabled>停止下载</button>
+            <div class="progress">
+                <div id="download-progress" class="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div id="download-status" class="status info">等待测试...</div>
+        </div>
+
+        <!-- 测试结果汇总 -->
+        <div class="test-section">
+            <div class="test-header">📊 测试结果汇总</div>
+            <div id="test-results" class="test-results">
+                <div class="test-item pending">
+                    <h4>依赖加载</h4>
+                    <div id="test-deps-result">待测试</div>
+                </div>
+                <div class="test-item pending">
+                    <h4>串口连接</h4>
+                    <div id="test-serial-result">待测试</div>
+                </div>
+                <div class="test-item pending">
+                    <h4>流管理</h4>
+                    <div id="test-stream-result">待测试</div>
+                </div>
+                <div class="test-item pending">
+                    <h4>固件下载</h4>
+                    <div id="test-download-result">待测试</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详细日志 -->
+        <div class="test-section">
+            <div class="test-header">📝 详细日志</div>
+            <button onclick="clearLog()">清空日志</button>
+            <button onclick="saveLog()">保存日志</button>
+            <div id="log-output" class="log-output"></div>
+        </div>
+    </div>
+
+    <!-- 依赖脚本 -->
+    <script src="i18n/zh.js"></script>
+    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    <script src="esp-protocol-reuse.js"></script>
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/downloader-manager.js"></script>
+    <script src="downloaders/esp32-series-downloader.js"></script>
+    <script src="flash-downloader.js"></script>
+    <script src="script-clean.js"></script>
+
+    <script>
+        // 全局变量
+        let serialTerminal = null;
+        let flashDownloader = null;
+        let testResults = {
+            dependencies: false,
+            serial: false,
+            stream: false,
+            download: false
+        };
+
+        // 日志函数
+        function log(message, level = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logOutput = document.getElementById('log-output');
+            const colorMap = {
+                info: '#4a9eff',
+                success: '#28a745',
+                warning: '#ffc107',
+                error: '#dc3545',
+                debug: '#6c757d'
+            };
+            
+            const color = colorMap[level] || '#d4d4d4';
+            logOutput.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log-output').innerHTML = '';
+        }
+
+        function saveLog() {
+            const logContent = document.getElementById('log-output').innerText;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `esp32-test-log-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function updateStatus(elementId, message, level = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${level}`;
+        }
+
+        function updateTestResult(testName, passed, details) {
+            testResults[testName] = passed;
+            const resultElement = document.getElementById(`test-${testName}-result`);
+            const itemElement = resultElement.closest('.test-item');
+            
+            resultElement.textContent = details;
+            itemElement.className = `test-item ${passed ? 'pass' : 'fail'}`;
+        }
+
+        // 依赖测试
+        async function testDependencies() {
+            log('开始检查依赖...', 'info');
+            let allPassed = true;
+            let details = [];
+
+            try {
+                // 检查i18n
+                if (typeof zh !== 'undefined' && zh.title) {
+                    // 创建简单的i18n函数用于测试
+                    if (typeof i18n === 'undefined') {
+                        window.i18n = {
+                            t: (key, ...args) => {
+                                let text = zh[key] || key;
+                                args.forEach((arg, index) => {
+                                    text = text.replace(new RegExp(`\\{${index}\\}`, 'g'), arg);
+                                });
+                                return text;
+                            }
+                        };
+                    }
+                    log('✅ i18n 加载成功', 'success');
+                    details.push('i18n: ✅');
+                } else {
+                    log('❌ i18n 未加载', 'error');
+                    details.push('i18n: ❌');
+                    allPassed = false;
+                }
+
+                // 检查esptool-js
+                if (typeof ESPLoader !== 'undefined' || 
+                    (typeof window.esptooljs !== 'undefined' && window.esptooljs.ESPLoader)) {
+                    log('✅ esptool-js 加载成功', 'success');
+                    details.push('esptool-js: ✅');
+                } else {
+                    log('❌ esptool-js 未加载', 'error');
+                    details.push('esptool-js: ❌');
+                    allPassed = false;
+                }
+
+                // 检查下载器
+                if (typeof BaseDownloader !== 'undefined') {
+                    log('✅ BaseDownloader 可用', 'success');
+                    details.push('BaseDownloader: ✅');
+                } else {
+                    log('❌ BaseDownloader 未找到', 'error');
+                    details.push('BaseDownloader: ❌');
+                    allPassed = false;
+                }
+
+                if (typeof ESP32SeriesDownloader !== 'undefined') {
+                    log('✅ ESP32SeriesDownloader 可用', 'success');
+                    details.push('ESP32SeriesDownloader: ✅');
+                } else {
+                    log('❌ ESP32SeriesDownloader 未找到', 'error');
+                    details.push('ESP32SeriesDownloader: ❌');
+                    allPassed = false;
+                }
+
+                if (typeof FlashDownloader !== 'undefined') {
+                    log('✅ FlashDownloader 可用', 'success');
+                    details.push('FlashDownloader: ✅');
+                } else {
+                    log('❌ FlashDownloader 未找到', 'error');
+                    details.push('FlashDownloader: ❌');
+                    allPassed = false;
+                }
+
+                // 检查Web Serial API
+                if ('serial' in navigator) {
+                    log('✅ Web Serial API 支持', 'success');
+                    details.push('Web Serial: ✅');
+                } else {
+                    log('❌ Web Serial API 不支持', 'error');
+                    details.push('Web Serial: ❌');
+                    allPassed = false;
+                }
+
+                updateStatus('dependencies-status', 
+                    allPassed ? '所有依赖检查通过' : '部分依赖缺失', 
+                    allPassed ? 'success' : 'error');
+                
+                updateTestResult('deps', allPassed, details.join(', '));
+                log(`依赖检查完成: ${allPassed ? '通过' : '失败'}`, allPassed ? 'success' : 'error');
+
+            } catch (error) {
+                log(`依赖检查出错: ${error.message}`, 'error');
+                updateStatus('dependencies-status', `检查失败: ${error.message}`, 'error');
+                updateTestResult('deps', false, `错误: ${error.message}`);
+            }
+        }
+
+        // 串口连接测试
+        async function connectSerial() {
+            log('开始连接串口...', 'info');
+            
+            try {
+                // 直接使用Web Serial API，避免SerialTerminal的复杂依赖
+                if (!serialTerminal) {
+                    const port = await navigator.serial.requestPort();
+                    await port.open({
+                        baudRate: 115200,
+                        dataBits: 8,
+                        stopBits: 1,
+                        parity: 'none'
+                    });
+                    
+                    // 创建简化的串口对象
+                    serialTerminal = {
+                        flashPort: port,
+                        isFlashConnected: true,
+                        flashReader: null,
+                        flashWriter: null
+                    };
+                }
+                
+                log('串口连接成功', 'success');
+                updateStatus('serial-status', '已连接', 'success');
+                
+                document.querySelector('button[onclick="connectSerial()"]').disabled = true;
+                document.querySelector('button[onclick="disconnectSerial()"]').disabled = false;
+
+                // 尝试获取芯片信息
+                try {
+                    await testChipDetection();
+                } catch (chipError) {
+                    log(`芯片检测失败: ${chipError.message}`, 'warning');
+                }
+
+                updateTestResult('serial', true, '连接成功');
+
+            } catch (error) {
+                log(`串口连接失败: ${error.message}`, 'error');
+                updateStatus('serial-status', `连接失败: ${error.message}`, 'error');
+                updateTestResult('serial', false, `连接失败: ${error.message}`);
+            }
+        }
+
+        async function disconnectSerial() {
+            if (serialTerminal && serialTerminal.isFlashConnected) {
+                try {
+                    // 释放reader/writer
+                    if (serialTerminal.flashReader) {
+                        await serialTerminal.flashReader.releaseLock();
+                        serialTerminal.flashReader = null;
+                    }
+                    if (serialTerminal.flashWriter) {
+                        await serialTerminal.flashWriter.releaseLock();
+                        serialTerminal.flashWriter = null;
+                    }
+                    
+                    // 关闭串口
+                    await serialTerminal.flashPort.close();
+                    serialTerminal.isFlashConnected = false;
+                    
+                    log('串口已断开', 'info');
+                    updateStatus('serial-status', '已断开', 'info');
+                    
+                    document.querySelector('button[onclick="connectSerial()"]').disabled = false;
+                    document.querySelector('button[onclick="disconnectSerial()"]').disabled = true;
+                    
+                    document.getElementById('chip-info').style.display = 'none';
+                } catch (error) {
+                    log(`断开串口时发生错误: ${error.message}`, 'warning');
+                }
+            }
+        }
+
+        async function testChipDetection() {
+            log('开始检测ESP32芯片...', 'info');
+            
+            try {
+                // 初始化下载器管理器
+                if (typeof window.downloaderManager === 'undefined') {
+                    window.downloaderManager = new DownloaderManager();
+                }
+
+                // 创建ESP32下载器进行芯片检测
+                const downloader = await window.downloaderManager.createDownloader(
+                    'ESP32', 
+                    serialTerminal.flashPort,
+                    (level, message) => log(message, level)
+                );
+
+                const connected = await downloader.connect();
+                if (connected) {
+                    const chipInfo = downloader.getChipInfo();
+                    
+                    document.getElementById('chip-details').innerHTML = `
+                        <p><strong>芯片类型:</strong> ${chipInfo.name}</p>
+                        <p><strong>MAC地址:</strong> ${chipInfo.macAddress}</p>
+                        <p><strong>Flash大小:</strong> ${chipInfo.flashSize}</p>
+                        <p><strong>芯片版本:</strong> ${chipInfo.revision}</p>
+                        <p><strong>特性:</strong> ${chipInfo.features.join(', ')}</p>
+                    `;
+                    document.getElementById('chip-info').style.display = 'block';
+                    
+                    log(`芯片检测成功: ${chipInfo.name}`, 'success');
+                    
+                    await downloader.disconnect();
+                }
+            } catch (error) {
+                log(`芯片检测失败: ${error.message}`, 'warning');
+            }
+        }
+
+        // 流状态测试
+        async function testStreamStatus() {
+            log('开始检查流状态...', 'info');
+            
+            if (!serialTerminal || !serialTerminal.isFlashConnected) {
+                updateStatus('stream-status', '请先连接串口', 'warning');
+                return;
+            }
+
+            try {
+                const port = serialTerminal.flashPort;
+                const status = {
+                    readable: !!port.readable,
+                    writable: !!port.writable,
+                    readableLocked: port.readable ? port.readable.locked : false,
+                    writableLocked: port.writable ? port.writable.locked : false
+                };
+
+                log(`流状态检查:`);
+                log(`- 可读流: ${status.readable ? '可用' : '不可用'}`);
+                log(`- 可写流: ${status.writable ? '可用' : '不可用'}`);
+                log(`- 可读流锁定: ${status.readableLocked ? '是' : '否'}`);
+                log(`- 可写流锁定: ${status.writableLocked ? '是' : '否'}`);
+
+                const healthy = status.readable && status.writable && !status.readableLocked && !status.writableLocked;
+                
+                updateStatus('stream-status', 
+                    healthy ? '流状态正常' : '流状态异常', 
+                    healthy ? 'success' : 'warning');
+                
+                updateTestResult('stream', healthy, 
+                    `读:${status.readable?'✅':'❌'} 写:${status.writable?'✅':'❌'} 锁定:${status.readableLocked||status.writableLocked?'❌':'✅'}`);
+
+            } catch (error) {
+                log(`检查流状态出错: ${error.message}`, 'error');
+                updateStatus('stream-status', `检查失败: ${error.message}`, 'error');
+                updateTestResult('stream', false, `错误: ${error.message}`);
+            }
+        }
+
+        async function testStreamLocking() {
+            log('开始测试流锁定处理...', 'info');
+            
+            if (!serialTerminal || !serialTerminal.isFlashConnected) {
+                updateStatus('stream-status', '请先连接串口', 'warning');
+                return;
+            }
+
+            try {
+                // 模拟锁定冲突场景
+                log('模拟获取reader/writer...', 'debug');
+                
+                const reader = serialTerminal.flashPort.readable.getReader();
+                const writer = serialTerminal.flashPort.writable.getWriter();
+                
+                log('✅ 成功获取reader/writer', 'success');
+                
+                // 测试重复获取（应该失败）
+                try {
+                    const reader2 = serialTerminal.flashPort.readable.getReader();
+                    log('❌ 意外成功获取第二个reader', 'error');
+                    reader2.releaseLock();
+                } catch (lockError) {
+                    log('✅ 正确检测到reader锁定冲突', 'success');
+                }
+                
+                // 释放资源
+                await reader.releaseLock();
+                await writer.releaseLock();
+                
+                log('✅ 成功释放reader/writer', 'success');
+                
+                // 等待一段时间后重新获取
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                const reader3 = serialTerminal.flashPort.readable.getReader();
+                const writer3 = serialTerminal.flashPort.writable.getWriter();
+                
+                log('✅ 释放后成功重新获取reader/writer', 'success');
+                
+                await reader3.releaseLock();
+                await writer3.releaseLock();
+                
+                updateStatus('stream-status', '流锁定处理测试通过', 'success');
+                updateTestResult('stream', true, '锁定处理正常');
+
+            } catch (error) {
+                log(`流锁定测试出错: ${error.message}`, 'error');
+                updateStatus('stream-status', `测试失败: ${error.message}`, 'error');
+                updateTestResult('stream', false, `错误: ${error.message}`);
+            }
+        }
+
+        // 固件下载测试
+        async function testFirmwareDownload() {
+            const fileInput = document.getElementById('firmware-file');
+            const startAddrInput = document.getElementById('start-addr');
+            
+            if (!fileInput.files[0]) {
+                updateStatus('download-status', '请选择固件文件', 'warning');
+                return;
+            }
+
+            if (!serialTerminal || !serialTerminal.isFlashConnected) {
+                updateStatus('download-status', '请先连接串口', 'warning');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const startAddr = parseInt(startAddrInput.value, 16);
+            
+            log(`开始固件下载测试: ${file.name} (${file.size} 字节) @ 0x${startAddr.toString(16)}`, 'info');
+
+            try {
+                // 读取文件数据
+                const arrayBuffer = await file.arrayBuffer();
+                const fileData = new Uint8Array(arrayBuffer);
+
+                // 创建FlashDownloader
+                if (!flashDownloader) {
+                    flashDownloader = new FlashDownloader(serialTerminal, {
+                        debug: true,
+                        onProgress: (progress) => {
+                            if (progress.type === 'progress') {
+                                const percent = Math.round(progress.percentage || 0);
+                                document.getElementById('download-progress').style.width = `${percent}%`;
+                                log(`下载进度: ${percent}%`, 'info');
+                            } else if (progress.type === 'log') {
+                                log(progress.message, progress.level);
+                            }
+                        }
+                    });
+                }
+
+                // 启用按钮控制
+                document.querySelector('button[onclick="testFirmwareDownload()"]').disabled = true;
+                document.querySelector('button[onclick="stopDownload()"]').disabled = false;
+
+                updateStatus('download-status', '正在下载...', 'info');
+
+                // 开始下载
+                await flashDownloader.downloadBinary(fileData, 'ESP32', startAddr);
+                
+                log('✅ 固件下载测试完成', 'success');
+                updateStatus('download-status', '下载测试完成', 'success');
+                updateTestResult('download', true, '下载成功');
+
+            } catch (error) {
+                log(`固件下载失败: ${error.message}`, 'error');
+                updateStatus('download-status', `下载失败: ${error.message}`, 'error');
+                updateTestResult('download', false, `失败: ${error.message}`);
+            } finally {
+                // 恢复按钮状态
+                document.querySelector('button[onclick="testFirmwareDownload()"]').disabled = false;
+                document.querySelector('button[onclick="stopDownload()"]').disabled = true;
+                document.getElementById('download-progress').style.width = '0%';
+            }
+        }
+
+        async function stopDownload() {
+            if (flashDownloader) {
+                flashDownloader.stop();
+                log('用户停止下载', 'warning');
+                updateStatus('download-status', '下载已停止', 'warning');
+            }
+        }
+
+        // 页面加载完成后自动开始依赖检查
+        window.addEventListener('load', () => {
+            log('ESP32 流管理修复测试页面加载完成', 'info');
+            log('开始自动检查依赖...', 'info');
+            testDependencies();
+        });
+    </script>
+</body>
+</html> 

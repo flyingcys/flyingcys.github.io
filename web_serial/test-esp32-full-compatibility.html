@@ -248,22 +248,23 @@
         
         <!-- API兼容性测试 -->
         <div class="test-section">
-            <h2>🔧 API兼容性测试</h2>
+            <h2>🔍 API兼容性测试</h2>
             <div class="controls">
-                <button id="testBasicApisBtn" disabled>测试基础API</button>
-                <button id="testDataConversionBtn" disabled>测试数据转换</button>
-                <button id="testCommandsBtn" disabled>测试命令接口</button>
+                <button id="testBasicApisBtn" onclick="tester.testBasicAPIs()" disabled>测试基础API</button>
+                <button id="testDataConversionBtn" onclick="tester.testDataConversion()" disabled>测试数据转换</button>
+                <button id="testCommandsBtn" onclick="tester.testCommandInterface()" disabled>测试命令接口</button>
+                <button id="testEsptoolBtn" onclick="tester.testEsptoolComparison()" disabled>对比esptool-js</button>
             </div>
-            <div id="apiTestResults"></div>
         </div>
         
         <!-- Flash操作测试 -->
         <div class="test-section">
             <h2>💾 Flash操作测试</h2>
             <div class="controls">
-                <input type="file" id="firmwareFile" accept=".bin" />
-                <button id="testFlashBeginBtn" disabled>测试Flash Begin</button>
-                <button id="downloadFirmwareBtn" disabled>完整下载测试</button>
+                <input type="file" id="firmwareFile" accept=".bin" onchange="tester.handleFileSelect(event)" style="display: none;">
+                <button onclick="document.getElementById('firmwareFile').click()">选择固件文件</button>
+                <button id="testFlashBeginBtn" onclick="tester.testFlashBegin()" disabled>测试Flash Begin</button>
+                <button id="downloadFirmwareBtn" onclick="tester.testFullDownload()" disabled>完整下载测试</button>
             </div>
             <div class="progress-bar" id="downloadProgress" style="display: none;">
                 <div class="progress-fill" id="downloadProgressFill">0%</div>
@@ -314,11 +315,11 @@
                 let status = '';
                 let allLoaded = true;
                 
-                // 检查navigator.serial
-                if (navigator.serial) {
+                // 检查Web Serial API
+                if ('serial' in navigator) {
                     status += '✅ Web Serial API 可用<br>';
                 } else {
-                    status += '❌ Web Serial API 不可用 (需要Chrome/Edge 89+)<br>';
+                    status += '❌ Web Serial API 不可用<br>';
                     allLoaded = false;
                 }
                 
@@ -330,12 +331,44 @@
                     allLoaded = false;
                 }
                 
-                // 检查esptool-js
-                if (typeof ESPLoader !== 'undefined' && typeof Transport !== 'undefined') {
+                // 检查esptool-js（通过多种方式检测）
+                const esptoolChecks = [
+                    () => typeof window.esptooljs !== 'undefined',
+                    () => typeof window.ESPLoader !== 'undefined',
+                    () => typeof window.Transport !== 'undefined',
+                    () => this.checkEsptoolNamespace()
+                ];
+                
+                let esptoolLoaded = false;
+                for (const check of esptoolChecks) {
+                    try {
+                        if (check()) {
+                            esptoolLoaded = true;
+                            break;
+                        }
+                    } catch (e) {
+                        // 忽略检查错误
+                    }
+                }
+                
+                if (esptoolLoaded) {
                     status += '✅ esptool-js 已加载<br>';
+                    
+                    // 如果esptooljs命名空间可用，显示详细信息
+                    if (typeof window.esptooljs !== 'undefined') {
+                        const esptool = window.esptooljs;
+                        const exports = Object.keys(esptool);
+                        status += `&nbsp;&nbsp;📦 可用功能: ${exports.join(', ')}<br>`;
+                        
+                        if (esptool.ESPLoader) {
+                            status += '&nbsp;&nbsp;✅ ESPLoader 可用<br>';
+                        }
+                        if (esptool.Transport) {
+                            status += '&nbsp;&nbsp;✅ Transport 可用<br>';
+                        }
+                    }
                 } else {
-                    status += '❌ esptool-js 未加载 (检查bundle.js路径)<br>';
-                    allLoaded = false;
+                    status += '❌ esptool-js 未加载 (需要手动验证功能)<br>';
                 }
                 
                 statusDiv.innerHTML = status;
@@ -348,24 +381,21 @@
                 }
             }
             
+            checkEsptoolNamespace() {
+                // 检查全局命名空间中的esptool-js相关对象
+                const possibleNames = ['esptooljs', 'ESPLoader', 'Transport', 'FlashOptions'];
+                return possibleNames.some(name => typeof window[name] !== 'undefined');
+            }
+            
             initEventListeners() {
-                // 连接控制
-                document.getElementById('connectBtn').onclick = () => this.testConnection();
-                document.getElementById('detectChipBtn').onclick = () => this.testChipDetection();
+                // 设备连接
+                document.getElementById('connectBtn').onclick = () => this.connect();
                 document.getElementById('disconnectBtn').onclick = () => this.disconnect();
                 
-                // API测试
-                document.getElementById('testBasicApisBtn').onclick = () => this.testBasicAPIs();
-                document.getElementById('testDataConversionBtn').onclick = () => this.testDataConversion();
-                document.getElementById('testCommandsBtn').onclick = () => this.testCommands();
+                // 芯片检测
+                document.getElementById('detectChipBtn').onclick = () => this.detectChip();
                 
-                // Flash测试
-                document.getElementById('firmwareFile').onchange = (e) => this.handleFileSelect(e);
-                document.getElementById('testFlashBeginBtn').onclick = () => this.testFlashBegin();
-                document.getElementById('downloadFirmwareBtn').onclick = () => this.testFullDownload();
-                
-                // 日志控制
-                document.getElementById('clearLogBtn').onclick = () => this.clearLog();
+                // 文件选择已在HTML中绑定
             }
             
             log(message, level = 'info') {
@@ -471,7 +501,8 @@
                     document.getElementById('testDataConversionBtn').disabled = false;
                     document.getElementById('testCommandsBtn').disabled = false;
                     document.getElementById('testFlashBeginBtn').disabled = false;
-                    document.getElementById('disconnectBtn').disabled = false;
+                    document.getElementById('testEsptoolBtn').disabled = false;
+                    document.getElementById('downloadFirmwareBtn').disabled = false;
                     
                     // 显示连接信息
                     document.getElementById('connectionInfo').style.display = 'block';
@@ -716,6 +747,7 @@
                     document.getElementById('testDataConversionBtn').disabled = true;
                     document.getElementById('testCommandsBtn').disabled = true;
                     document.getElementById('testFlashBeginBtn').disabled = true;
+                    document.getElementById('testEsptoolBtn').disabled = true;
                     document.getElementById('downloadFirmwareBtn').disabled = true;
                     document.getElementById('disconnectBtn').disabled = true;
                     
@@ -725,60 +757,214 @@
                     this.log(`❌ 断开连接失败: ${error.message}`, 'error');
                 }
             }
-                 }
-         
-         // 初始化测试器
-         let tester;
-         let scriptsLoaded = 0;
-         
-         function onScriptLoaded() {
-             scriptsLoaded++;
-             if (scriptsLoaded >= 2) { // 等待两个脚本都尝试加载完成
-                 setTimeout(() => {
-                     try {
-                         tester = new ESP32CompatibilityTester();
-                         console.log('🎯 ESP32完整兼容性测试器已准备就绪');
-                     } catch (error) {
-                         console.error('初始化失败:', error);
-                         document.body.innerHTML = `
-                             <div style="text-align: center; padding: 50px;">
-                                 <h1>❌ 初始化失败</h1>
-                                 <p style="color: red;">${error.message}</p>
-                                 <p>请检查控制台获取详细错误信息</p>
-                             </div>
-                         `;
-                     }
-                 }, 500);
-             }
-         }
-         
-         document.addEventListener('DOMContentLoaded', () => {
-             // 加载ESP32SimpleDownloader
-             const script1 = document.createElement('script');
-             script1.src = './downloaders/esp32-simple-downloader.js';
-             script1.onload = () => {
-                 console.log('✅ ESP32SimpleDownloader 加载成功');
-                 onScriptLoaded();
-             };
-             script1.onerror = () => {
-                 console.error('❌ 无法加载 esp32-simple-downloader.js');
-                 onScriptLoaded();
-             };
-             document.head.appendChild(script1);
-             
-             // 加载esptool-js（如果存在）
-             const script2 = document.createElement('script');
-             script2.src = './third_party/esptool-js/bundle.js';
-             script2.onload = () => {
-                 console.log('✅ esptool-js bundle.js 加载成功');
-                 onScriptLoaded();
-             };
-             script2.onerror = () => {
-                 console.warn('⚠️ 无法加载 esptool-js bundle.js，将跳过官方实现对比');
-                 onScriptLoaded();
-             };
-             document.head.appendChild(script2);
-         });
-     </script>
+            
+            async testEsptoolComparison() {
+                if (!this.simpleDownloader) {
+                    this.log('❌ 请先连接设备', 'error');
+                    return;
+                }
+                
+                try {
+                    this.log('🔄 开始esptool-js对比测试...', 'info');
+                    
+                    // 检查esptooljs是否可用
+                    if (typeof window.esptooljs === 'undefined') {
+                        this.log('⚠️ esptooljs未加载，跳过对比测试', 'warning');
+                        return;
+                    }
+                    
+                    const esptool = window.esptooljs;
+                    this.log(`📦 检测到esptooljs，可用功能: ${Object.keys(esptool).join(', ')}`, 'info');
+                    
+                    // 测试数据转换功能对比
+                    const testData = new Uint8Array([0x01, 0x02, 0x03, 0xAB, 0xCD, 0xEF]);
+                    
+                    // 我们的实现
+                    const ourResult = this.simpleDownloader.ui8ToBstr(testData);
+                    this.log(`我们的ui8ToBstr结果: ${ourResult.length} 字节`, 'info');
+                    
+                    // 测试基本功能对比
+                    if (esptool.ESPLoader) {
+                        this.log('✅ ESPLoader类可用，进行功能对比', 'info');
+                        
+                        try {
+                            // 检查ESPLoader的方法
+                            const methods = Object.getOwnPropertyNames(esptool.ESPLoader);
+                            const staticMethods = methods.filter(method => typeof esptool.ESPLoader[method] === 'function');
+                            
+                            this.log(`ESPLoader静态方法: ${staticMethods.join(', ')}`, 'info');
+                            this.updateCompatibilityTable('ESPLoader类', '存在', '存在', true);
+                            
+                            // 检查原型方法
+                            if (esptool.ESPLoader.prototype) {
+                                const prototypeMethods = Object.getOwnPropertyNames(esptool.ESPLoader.prototype)
+                                    .filter(method => typeof esptool.ESPLoader.prototype[method] === 'function');
+                                
+                                // 检查关键方法
+                                const keyMethods = ['writeFlash', 'runStub', 'changeBaud', 'getFlashSize'];
+                                for (const method of keyMethods) {
+                                    const hasMethod = prototypeMethods.includes(method);
+                                    const ourMethod = typeof this.simpleDownloader[method] === 'function';
+                                    this.updateCompatibilityTable(
+                                        `${method}方法`, 
+                                        hasMethod ? '存在' : '不存在', 
+                                        ourMethod ? '存在' : '不存在', 
+                                        hasMethod === ourMethod
+                                    );
+                                }
+                            }
+                            
+                        } catch (e) {
+                            this.log(`ESPLoader方法检查失败: ${e.message}`, 'warning');
+                        }
+                    } else {
+                        this.log('❌ ESPLoader类不可用', 'error');
+                        this.updateCompatibilityTable('ESPLoader类', '存在', '不存在', false);
+                    }
+                    
+                    // 测试Reset类功能
+                    const resetClasses = ['ClassicReset', 'CustomReset', 'HardReset'];
+                    for (const resetClass of resetClasses) {
+                        if (esptool[resetClass]) {
+                            this.log(`✅ ${resetClass}类可用`, 'info');
+                            this.updateCompatibilityTable(`${resetClass}类`, '存在', '存在', true);
+                        } else {
+                            this.updateCompatibilityTable(`${resetClass}类`, '存在', '不存在', false);
+                        }
+                    }
+                    
+                    // 测试ROM功能
+                    if (esptool.ROM) {
+                        this.log('✅ ROM类可用', 'info');
+                        this.updateCompatibilityTable('ROM类', '存在', '存在', true);
+                        
+                        try {
+                            const romMethods = Object.getOwnPropertyNames(esptool.ROM);
+                            this.log(`ROM功能: ${romMethods.slice(0, 5).join(', ')}...`, 'info');
+                        } catch (e) {
+                            this.log(`ROM方法检查失败: ${e.message}`, 'warning');
+                        }
+                    } else {
+                        this.updateCompatibilityTable('ROM类', '存在', '不存在', false);
+                    }
+                    
+                    // 测试数据处理功能对比
+                    try {
+                        // 测试checksum计算
+                        const testChecksum = this.simpleDownloader.calculateChecksum(testData);
+                        this.log(`我们的checksum计算: 0x${testChecksum.toString(16)}`, 'info');
+                        this.updateCompatibilityTable('checksum计算', '实现', '实现', true);
+                        
+                        // 测试数组操作
+                        const arr1 = new Uint8Array([1, 2, 3]);
+                        const arr2 = new Uint8Array([4, 5, 6]);
+                        const combined = this.simpleDownloader.appendArray(arr1, arr2);
+                        this.updateCompatibilityTable('数组合并', '实现', `实现 [${Array.from(combined)}]`, true);
+                        
+                    } catch (e) {
+                        this.log(`数据处理测试失败: ${e.message}`, 'warning');
+                    }
+                    
+                    this.log('✅ esptool-js对比测试完成', 'info');
+                    
+                } catch (error) {
+                    this.log(`❌ esptool-js对比测试失败: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        // 初始化测试器
+        let tester;
+        let scriptsLoaded = 0;
+        let targetScripts = 2;
+        
+        function onScriptLoaded() {
+            scriptsLoaded++;
+            console.log(`脚本加载进度: ${scriptsLoaded}/${targetScripts}`);
+            
+            if (scriptsLoaded >= targetScripts) {
+                // 延迟更长时间以确保所有脚本完全初始化
+                setTimeout(() => {
+                    try {
+                        tester = new ESP32CompatibilityTester();
+                        console.log('🎯 ESP32完整兼容性测试器已准备就绪');
+                        
+                        // 额外的兼容性检查
+                        if (typeof window.esptooljs !== 'undefined') {
+                            console.log('✅ esptooljs 全局对象可用');
+                        }
+                        
+                    } catch (error) {
+                        console.error('初始化失败:', error);
+                        document.body.innerHTML = `
+                            <div style="text-align: center; padding: 50px;">
+                                <h1>❌ 初始化失败</h1>
+                                <p style="color: red;">${error.message}</p>
+                                <p>请检查控制台获取详细错误信息</p>
+                                <p>提示: esptool-js可能需要更长时间加载，请刷新页面重试</p>
+                            </div>
+                        `;
+                    }
+                }, 1000); // 增加到1秒延迟
+            }
+        }
+        
+        function loadEsptoolJS() {
+            const script = document.createElement('script');
+            script.src = './third_party/esptool-js/bundle.js';
+            
+            script.onload = () => {
+                console.log('✅ esptool-js bundle.js 文件加载成功');
+                
+                // 检查全局对象是否可用
+                setTimeout(() => {
+                    if (typeof window.esptooljs !== 'undefined') {
+                        console.log('✅ esptooljs 对象已就绪');
+                    } else {
+                        console.warn('⚠️ esptooljs 对象暂未就绪，可能需要更多时间');
+                    }
+                    onScriptLoaded();
+                }, 100);
+            };
+            
+            script.onerror = (error) => {
+                console.error('❌ 无法加载 esptool-js bundle.js:', error);
+                console.warn('⚠️ 将在没有官方实现对比的情况下运行测试');
+                onScriptLoaded();
+            };
+            
+            // 设置超时处理
+            setTimeout(() => {
+                if (scriptsLoaded < targetScripts) {
+                    console.warn('⚠️ esptool-js 加载超时，继续进行测试');
+                    onScriptLoaded();
+                }
+            }, 5000);
+            
+            document.head.appendChild(script);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 开始加载依赖库...');
+            
+            // 首先加载ESP32SimpleDownloader
+            const script1 = document.createElement('script');
+            script1.src = './downloaders/esp32-simple-downloader.js';
+            script1.onload = () => {
+                console.log('✅ ESP32SimpleDownloader 加载成功');
+                onScriptLoaded();
+            };
+            script1.onerror = () => {
+                console.error('❌ 无法加载 esp32-simple-downloader.js');
+                onScriptLoaded();
+            };
+            document.head.appendChild(script1);
+            
+            // 稍后加载esptool-js，给第一个脚本一些时间
+            setTimeout(() => {
+                loadEsptoolJS();
+            }, 200);
+        });
+    </script>
 </body>
 </html> 

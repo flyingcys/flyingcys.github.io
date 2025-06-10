@@ -43,27 +43,27 @@ class DownloaderManager {
             },
             ESP32: { 
                 displayName: 'ESP32',
-                downloader: 'ESP32Downloader',
+                downloader: 'ESP32SeriesDownloader',
                 order: 6,
-                description: 'ESP32系列芯片',
-                scriptPath: './downloaders/esp32-downloader.js',
-                downloaderClass: 'ESP32Downloader'
+                description: 'ESP32系列芯片（自动检测）',
+                scriptPath: './downloaders/esp32-series-downloader.js',
+                downloaderClass: 'ESP32SeriesDownloader'
             },
             ESP32C3: { 
                 displayName: 'ESP32-C3',
-                downloader: 'ESP32C3Downloader',
+                downloader: 'ESP32SeriesDownloader',
                 order: 7,
                 description: 'ESP32-C3系列芯片',
-                scriptPath: './downloaders/esp32c3-downloader.js',
-                downloaderClass: 'ESP32C3Downloader'
+                scriptPath: './downloaders/esp32-series-downloader.js',
+                downloaderClass: 'ESP32SeriesDownloader'
             },
             ESP32S3: { 
                 displayName: 'ESP32-S3',
-                downloader: 'ESP32S3Downloader',
+                downloader: 'ESP32SeriesDownloader',
                 order: 8,
                 description: 'ESP32-S3系列芯片',
-                scriptPath: './downloaders/esp32s3-downloader.js',
-                downloaderClass: 'ESP32S3Downloader'
+                scriptPath: './downloaders/esp32-series-downloader.js',
+                downloaderClass: 'ESP32SeriesDownloader'
             },
             'ESP32-Series': { 
                 displayName: 'ESP32-Series (自动检测)',
@@ -87,7 +87,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'ESP32-Simple'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32-Series', 'ESP32-Simple'];
     }
 
     /**
