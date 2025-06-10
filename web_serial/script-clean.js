@@ -37,6 +37,7 @@ class SerialTerminal {
         this.initializeFlashDownloader();
         this.initializeQuickCommands();
         this.initializeTuyaAuth();
+        this.loadSavedTargetDevices();
         
         // 监听多语言系统就绪事件
         window.addEventListener('i18nReady', () => {
@@ -316,6 +317,11 @@ class SerialTerminal {
         // 串口目标设备选择事件
         this.serialTargetDevice.addEventListener('change', () => {
             this.handleSerialTargetDeviceChange();
+        });
+
+        // 固件下载目标设备选择事件
+        this.deviceSelect.addEventListener('change', () => {
+            this.handleFlashTargetDeviceChange();
         });
 
         // Tab切换事件（移除互斥逻辑）
@@ -2450,6 +2456,9 @@ class SerialTerminal {
     handleSerialTargetDeviceChange() {
         const selectedDevice = this.serialTargetDevice.value;
         
+        // 保存选择的目标设备到localStorage
+        this.saveTargetDevice('serial', selectedDevice);
+        
         // 定义设备对应的波特率配置
         const deviceBaudrateConfig = {
             'custom': { baudrate: 115200, readonly: false }, // 自定义时恢复到默认值115200
@@ -3486,6 +3495,70 @@ class SerialTerminal {
                 this.analyzeErrors(fullLogLine);
             }, index * 500); // 每个错误间隔500ms
         });
+    }
+
+    // 保存目标设备选择
+    saveTargetDevice(type, device) {
+        try {
+            let savedDevices = {};
+            const stored = localStorage.getItem('selectedTargetDevices');
+            if (stored) {
+                savedDevices = JSON.parse(stored);
+            }
+            
+            savedDevices[type] = device;
+            localStorage.setItem('selectedTargetDevices', JSON.stringify(savedDevices));
+            
+            console.log(`已保存${type}目标设备选择:`, device);
+        } catch (error) {
+            console.error('保存目标设备选择失败:', error);
+        }
+    }
+
+    // 加载保存的目标设备选择
+    loadSavedTargetDevices() {
+        try {
+            const stored = localStorage.getItem('selectedTargetDevices');
+            if (stored) {
+                const savedDevices = JSON.parse(stored);
+                
+                // 恢复串口调试的目标设备选择
+                if (savedDevices.serial && this.serialTargetDevice) {
+                    // 检查选项是否存在
+                    const serialOption = Array.from(this.serialTargetDevice.options).find(option => option.value === savedDevices.serial);
+                    if (serialOption) {
+                        this.serialTargetDevice.value = savedDevices.serial;
+                        // 触发change事件以应用设备配置
+                        this.handleSerialTargetDeviceChange();
+                        console.log('已恢复串口调试目标设备:', savedDevices.serial);
+                    }
+                }
+                
+                // 恢复固件下载的目标设备选择
+                if (savedDevices.flash && this.deviceSelect) {
+                    // 检查选项是否存在
+                    const flashOption = Array.from(this.deviceSelect.options).find(option => option.value === savedDevices.flash);
+                    if (flashOption) {
+                        this.deviceSelect.value = savedDevices.flash;
+                        // 保存当前选择(不需要特殊配置处理)
+                        this.saveTargetDevice('flash', savedDevices.flash);
+                        console.log('已恢复固件下载目标设备:', savedDevices.flash);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('加载保存的目标设备选择失败:', error);
+        }
+    }
+
+    // 处理固件下载目标设备选择变化
+    handleFlashTargetDeviceChange() {
+        const selectedDevice = this.deviceSelect.value;
+        
+        // 保存选择的目标设备到localStorage
+        this.saveTargetDevice('flash', selectedDevice);
+        
+        console.log('固件下载目标设备已选择:', selectedDevice);
     }
 }
 
