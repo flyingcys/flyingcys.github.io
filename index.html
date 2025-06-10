@@ -93,6 +93,12 @@
             display: block;
         }
 
+        /* 为扳手图标添加阴影效果，让其看起来更深 */
+        .wrench-icon {
+            text-shadow: 0 0 0 #333, 0 0 0 #333, 0 0 0 #333;
+            color: #555;
+        }
+
         .tool-title {
             font-size: 1.5em;
             color: #333;
@@ -170,7 +176,7 @@
             </div>
             
             <div class="tool-card">
-                <div class="tool-icon">🔌</div>
+                <div class="tool-icon wrench-icon">🛠️</div>
                 <h2 class="tool-title">Web 串口工具</h2>
                 <p class="tool-description">
                     基于 Web Serial API 的串口通信工具，
