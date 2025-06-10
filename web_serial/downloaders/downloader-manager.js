@@ -64,6 +64,14 @@ class DownloaderManager {
                 description: 'ESP32-S3系列芯片',
                 scriptPath: './downloaders/esp32s3-downloader.js',
                 downloaderClass: 'ESP32S3Downloader'
+            },
+            'ESP32-Series': { 
+                displayName: 'ESP32-Series (自动检测)',
+                downloader: 'ESP32SeriesDownloader',
+                order: 6,
+                description: '支持ESP32/ESP32-S2/ESP32-S3/ESP32-C3/ESP32-C6/ESP32-H2等系列芯片自动检测',
+                scriptPath: './downloaders/esp32-series-downloader.js',
+                downloaderClass: 'ESP32SeriesDownloader'
             }
         };
         
@@ -71,7 +79,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32C3', 'ESP32S3'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32-Series'];
     }
 
     /**

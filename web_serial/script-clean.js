@@ -1649,13 +1649,11 @@ class SerialTerminal {
                 true
             );
         } else {
-            // 如果下载器管理器未加载，使用默认选项包括ESP32系列
+            // 如果下载器管理器未加载，使用默认选项包括ESP32系列自动检测
             this.deviceSelect.innerHTML = `
                 <option value="T5AI">T5AI</option>
                 <option value="T3">T3</option>
-                <option value="ESP32">ESP32</option>
-                <option value="ESP32C3">ESP32-C3</option>
-                <option value="ESP32S3">ESP32-S3</option>
+                <option value="ESP32-Series">ESP32-Series (自动检测)</option>
             `;
             this.addToFlashLog(i18n.t('using_default_chip_support'), 'warning', true);
         }

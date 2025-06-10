@@ -364,11 +364,9 @@
                                 <select id="deviceSelect">
                                     <option value="T5AI">T5AI</option>
                                     <option value="T3">T3</option>
+                                    <option value="ESP32-Series">ESP32-Series (自动检测)</option>
                                     <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
                                     <!-- <option value="T2">T2</option> -->
-                                    <option value="ESP32">ESP32</option>
-                                    <option value="ESP32C3">ESP32-C3</option>
-                                    <option value="ESP32S3">ESP32-S3</option>
                                     <!-- <option value="BK7231N">BK7231N</option> -->
                                     <!-- <option value="LN882H">LN882H</option> -->
                                 </select>
@@ -783,8 +781,31 @@
     <!-- 多语言配置文件 -->
     <script src="i18n/loader.js"></script>
     
+    <!-- 引入esptool-js用于ESP32系列支持 -->
+    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    <script>
+        // 检查UMD版本是否正确加载
+        if (typeof esptooljs !== 'undefined') {
+            console.log('✅ esptooljs UMD模块已加载');
+            console.log('esptooljs 内容:', Object.keys(esptooljs));
+            
+            // 将ESPLoader设置为全局变量
+            window.ESPLoader = esptooljs.ESPLoader;
+            
+            if (window.ESPLoader) {
+                console.log('✅ ESPLoader 已加载到全局变量');
+                window.dispatchEvent(new CustomEvent('esploader-ready'));
+            } else {
+                console.error('❌ 无法找到 ESPLoader 导出');
+            }
+        } else {
+            console.error('❌ esptooljs UMD模块未加载');
+        }
+    </script>
+    
     <!-- 下载器相关文件 -->
     <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32-series-downloader.js"></script>
     <script src="downloaders/downloader-manager.js"></script>
     
     <!-- 核心功能文件 -->
@@ -964,11 +985,67 @@
             console.log('语言下拉菜单初始化完成');
         }
         
+        // 检查esptool-js是否正确加载
+        function checkEspToolJs() {
+            return new Promise((resolve) => {
+                // 监听成功加载事件
+                const onReady = () => {
+                    window.removeEventListener('esploader-ready', onReady);
+                    console.log('✅ esptool-js 加载成功');
+                    resolve(true);
+                };
+                
+                window.addEventListener('esploader-ready', onReady);
+                
+                // 也检查是否已经加载
+                if (typeof ESPLoader !== 'undefined') {
+                    window.removeEventListener('esploader-ready', onReady);
+                    console.log('✅ esptool-js 已经加载');
+                    resolve(true);
+                    return;
+                }
+                
+                // 10秒超时
+                setTimeout(() => {
+                    window.removeEventListener('esploader-ready', onReady);
+                    console.error('❌ esptool-js 加载超时 - 可能是网络问题或文件损坏');
+                    console.error('请检查: 1. 网络连接 2. third_party/esptool-js.bundle.js 文件是否存在 3. 浏览器是否支持ES6模块');
+                    resolve(false);
+                }, 10000);
+            });
+        }
+
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('页面DOM加载完成，开始初始化...');
             
             try {
+                // 检查esptool-js加载状态
+                const espToolLoaded = await checkEspToolJs();
+                if (!espToolLoaded) {
+                    // 显示错误提示
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = `
+                        position: fixed; top: 10px; right: 10px; z-index: 9999;
+                        background: #fee; border: 1px solid #fcc; padding: 15px;
+                        border-radius: 5px; color: #c33; font-family: Arial;
+                        max-width: 400px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    `;
+                    errorDiv.innerHTML = `
+                        <strong>⚠️ esptool-js 加载失败</strong><br>
+                        ESP32-Series 固件下载功能将不可用。<br>
+                        <small>请检查网络连接或联系管理员。</small>
+                    `;
+                    document.body.appendChild(errorDiv);
+                    
+                    // 5秒后自动消失
+                    setTimeout(() => {
+                        if (errorDiv.parentNode) {
+                            errorDiv.parentNode.removeChild(errorDiv);
+                        }
+                    }, 5000);
+                }
+                
                 // 先初始化多语言系统
                 if (window.i18nLoader) {
                     console.log('开始初始化多语言系统...');
