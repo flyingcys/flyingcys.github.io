@@ -253,16 +253,16 @@ ESP32设备连接失败，请确保设备处于下载模式:
                 eraseAll: false,
                 compress: true,
                 reportProgress: (fileIndex, bytesWritten, totalBytes) => {
-                    const percentage = Math.round((bytesWritten / totalBytes) * 100);
-                    
-                    if (this.onProgress) {
-                        this.onProgress({
-                            percentage: percentage,
-                            bytesWritten: bytesWritten,
-                            totalBytes: totalBytes,
+                const percentage = Math.round((bytesWritten / totalBytes) * 100);
+                
+                if (this.onProgress) {
+                    this.onProgress({
+                        percentage: percentage,
+                        bytesWritten: bytesWritten,
+                        totalBytes: totalBytes,
                             message: `正在下载到${this.detectedChip ? this.detectedChip.name : 'ESP32'}... ${percentage}%`
-                        });
-                    }
+                    });
+                }
                 },
                 calculateMD5Hash: null // 暂时禁用MD5验证以避免依赖问题
             };

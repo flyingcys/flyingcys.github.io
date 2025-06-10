@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32简单测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 ESP32简单测试</h1>
+        
+        <div id="libraryStatus" class="status warning">
+            正在检查依赖库...
+        </div>
+        
+        <div>
+            <button id="connectBtn">连接设备</button>
+            <button id="testDataBtn" disabled>测试数据转换</button>
+            <button id="disconnectBtn" disabled>断开连接</button>
+        </div>
+        
+        <div id="deviceInfo" style="display: none;">
+            <h3>设备信息</h3>
+            <p id="chipInfo"></p>
+        </div>
+        
+        <div class="log" id="logContainer">
+            准备就绪，等待操作...
+        </div>
+         </div>
+
+     <script>
+        class SimpleESP32Tester {
+            constructor() {
+                this.downloader = null;
+                this.port = null;
+                this.checkLibraries();
+                this.initButtons();
+            }
+            
+            checkLibraries() {
+                const statusDiv = document.getElementById('libraryStatus');
+                
+                if (!navigator.serial) {
+                    statusDiv.textContent = '❌ Web Serial API 不可用，请使用 Chrome/Edge 89+';
+                    statusDiv.className = 'status error';
+                    return;
+                }
+                
+                if (typeof ESP32SimpleDownloader === 'undefined') {
+                    statusDiv.textContent = '❌ ESP32SimpleDownloader 未加载';
+                    statusDiv.className = 'status error';
+                    return;
+                }
+                
+                statusDiv.textContent = '✅ 所有依赖库已加载，可以开始测试';
+                statusDiv.className = 'status success';
+            }
+            
+            initButtons() {
+                document.getElementById('connectBtn').onclick = () => this.connect();
+                document.getElementById('testDataBtn').onclick = () => this.testDataConversion();
+                document.getElementById('disconnectBtn').onclick = () => this.disconnect();
+            }
+            
+            log(message) {
+                const logContainer = document.getElementById('logContainer');
+                const timestamp = new Date().toLocaleTimeString();
+                logContainer.innerHTML += `[${timestamp}] ${message}\n`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+                console.log(message);
+            }
+            
+            async connect() {
+                try {
+                    this.log('🔄 开始连接...');
+                    
+                    if (!navigator.serial) {
+                        throw new Error('Web Serial API不可用');
+                    }
+                    
+                    // 选择串口
+                    this.port = await navigator.serial.requestPort();
+                    this.log('✅ 串口选择成功');
+                    
+                    // 创建下载器
+                    this.downloader = new ESP32SimpleDownloader(this.port, { debug: true });
+                    this.log('✅ ESP32SimpleDownloader创建成功');
+                    
+                    // 连接和检测
+                    const result = await this.downloader.connectAndDetect();
+                    
+                    if (result.success) {
+                        this.log(`✅ 连接成功，检测到芯片: ${result.chipType}`);
+                        
+                        // 显示设备信息
+                        document.getElementById('deviceInfo').style.display = 'block';
+                        document.getElementById('chipInfo').textContent = `芯片类型: ${result.chipType}`;
+                        
+                        // 启用测试按钮
+                        document.getElementById('testDataBtn').disabled = false;
+                        document.getElementById('disconnectBtn').disabled = false;
+                        document.getElementById('connectBtn').disabled = true;
+                        
+                    } else {
+                        throw new Error(result.error || '连接失败');
+                    }
+                    
+                } catch (error) {
+                    this.log(`❌ 连接失败: ${error.message}`);
+                }
+            }
+            
+            async testDataConversion() {
+                try {
+                    this.log('🧪 开始数据转换测试...');
+                    
+                    // 测试数据
+                    const testData = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0xAB, 0xCD, 0xEF]);
+                    this.log(`原始数据: [${Array.from(testData).map(b => '0x' + b.toString(16).padStart(2, '0')).join(', ')}]`);
+                    
+                    // 测试ui8ToBstr
+                    const bstr = this.downloader.ui8ToBstr(testData);
+                    this.log(`转换为二进制字符串: ${bstr.length} 字节`);
+                    
+                    // 测试bstrToUi8
+                    const backToUi8 = this.downloader.bstrToUi8(bstr);
+                    this.log(`转换回Uint8Array: [${Array.from(backToUi8).map(b => '0x' + b.toString(16).padStart(2, '0')).join(', ')}]`);
+                    
+                    // 验证一致性
+                    const isMatch = testData.length === backToUi8.length && 
+                                   testData.every((val, idx) => val === backToUi8[idx]);
+                    
+                    if (isMatch) {
+                        this.log('✅ 数据转换测试通过，往返转换一致');
+                    } else {
+                        this.log('❌ 数据转换测试失败，往返转换不一致');
+                    }
+                    
+                    // 测试checksum
+                    const checksum = this.downloader.checksum(testData);
+                    this.log(`校验和: 0x${checksum.toString(16)}`);
+                    
+                    // 测试appendArray
+                    const arr1 = new Uint8Array([1, 2, 3]);
+                    const arr2 = new Uint8Array([4, 5, 6]);
+                    const combined = this.downloader.appendArray(arr1, arr2);
+                    this.log(`数组合并测试: [${Array.from(combined).join(', ')}]`);
+                    
+                    this.log('✅ 所有数据转换测试完成');
+                    
+                } catch (error) {
+                    this.log(`❌ 数据转换测试失败: ${error.message}`);
+                }
+            }
+            
+            async disconnect() {
+                try {
+                    this.log('🔌 断开连接...');
+                    
+                    if (this.downloader) {
+                        await this.downloader.disconnect();
+                        this.downloader = null;
+                    }
+                    
+                    this.port = null;
+                    
+                    // 重置界面
+                    document.getElementById('deviceInfo').style.display = 'none';
+                    document.getElementById('testDataBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    document.getElementById('connectBtn').disabled = false;
+                    
+                    this.log('✅ 断开连接成功');
+                    
+                } catch (error) {
+                    this.log(`❌ 断开连接失败: ${error.message}`);
+                }
+            }
+        }
+        
+                 // 页面加载完成后初始化
+         document.addEventListener('DOMContentLoaded', () => {
+             // 先加载ESP32SimpleDownloader脚本
+             const script = document.createElement('script');
+             script.src = './downloaders/esp32-simple-downloader.js';
+             script.onload = () => {
+                 console.log('✅ ESP32SimpleDownloader 加载成功');
+                 setTimeout(() => {
+                     try {
+                         new SimpleESP32Tester();
+                         console.log('ESP32简单测试器初始化成功');
+                     } catch (error) {
+                         console.error('初始化失败:', error);
+                         document.body.innerHTML = `
+                             <div style="text-align: center; padding: 50px; color: red;">
+                                 <h1>初始化失败</h1>
+                                 <p>${error.message}</p>
+                             </div>
+                         `;
+                     }
+                 }, 100);
+             };
+             script.onerror = () => {
+                 console.error('❌ 无法加载 esp32-simple-downloader.js');
+                 document.getElementById('libraryStatus').textContent = '❌ ESP32SimpleDownloader 加载失败';
+                 document.getElementById('libraryStatus').className = 'status error';
+             };
+             document.head.appendChild(script);
+         });
+    </script>
+</body>
+</html> 

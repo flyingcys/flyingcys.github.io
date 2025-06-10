@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32完整兼容性测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .test-section {
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fff5f5;
+        }
+        
+        .test-section h2 {
+            color: #e74c3c;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            border: 3px solid #34495e;
+        }
+        
+        .log-timestamp {
+            color: #3498db;
+        }
+        
+        .log-info {
+            color: #2ecc71;
+        }
+        
+        .log-warning {
+            color: #f39c12;
+        }
+        
+        .log-error {
+            color: #e74c3c;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .status-connecting {
+            background: #f39c12;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-connected {
+            background: #2ecc71;
+        }
+        
+        .status-error {
+            background: #e74c3c;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .match {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .mismatch {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .api-test {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+        }
+        
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .library-status {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .library-status.loaded {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .library-status.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 ESP32完整兼容性测试</h1>
+        <p style="text-align: center; color: #7f8c8d; font-size: 1.1em;">
+            验证我们的实现与esptool-js官方示例的完全一致性
+        </p>
+        
+        <!-- 库加载状态 -->
+        <div class="test-section">
+            <h2>📚 依赖库状态检查</h2>
+            <div id="libraryStatus" class="library-status">
+                <p>正在检查依赖库...</p>
+            </div>
+        </div>
+        
+        <!-- 连接测试 -->
+        <div class="test-section">
+            <h2>
+                📡 连接和同步测试
+                <span id="connectionStatus" class="status-indicator"></span>
+            </h2>
+            <div class="controls">
+                <button id="connectBtn">连接设备</button>
+                <button id="detectChipBtn" disabled>检测芯片</button>
+                <button id="disconnectBtn" disabled>断开连接</button>
+            </div>
+            <div id="connectionInfo" class="api-test" style="display: none;">
+                <h4>连接信息</h4>
+                <p id="chipInfo"></p>
+            </div>
+        </div>
+        
+        <!-- API兼容性测试 -->
+        <div class="test-section">
+            <h2>🔧 API兼容性测试</h2>
+            <div class="controls">
+                <button id="testBasicApisBtn" disabled>测试基础API</button>
+                <button id="testDataConversionBtn" disabled>测试数据转换</button>
+                <button id="testCommandsBtn" disabled>测试命令接口</button>
+            </div>
+            <div id="apiTestResults"></div>
+        </div>
+        
+        <!-- Flash操作测试 -->
+        <div class="test-section">
+            <h2>💾 Flash操作测试</h2>
+            <div class="controls">
+                <input type="file" id="firmwareFile" accept=".bin" />
+                <button id="testFlashBeginBtn" disabled>测试Flash Begin</button>
+                <button id="downloadFirmwareBtn" disabled>完整下载测试</button>
+            </div>
+            <div class="progress-bar" id="downloadProgress" style="display: none;">
+                <div class="progress-fill" id="downloadProgressFill">0%</div>
+            </div>
+            <div id="flashTestResults"></div>
+        </div>
+        
+        <!-- 兼容性对比表 -->
+        <div class="test-section">
+            <h2>📊 兼容性对比结果</h2>
+            <table class="comparison-table" id="compatibilityTable">
+                <thead>
+                    <tr>
+                        <th>测试项目</th>
+                        <th>esptool-js官方</th>
+                        <th>我们的实现</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- 详细日志 -->
+        <div class="test-section">
+            <h2>📋 详细测试日志</h2>
+            <button id="clearLogBtn">清空日志</button>
+            <div id="logContainer" class="log-container"></div>
+        </div>
+    </div>
+
+    <script>
+        class ESP32CompatibilityTester {
+            constructor() {
+                this.port = null;
+                this.simpleDownloader = null;
+                this.espLoader = null;
+                this.transport = null;
+                this.testResults = {};
+                this.selectedFile = null;
+                this.initEventListeners();
+                // 延迟检查库，给脚本加载时间
+                setTimeout(() => this.checkLibraries(), 1000);
+            }
+            
+            checkLibraries() {
+                const statusDiv = document.getElementById('libraryStatus');
+                let status = '';
+                let allLoaded = true;
+                
+                // 检查navigator.serial
+                if (navigator.serial) {
+                    status += '✅ Web Serial API 可用<br>';
+                } else {
+                    status += '❌ Web Serial API 不可用 (需要Chrome/Edge 89+)<br>';
+                    allLoaded = false;
+                }
+                
+                // 检查ESP32SimpleDownloader
+                if (typeof ESP32SimpleDownloader !== 'undefined') {
+                    status += '✅ ESP32SimpleDownloader 已加载<br>';
+                } else {
+                    status += '❌ ESP32SimpleDownloader 未加载<br>';
+                    allLoaded = false;
+                }
+                
+                // 检查esptool-js
+                if (typeof ESPLoader !== 'undefined' && typeof Transport !== 'undefined') {
+                    status += '✅ esptool-js 已加载<br>';
+                } else {
+                    status += '❌ esptool-js 未加载 (检查bundle.js路径)<br>';
+                    allLoaded = false;
+                }
+                
+                statusDiv.innerHTML = status;
+                statusDiv.className = `library-status ${allLoaded ? 'loaded' : 'error'}`;
+                
+                if (!allLoaded) {
+                    this.log('❌ 部分依赖库未加载，某些功能可能不可用', 'error');
+                } else {
+                    this.log('✅ 所有依赖库加载成功', 'info');
+                }
+            }
+            
+            initEventListeners() {
+                // 连接控制
+                document.getElementById('connectBtn').onclick = () => this.testConnection();
+                document.getElementById('detectChipBtn').onclick = () => this.testChipDetection();
+                document.getElementById('disconnectBtn').onclick = () => this.disconnect();
+                
+                // API测试
+                document.getElementById('testBasicApisBtn').onclick = () => this.testBasicAPIs();
+                document.getElementById('testDataConversionBtn').onclick = () => this.testDataConversion();
+                document.getElementById('testCommandsBtn').onclick = () => this.testCommands();
+                
+                // Flash测试
+                document.getElementById('firmwareFile').onchange = (e) => this.handleFileSelect(e);
+                document.getElementById('testFlashBeginBtn').onclick = () => this.testFlashBegin();
+                document.getElementById('downloadFirmwareBtn').onclick = () => this.testFullDownload();
+                
+                // 日志控制
+                document.getElementById('clearLogBtn').onclick = () => this.clearLog();
+            }
+            
+            log(message, level = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logContainer = document.getElementById('logContainer');
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> <span class="log-${level}">${message}</span>`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                // 同时输出到控制台
+                console.log(`[${timestamp}] ${message}`);
+            }
+            
+            clearLog() {
+                document.getElementById('logContainer').innerHTML = '';
+            }
+            
+            updateConnectionStatus(status) {
+                const indicator = document.getElementById('connectionStatus');
+                indicator.className = `status-indicator status-${status}`;
+            }
+            
+            updateCompatibilityTable(testName, expected, actual, match) {
+                const tbody = document.querySelector('#compatibilityTable tbody');
+                const row = document.createElement('tr');
+                row.className = match ? 'match' : 'mismatch';
+                row.innerHTML = `
+                    <td>${testName}</td>
+                    <td>${expected}</td>
+                    <td>${actual}</td>
+                    <td>${match ? '✅ 匹配' : '❌ 不匹配'}</td>
+                `;
+                tbody.appendChild(row);
+            }
+            
+            async testConnection() {
+                // 检查库是否可用
+                if (typeof ESP32SimpleDownloader === 'undefined') {
+                    this.log('❌ ESP32SimpleDownloader未加载，无法进行测试', 'error');
+                    return;
+                }
+                
+                if (!navigator.serial) {
+                    this.log('❌ Web Serial API不可用，请使用Chrome/Edge 89+', 'error');
+                    return;
+                }
+                
+                try {
+                    this.log('🔄 开始连接测试...', 'info');
+                    this.updateConnectionStatus('connecting');
+                    
+                    // 选择串口
+                    this.port = await navigator.serial.requestPort();
+                    this.log('✅ 串口选择成功', 'info');
+                    
+                    // 测试我们的实现
+                    this.log('📡 测试ESP32SimpleDownloader连接...', 'info');
+                    this.simpleDownloader = new ESP32SimpleDownloader(this.port, { debug: true });
+                    
+                    const result = await this.simpleDownloader.connectAndDetect();
+                    if (result.success) {
+                        this.log(`✅ ESP32SimpleDownloader连接成功: ${result.chipType}`, 'info');
+                    } else {
+                        throw new Error(result.error);
+                    }
+                    
+                    // 测试官方esptool-js（如果可用）
+                    let officialChip = null;
+                    if (typeof ESPLoader !== 'undefined' && typeof Transport !== 'undefined') {
+                        try {
+                            this.log('📡 测试官方ESPLoader连接...', 'info');
+                            if (!this.port.readable) {
+                                await this.port.open({ baudRate: 115200 });
+                            }
+                            
+                            this.transport = new Transport(this.port, true);
+                            const loaderOptions = {
+                                transport: this.transport,
+                                baudrate: 115200,
+                                debugLogging: true
+                            };
+                            this.espLoader = new ESPLoader(loaderOptions);
+                            
+                            officialChip = await this.espLoader.main();
+                            this.log(`✅ 官方ESPLoader连接成功: ${officialChip}`, 'info');
+                        } catch (error) {
+                            this.log(`⚠️ 官方ESPLoader连接失败: ${error.message}`, 'warning');
+                        }
+                    }
+                    
+                    // 对比结果
+                    if (officialChip) {
+                        const chipMatch = result.chipType === officialChip;
+                        this.updateCompatibilityTable('芯片检测', officialChip, result.chipType, chipMatch);
+                    } else {
+                        this.updateCompatibilityTable('芯片检测', '未测试', result.chipType, true);
+                    }
+                    
+                    this.updateConnectionStatus('connected');
+                    document.getElementById('detectChipBtn').disabled = false;
+                    document.getElementById('testBasicApisBtn').disabled = false;
+                    document.getElementById('testDataConversionBtn').disabled = false;
+                    document.getElementById('testCommandsBtn').disabled = false;
+                    document.getElementById('testFlashBeginBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = false;
+                    
+                    // 显示连接信息
+                    document.getElementById('connectionInfo').style.display = 'block';
+                    document.getElementById('chipInfo').textContent = 
+                        `检测到芯片: ${result.chipType} | 官方结果: ${officialChip || '未测试'} | 匹配: ${officialChip ? (result.chipType === officialChip ? '是' : '否') : 'N/A'}`;
+                    
+                } catch (error) {
+                    this.log(`❌ 连接失败: ${error.message}`, 'error');
+                    this.updateConnectionStatus('error');
+                }
+            }
+            
+            async testChipDetection() {
+                try {
+                    this.log('🔍 测试芯片检测详细信息...', 'info');
+                    
+                    // 测试我们的实现
+                    const ourStatus = this.simpleDownloader.getConnectionStatus();
+                    this.log(`我们的实现 - 芯片: ${ourStatus.chipType}, Magic: 0x${ourStatus.chipMagicValue}`, 'info');
+                    
+                    // 测试官方实现（如果可用）
+                    if (this.espLoader) {
+                        try {
+                            const officialMagic = await this.espLoader.readReg(0x40001000);
+                            this.log(`官方实现 - Magic: 0x${officialMagic.toString(16)}`, 'info');
+                            
+                            // 对比magic值
+                            const magicMatch = parseInt(ourStatus.chipMagicValue, 16) === officialMagic;
+                            this.updateCompatibilityTable('芯片Magic值', `0x${officialMagic.toString(16)}`, `0x${ourStatus.chipMagicValue}`, magicMatch);
+                        } catch (error) {
+                            this.log(`⚠️ 官方实现Magic值读取失败: ${error.message}`, 'warning');
+                        }
+                    }
+                    
+                } catch (error) {
+                    this.log(`❌ 芯片检测测试失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async testBasicAPIs() {
+                try {
+                    this.log('🔧 开始基础API测试...', 'info');
+                    
+                    // 测试readReg
+                    const testAddr = 0x40001000; // CHIP_DETECT_MAGIC_REG_ADDR
+                    const ourReg = await this.simpleDownloader.readReg(testAddr);
+                    
+                    if (this.espLoader) {
+                        try {
+                            const officialReg = await this.espLoader.readReg(testAddr);
+                            const regMatch = ourReg === officialReg;
+                            this.updateCompatibilityTable('readReg API', officialReg.toString(16), ourReg.toString(16), regMatch);
+                            this.log(`readReg测试: 我们=${ourReg.toString(16)}, 官方=${officialReg.toString(16)}, 匹配=${regMatch}`, regMatch ? 'info' : 'warning');
+                        } catch (error) {
+                            this.log(`⚠️ 官方readReg测试失败: ${error.message}`, 'warning');
+                        }
+                    } else {
+                        this.updateCompatibilityTable('readReg API', '未测试', ourReg.toString(16), true);
+                        this.log(`readReg测试: 我们=${ourReg.toString(16)} (官方未加载)`, 'info');
+                    }
+                    
+                } catch (error) {
+                    this.log(`❌ 基础API测试失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async testDataConversion() {
+                try {
+                    this.log('🔄 开始数据转换测试...', 'info');
+                    
+                    // 测试数据
+                    const testData = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0xAB, 0xCD, 0xEF]);
+                    
+                    // 测试ui8ToBstr
+                    const ourBstr = this.simpleDownloader.ui8ToBstr(testData);
+                    
+                    // 手动验证
+                    let expectedBstr = '';
+                    for (let i = 0; i < testData.length; i++) {
+                        expectedBstr += String.fromCharCode(testData[i]);
+                    }
+                    
+                    const bstrMatch = ourBstr === expectedBstr;
+                    this.updateCompatibilityTable('ui8ToBstr转换', expectedBstr.length + '字节', ourBstr.length + '字节', bstrMatch);
+                    
+                    // 测试bstrToUi8
+                    const ourUi8 = this.simpleDownloader.bstrToUi8(ourBstr);
+                    const ui8Match = ourUi8.length === testData.length && 
+                                    ourUi8.every((val, idx) => val === testData[idx]);
+                    
+                    this.updateCompatibilityTable('bstrToUi8转换', testData.length + '字节', ourUi8.length + '字节', ui8Match);
+                    
+                    this.log(`数据转换测试完成: ui8ToBstr=${bstrMatch}, bstrToUi8=${ui8Match}`, 'info');
+                    
+                } catch (error) {
+                    this.log(`❌ 数据转换测试失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async testCommands() {
+                try {
+                    this.log('📡 开始命令接口测试...', 'info');
+                    
+                    // 测试checksum计算
+                    const testData = new Uint8Array([0x01, 0x02, 0x03, 0x04]);
+                    const ourChecksum = this.simpleDownloader.checksum(testData);
+                    
+                    // 手动计算期望的checksum
+                    let expectedChecksum = 0xef; // ESP_CHECKSUM_MAGIC
+                    for (let b of testData) {
+                        expectedChecksum ^= b;
+                    }
+                    
+                    const checksumMatch = ourChecksum === expectedChecksum;
+                    this.updateCompatibilityTable('checksum计算', expectedChecksum.toString(16), ourChecksum.toString(16), checksumMatch);
+                    
+                    // 测试数组操作
+                    const arr1 = new Uint8Array([1, 2, 3]);
+                    const arr2 = new Uint8Array([4, 5, 6]);
+                    const combined = this.simpleDownloader.appendArray(arr1, arr2);
+                    
+                    const expectedCombined = new Uint8Array([1, 2, 3, 4, 5, 6]);
+                    const arrayMatch = combined.length === expectedCombined.length && 
+                                     combined.every((val, idx) => val === expectedCombined[idx]);
+                    
+                    this.updateCompatibilityTable('appendArray操作', expectedCombined.toString(), combined.toString(), arrayMatch);
+                    
+                    this.log(`命令接口测试完成: checksum=${checksumMatch}, appendArray=${arrayMatch}`, 'info');
+                    
+                } catch (error) {
+                    this.log(`❌ 命令接口测试失败: ${error.message}`, 'error');
+                }
+            }
+            
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.selectedFile = file;
+                    this.log(`📁 选择文件: ${file.name} (${file.size} 字节)`, 'info');
+                    document.getElementById('downloadFirmwareBtn').disabled = false;
+                }
+            }
+            
+            async testFlashBegin() {
+                try {
+                    this.log('💾 开始Flash Begin测试...', 'info');
+                    
+                    // 测试小块数据的flash begin
+                    const testSize = 4096; // 4KB
+                    const testOffset = 0x10000;
+                    
+                    const numBlocks = await this.simpleDownloader.flashBegin(testSize, testOffset);
+                    this.log(`✅ Flash Begin测试成功: ${numBlocks} 块`, 'info');
+                    
+                    this.updateCompatibilityTable('flashBegin操作', `${Math.ceil(testSize/16384)} 块`, `${numBlocks} 块`, numBlocks > 0);
+                    
+                } catch (error) {
+                    this.log(`❌ Flash Begin测试失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async testFullDownload() {
+                if (!this.selectedFile) {
+                    this.log('❌ 请先选择固件文件', 'error');
+                    return;
+                }
+                
+                try {
+                    this.log('🚀 开始完整下载测试...', 'info');
+                    document.getElementById('downloadProgress').style.display = 'block';
+                    
+                    // 读取文件
+                    const fileData = await this.readFileAsArrayBuffer(this.selectedFile);
+                    
+                    // 准备flash选项
+                    const flashOptions = {
+                        fileArray: [{
+                            data: this.simpleDownloader.ui8ToBstr(new Uint8Array(fileData)),
+                            address: 0x10000
+                        }],
+                        flashSize: "keep",
+                        flashMode: "keep",
+                        flashFreq: "keep", 
+                        eraseAll: false,
+                        compress: true,
+                        reportProgress: (fileIndex, written, total) => {
+                            const percentage = Math.round((written / total) * 100);
+                            const progressFill = document.getElementById('downloadProgressFill');
+                            progressFill.style.width = percentage + '%';
+                            progressFill.textContent = percentage + '%';
+                            
+                            this.log(`下载进度: ${percentage}% (${written}/${total} 字节)`, 'info');
+                        }
+                    };
+                    
+                    // 执行下载
+                    await this.simpleDownloader.writeFlash(flashOptions);
+                    
+                    // 执行after操作
+                    await this.simpleDownloader.after();
+                    
+                    this.log('✅ 完整下载测试成功!', 'info');
+                    this.updateCompatibilityTable('完整下载流程', '成功', '成功', true);
+                    
+                } catch (error) {
+                    this.log(`❌ 完整下载测试失败: ${error.message}`, 'error');
+                    this.updateCompatibilityTable('完整下载流程', '成功', '失败', false);
+                } finally {
+                    setTimeout(() => {
+                        document.getElementById('downloadProgress').style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = e => reject(new Error('文件读取失败'));
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            
+            async disconnect() {
+                try {
+                    this.log('🔌 断开连接...', 'info');
+                    
+                    if (this.simpleDownloader) {
+                        await this.simpleDownloader.disconnect();
+                    }
+                    
+                    if (this.transport) {
+                        await this.transport.disconnect();
+                    }
+                    
+                    this.updateConnectionStatus('');
+                    document.getElementById('connectionInfo').style.display = 'none';
+                    
+                    // 禁用所有测试按钮
+                    document.getElementById('detectChipBtn').disabled = true;
+                    document.getElementById('testBasicApisBtn').disabled = true;
+                    document.getElementById('testDataConversionBtn').disabled = true;
+                    document.getElementById('testCommandsBtn').disabled = true;
+                    document.getElementById('testFlashBeginBtn').disabled = true;
+                    document.getElementById('downloadFirmwareBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    
+                    this.log('✅ 断开连接成功', 'info');
+                    
+                } catch (error) {
+                    this.log(`❌ 断开连接失败: ${error.message}`, 'error');
+                }
+            }
+                 }
+         
+         // 初始化测试器
+         let tester;
+         let scriptsLoaded = 0;
+         
+         function onScriptLoaded() {
+             scriptsLoaded++;
+             if (scriptsLoaded >= 2) { // 等待两个脚本都尝试加载完成
+                 setTimeout(() => {
+                     try {
+                         tester = new ESP32CompatibilityTester();
+                         console.log('🎯 ESP32完整兼容性测试器已准备就绪');
+                     } catch (error) {
+                         console.error('初始化失败:', error);
+                         document.body.innerHTML = `
+                             <div style="text-align: center; padding: 50px;">
+                                 <h1>❌ 初始化失败</h1>
+                                 <p style="color: red;">${error.message}</p>
+                                 <p>请检查控制台获取详细错误信息</p>
+                             </div>
+                         `;
+                     }
+                 }, 500);
+             }
+         }
+         
+         document.addEventListener('DOMContentLoaded', () => {
+             // 加载ESP32SimpleDownloader
+             const script1 = document.createElement('script');
+             script1.src = './downloaders/esp32-simple-downloader.js';
+             script1.onload = () => {
+                 console.log('✅ ESP32SimpleDownloader 加载成功');
+                 onScriptLoaded();
+             };
+             script1.onerror = () => {
+                 console.error('❌ 无法加载 esp32-simple-downloader.js');
+                 onScriptLoaded();
+             };
+             document.head.appendChild(script1);
+             
+             // 加载esptool-js（如果存在）
+             const script2 = document.createElement('script');
+             script2.src = './third_party/esptool-js/bundle.js';
+             script2.onload = () => {
+                 console.log('✅ esptool-js bundle.js 加载成功');
+                 onScriptLoaded();
+             };
+             script2.onerror = () => {
+                 console.warn('⚠️ 无法加载 esptool-js bundle.js，将跳过官方实现对比');
+                 onScriptLoaded();
+             };
+             document.head.appendChild(script2);
+         });
+     </script>
+</body>
+</html> 
