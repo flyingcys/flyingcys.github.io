@@ -40,6 +40,30 @@ class DownloaderManager {
                 order: 5,
                 scriptPath: './downloaders/ln882h-downloader.js',
                 downloaderClass: 'LN882HDownloader'
+            },
+            ESP32: { 
+                displayName: 'ESP32',
+                downloader: 'ESP32Downloader',
+                order: 6,
+                description: 'ESP32系列芯片',
+                scriptPath: './downloaders/esp32-downloader.js',
+                downloaderClass: 'ESP32Downloader'
+            },
+            ESP32C3: { 
+                displayName: 'ESP32-C3',
+                downloader: 'ESP32C3Downloader',
+                order: 7,
+                description: 'ESP32-C3系列芯片',
+                scriptPath: './downloaders/esp32c3-downloader.js',
+                downloaderClass: 'ESP32C3Downloader'
+            },
+            ESP32S3: { 
+                displayName: 'ESP32-S3',
+                downloader: 'ESP32S3Downloader',
+                order: 8,
+                description: 'ESP32-S3系列芯片',
+                scriptPath: './downloaders/esp32s3-downloader.js',
+                downloaderClass: 'ESP32S3Downloader'
             }
         };
         
@@ -47,7 +71,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32C3', 'ESP32S3'];
     }
 
     /**
