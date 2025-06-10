@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块加载状态检查</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .check-item { margin: 10px 0; padding: 8px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 模块加载状态检查</h1>
+        
+        <div class="status info">
+            <strong>检查说明:</strong> 验证ESP32下载器相关模块是否正确加载
+        </div>
+        
+        <button onclick="checkAllModules()">🔄 重新检查</button>
+        <button onclick="testDownloaderCreation()">🧪 测试下载器创建</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <!-- 按照index.html的顺序加载脚本 -->
+    <script src="esp-protocol-reuse.js"></script>
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32-simple-downloader.js"></script>
+    <script src="downloaders/esp32-series-downloader.js"></script>
+    <script src="downloaders/downloader-manager.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `check-item ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function checkModule(name, obj, details = null) {
+            const exists = typeof obj !== 'undefined';
+            const isFunction = typeof obj === 'function';
+            const isObject = typeof obj === 'object' && obj !== null;
+            
+            let status = exists ? '✅' : '❌';
+            let type = exists ? 'success' : 'error';
+            let info = '';
+            
+            if (exists) {
+                if (isFunction) {
+                    info = ' (函数/类)';
+                } else if (isObject) {
+                    info = ' (对象)';
+                } else {
+                    info = ` (${typeof obj})`;
+                }
+            }
+            
+            log(`${status} ${name}${info}`, type);
+            
+            if (details && exists) {
+                log(`   详情: ${details}`, 'info');
+            }
+            
+            return exists;
+        }
+
+        function checkAllModules() {
+            clearResults();
+            log('<h3>🔍 模块加载状态检查</h3>', 'info');
+            
+            // 检查基础模块
+            log('<h4>📦 基础模块</h4>', 'info');
+            checkModule('ESPProtocolReuse', window.ESPProtocolReuse, 
+                window.ESPProtocolReuse ? `包含 ${Object.keys(window.ESPProtocolReuse).length} 个属性` : null);
+            checkModule('ESPProtocolReuseClass', window.ESPProtocolReuseClass);
+            
+            // 检查下载器类
+            log('<h4>🔧 下载器类</h4>', 'info');
+            checkModule('BaseDownloader', window.BaseDownloader);
+            checkModule('ESP32SimpleDownloader', window.ESP32SimpleDownloader);
+            checkModule('ESP32SeriesDownloader', window.ESP32SeriesDownloader);
+            
+            // 检查下载器管理器
+            log('<h4>🎛️ 下载器管理器</h4>', 'info');
+            checkModule('DownloaderManager', window.DownloaderManager);
+            checkModule('downloaderManager', window.downloaderManager);
+            
+            // 检查下载器管理器配置
+            if (window.downloaderManager) {
+                const supportedChips = window.downloaderManager.getSupportedChips();
+                log(`   支持的芯片: ${supportedChips.map(c => c.name).join(', ')}`, 'info');
+                
+                const visibleChips = window.downloaderManager.getVisibleChips();
+                log(`   可见的芯片: ${visibleChips.join(', ')}`, 'info');
+                
+                // 检查ESP32-Simple配置
+                const esp32SimpleConfig = window.downloaderManager.supportedChips['ESP32-Simple'];
+                if (esp32SimpleConfig) {
+                    log(`   ESP32-Simple配置: ${JSON.stringify(esp32SimpleConfig)}`, 'info');
+                } else {
+                    log('❌ ESP32-Simple配置未找到', 'error');
+                }
+            }
+            
+            // 检查全局对象状态
+            log('<h4>🌐 全局状态</h4>', 'info');
+            const globalKeys = Object.keys(window).filter(key => 
+                key.includes('ESP') || key.includes('Downloader') || key.includes('Protocol')
+            );
+            log(`   相关全局变量: ${globalKeys.join(', ')}`, 'info');
+            
+            log('<h4>✅ 检查完成</h4>', 'success');
+        }
+
+        async function testDownloaderCreation() {
+            log('<h3>🧪 测试下载器创建</h3>', 'info');
+            
+            if (!window.downloaderManager) {
+                log('❌ downloaderManager未初始化', 'error');
+                return;
+            }
+            
+            try {
+                // 创建模拟串口对象
+                const mockPort = {
+                    readable: { getReader: () => ({}) },
+                    writable: { getWriter: () => ({}) }
+                };
+                
+                const debugCallback = (level, message) => {
+                    console.log(`[${level}] ${message}`);
+                };
+                
+                log('🔄 尝试创建ESP32-Simple下载器...', 'info');
+                
+                const downloader = await window.downloaderManager.createDownloader(
+                    'ESP32-Simple', 
+                    mockPort, 
+                    debugCallback
+                );
+                
+                log('✅ ESP32-Simple下载器创建成功!', 'success');
+                log(`   下载器类型: ${downloader.constructor.name}`, 'info');
+                log(`   芯片名称: ${downloader.chipName}`, 'info');
+                
+                // 测试基本方法
+                const status = downloader.getDeviceStatus();
+                log(`   设备状态: ${JSON.stringify(status)}`, 'info');
+                
+            } catch (error) {
+                log(`❌ 下载器创建失败: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+
+        // 页面加载完成后自动检查
+        document.addEventListener('DOMContentLoaded', () => {
+            // 等待一下确保所有脚本都加载完成
+            setTimeout(checkAllModules, 100);
+        });
+    </script>
+</body>
+</html> 

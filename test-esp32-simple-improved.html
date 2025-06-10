@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-Simple 下载器测试 (改进版)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; text-align: center; }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        #log {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        input[type="file"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .improvement-info {
+            background: #e7f3ff;
+            border: 1px solid #0066cc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ ESP32-Simple 下载器测试 (改进版)</h1>
+        
+        <div class="improvement-info">
+            <h3>🔧 本次改进内容:</h3>
+            <ul>
+                <li>✅ 修复串口流锁定问题</li>
+                <li>✅ 增加设备模式自动检测</li>
+                <li>✅ 改进应用程序输出过滤</li>
+                <li>✅ 增强错误处理和恢复机制</li>
+                <li>✅ 增加流状态检查</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>📡 串口连接</h3>
+            <div class="control-group">
+                <button id="connectBtn">连接串口</button>
+                <button id="disconnectBtn" disabled>断开连接</button>
+                <select id="baudRate">
+                    <option value="115200">115200</option>
+                    <option value="921600">921600</option>
+                    <option value="460800">460800</option>
+                </select>
+            </div>
+            <div id="connectionStatus" class="status info">未连接</div>
+        </div>
+
+        <div class="section">
+            <h3>🔍 设备检测</h3>
+            <div class="control-group">
+                <button id="testDetectionBtn" disabled>测试设备检测</button>
+                <button id="checkStreamBtn" disabled>检查流状态</button>
+                <button id="clearBufferBtn" disabled>清空缓冲区</button>
+            </div>
+            <div id="detectionStatus" class="status info">等待检测</div>
+        </div>
+
+        <div class="section">
+            <h3>⚡ ESP32-Simple 下载器</h3>
+            <div class="control-group">
+                <input type="file" id="firmwareFile" accept=".bin" />
+                <button id="downloadBtn" disabled>开始下载</button>
+                <button id="stopBtn" disabled>停止下载</button>
+            </div>
+            <div id="downloadStatus" class="status info">等待文件选择</div>
+            <div id="progressInfo"></div>
+        </div>
+
+        <div class="section">
+            <h3>📋 调试日志</h3>
+            <button onclick="clearLog()">清空日志</button>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <!-- 加载必需的脚本 -->
+    <script src="web_serial/base-downloader.js"></script>
+    <script src="web_serial/esp-protocol-reuse.js"></script>
+    <script src="web_serial/downloaders/esp32-simple-downloader.js"></script>
+
+    <script>
+        // 全局变量
+        let serialPort = null;
+        let downloader = null;
+        let isDownloading = false;
+
+        // 日志函数
+        function log(message, level = 'INFO') {
+            const timestamp = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+            const logElement = document.getElementById('log');
+            const colorMap = {
+                'INFO': '#00ff00',
+                'WARNING': '#ffff00', 
+                'ERROR': '#ff0000',
+                'SUCCESS': '#00ffff',
+                'DEBUG': '#ff00ff'
+            };
+            const color = colorMap[level] || '#00ff00';
+            logElement.innerHTML += `<span style="color: ${color}">[${timestamp}]${level}</span>${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // 状态更新函数
+        function updateConnectionStatus(message, type = 'info') {
+            const statusEl = document.getElementById('connectionStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function updateDetectionStatus(message, type = 'info') {
+            const statusEl = document.getElementById('detectionStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function updateDownloadStatus(message, type = 'info') {
+            const statusEl = document.getElementById('downloadStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        // 串口连接
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            try {
+                log('开始连接串口...', 'INFO');
+                
+                const baudRate = parseInt(document.getElementById('baudRate').value);
+                serialPort = await navigator.serial.requestPort();
+                await serialPort.open({ baudRate });
+                
+                updateConnectionStatus(`已连接 (${baudRate} bps)`, 'success');
+                log(`串口连接成功，波特率: ${baudRate}`, 'SUCCESS');
+                
+                // 启用相关按钮
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('testDetectionBtn').disabled = false;
+                document.getElementById('checkStreamBtn').disabled = false;
+                document.getElementById('clearBufferBtn').disabled = false;
+                document.getElementById('downloadBtn').disabled = false;
+                
+            } catch (error) {
+                updateConnectionStatus('连接失败', 'error');
+                log(`串口连接失败: ${error.message}`, 'ERROR');
+            }
+        });
+
+        // 断开连接
+        document.getElementById('disconnectBtn').addEventListener('click', async () => {
+            try {
+                if (downloader) {
+                    await downloader.disconnect();
+                    downloader = null;
+                }
+                
+                if (serialPort) {
+                    await serialPort.close();
+                    serialPort = null;
+                }
+                
+                updateConnectionStatus('已断开', 'info');
+                updateDetectionStatus('等待检测', 'info');
+                log('串口已断开', 'INFO');
+                
+                // 禁用相关按钮
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                document.getElementById('testDetectionBtn').disabled = true;
+                document.getElementById('checkStreamBtn').disabled = true;
+                document.getElementById('clearBufferBtn').disabled = true;
+                document.getElementById('downloadBtn').disabled = true;
+                
+            } catch (error) {
+                log(`断开连接时出错: ${error.message}`, 'ERROR');
+            }
+        });
+
+        // 检查流状态
+        document.getElementById('checkStreamBtn').addEventListener('click', async () => {
+            try {
+                if (!serialPort) {
+                    log('请先连接串口', 'WARNING');
+                    return;
+                }
+
+                log('检查串口流状态...', 'INFO');
+                const helper = ESPProtocolReuse.createSerialHelper(serialPort);
+                const status = helper.checkStreamStatus();
+                
+                log(`流状态: readable=${status.readable}, writable=${status.writable}`, 'INFO');
+                
+                if (status.readable && status.writable) {
+                    updateDetectionStatus('流状态正常', 'success');
+                } else {
+                    updateDetectionStatus('流状态异常', 'warning');
+                }
+
+            } catch (error) {
+                log(`检查流状态失败: ${error.message}`, 'ERROR');
+                updateDetectionStatus('检查失败', 'error');
+            }
+        });
+
+        // 清空缓冲区
+        document.getElementById('clearBufferBtn').addEventListener('click', async () => {
+            try {
+                if (!serialPort) {
+                    log('请先连接串口', 'WARNING');
+                    return;
+                }
+
+                log('清空串口缓冲区...', 'INFO');
+                const helper = ESPProtocolReuse.createSerialHelper(serialPort);
+                await helper.clearBuffer();
+                log('缓冲区已清空', 'SUCCESS');
+
+            } catch (error) {
+                log(`清空缓冲区失败: ${error.message}`, 'ERROR');
+            }
+        });
+
+        // 测试设备检测
+        document.getElementById('testDetectionBtn').addEventListener('click', async () => {
+            try {
+                if (!serialPort) {
+                    log('请先连接串口', 'WARNING');
+                    return;
+                }
+
+                updateDetectionStatus('正在检测...', 'info');
+                log('开始检测ESP32设备...', 'INFO');
+
+                // 创建下载器
+                downloader = new ESP32SimpleDownloader(serialPort, (msg, level) => {
+                    log(msg, level || 'DEBUG');
+                });
+
+                // 尝试连接
+                await downloader.connect();
+                
+                const status = downloader.getDeviceStatus();
+                updateDetectionStatus(`检测成功: ${status.chipName}`, 'success');
+                log(`设备检测成功: ${status.chipName}`, 'SUCCESS');
+
+            } catch (error) {
+                updateDetectionStatus(`检测失败: ${error.message}`, 'error');
+                log(`设备检测失败: ${error.message}`, 'ERROR');
+                
+                if (downloader) {
+                    await downloader.disconnect();
+                    downloader = null;
+                }
+            }
+        });
+
+        // 下载固件
+        document.getElementById('downloadBtn').addEventListener('click', async () => {
+            try {
+                const fileInput = document.getElementById('firmwareFile');
+                if (!fileInput.files.length) {
+                    log('请选择固件文件', 'WARNING');
+                    return;
+                }
+
+                if (!serialPort) {
+                    log('请先连接串口', 'WARNING');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                log(`开始下载固件: ${file.name} (${file.size} 字节)`, 'INFO');
+                updateDownloadStatus(`准备下载: ${file.name}`, 'info');
+
+                // 读取文件
+                const arrayBuffer = await file.arrayBuffer();
+                const fileData = new Uint8Array(arrayBuffer);
+
+                isDownloading = true;
+                document.getElementById('downloadBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+
+                // 创建或重用下载器
+                if (!downloader) {
+                    downloader = new ESP32SimpleDownloader(serialPort, (msg, level) => {
+                        log(msg, level || 'DEBUG');
+                    });
+                    
+                    // 先连接设备
+                    await downloader.connect();
+                }
+
+                // 设置进度回调
+                downloader.onProgress = (progress) => {
+                    document.getElementById('progressInfo').innerHTML = 
+                        `<div style="background: #007bff; height: 20px; width: ${progress}%; border-radius: 10px; color: white; text-align: center; line-height: 20px;">${progress}%</div>`;
+                };
+
+                // 开始下载
+                await downloader.downloadFirmware(fileData);
+                
+                updateDownloadStatus('下载完成！', 'success');
+                log('固件下载完成！', 'SUCCESS');
+
+            } catch (error) {
+                updateDownloadStatus(`下载失败: ${error.message}`, 'error');
+                log(`下载失败: ${error.message}`, 'ERROR');
+            } finally {
+                isDownloading = false;
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        });
+
+        // 停止下载
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            if (isDownloading && downloader) {
+                log('用户请求停止下载', 'WARNING');
+                downloader.stop = true;
+                isDownloading = false;
+                updateDownloadStatus('下载已停止', 'warning');
+            }
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            log('ESP32-Simple 下载器测试页面 (改进版) 已加载', 'INFO');
+            log('改进功能: 流锁定修复、设备模式检测、增强错误处理', 'INFO');
+            
+            if (!navigator.serial) {
+                log('警告: 浏览器不支持 Web Serial API', 'ERROR');
+                updateConnectionStatus('浏览器不支持 Web Serial API', 'error');
+            }
+        });
+    </script>
+</body>
+</html> 

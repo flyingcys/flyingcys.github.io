@@ -176,12 +176,40 @@ class FlashDownloader {
         try {
             // 芯片下载器内部会处理连接
             this.mainLog(i18n.t('connecting_device', device));
-            if (!await this.chipDownloader.connect()) {
+            
+            // 增强ESP32设备特殊处理
+            let connectionResult = false;
+            try {
+                connectionResult = await this.chipDownloader.connect();
+            } catch (connectError) {
+                // 检查是否是ESP32设备
+                if (device.includes('ESP32')) {
+                    this.debugLog('ESP32设备连接失败，提供额外指导...', connectError.message, 'warning');
+                    this.mainLog(`
+ESP32设备连接提示: 
+- 确保设备处于下载模式（按住BOOT键并按一下RST键）
+- 检查USB连接是否牢固
+- 确认设备驱动已正确安装（CP210x/CH340/FTDI）
+- 确保其他应用程序未占用串口
+                    `.trim(), 'warning');
+                    
+                    // 重新尝试一次连接
+                    this.mainLog('正在重新尝试连接ESP32设备...', 'info');
+                    connectionResult = await this.chipDownloader.connect();
+                } else {
+                    // 其他设备直接抛出错误
+                    throw connectError;
+                }
+            }
+            
+            // 检查连接结果
+            if (!connectionResult) {
                 throw new Error(i18n.t('cannot_connect_device', device));
             }
 
             // 开始固件下载
             this.mainLog(i18n.t('downloading_firmware_to_device', device));
+            try {
             await this.chipDownloader.downloadFirmware(fileData, startAddr);
             
             this.mainLog(i18n.t('device_firmware_download_completed', device));
@@ -191,6 +219,23 @@ class FlashDownloader {
                     type: 'completed',
                     message: i18n.t('download_complete')
                 });
+                }
+            } catch (downloadError) {
+                // 处理ESP32特定的下载错误
+                if (device.includes('ESP32')) {
+                    const errorMsg = downloadError.message || '';
+                    
+                    // 更友好的错误消息翻译
+                    if (errorMsg.includes('Cannot read properties of undefined')) {
+                        throw new Error('ESP32设备通信失败: 设备可能未处于下载模式或未正确连接');
+                    } else if (errorMsg.includes('timeout')) {
+                        throw new Error('ESP32设备通信超时: 请检查连接或重启设备');
+                    } else {
+                        throw downloadError; // 其他错误直接抛出
+                    }
+                } else {
+                    throw downloadError; // 非ESP32设备直接抛出错误
+                }
             }
         } finally {
             // 关键修复：确保无论下载成功还是失败，都重置波特率到115200
@@ -222,10 +267,28 @@ class FlashDownloader {
             // 下载完成后，恢复SerialTerminal的reader/writer
             if (this.terminal.flashPort && this.terminal.isFlashConnected) {
                 try {
+                    // 确保之前没有reader/writer还在锁定状态
+                    if (!this.terminal.flashReader) {
                     this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
+                    }
+                    if (!this.terminal.flashWriter) {
                     this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
+                    }
                 } catch (error) {
                     this.debugLog(i18n.t('restoring_serial_reader_writer_failed'), error.message, 'warning');
+                    // 如果恢复失败，尝试等待一下再重试
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    try {
+                        if (!this.terminal.flashReader && this.terminal.flashPort.readable) {
+                            this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
+                        }
+                        if (!this.terminal.flashWriter && this.terminal.flashPort.writable) {
+                            this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
+                        }
+                        this.debugLog('延迟恢复reader/writer成功', null, 'info');
+                    } catch (retryError) {
+                        this.debugLog('延迟恢复reader/writer也失败: ' + retryError.message, null, 'warning');
+                    }
                 }
             }
         }
@@ -316,24 +379,44 @@ class FlashDownloader {
                 }
             }
             
-            // 确保reader和writer可用
+            // 确保reader和writer可用 - 添加流状态检查
             if (this.terminal.isFlashConnected && this.terminal.flashPort) {
                 try {
-                    // 重新获取reader（如果需要）
-                    if (!this.terminal.flashReader && this.terminal.flashPort.readable) {
+                    // 等待一段时间确保所有异步操作完成
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    
+                    // 检查流状态
+                    const readableAvailable = this.terminal.flashPort.readable && !this.terminal.flashPort.readable.locked;
+                    const writableAvailable = this.terminal.flashPort.writable && !this.terminal.flashPort.writable.locked;
+                    
+                    this.debugLog(`流状态检查: readable=${readableAvailable}, writable=${writableAvailable}`, null, 'debug');
+                    
+                    // 重新获取reader（如果需要且可用）
+                    if (!this.terminal.flashReader && readableAvailable) {
                         this.terminal.flashReader = this.terminal.flashPort.readable.getReader();
                         this.debugLog('重新获取串口读取器成功', null, 'info');
                     }
                     
-                    // 重新获取writer（如果需要）
-                    if (!this.terminal.flashWriter && this.terminal.flashPort.writable) {
+                    // 重新获取writer（如果需要且可用）
+                    if (!this.terminal.flashWriter && writableAvailable) {
                         this.terminal.flashWriter = this.terminal.flashPort.writable.getWriter();
                         this.debugLog('重新获取串口写入器成功', null, 'info');
                     }
                     
-                    this.debugLog('串口连接状态已保持', null, 'info');
+                    if (this.terminal.flashReader && this.terminal.flashWriter) {
+                        this.debugLog('串口连接状态已完全恢复', null, 'info');
+                    } else {
+                        this.debugLog('⚠️ 串口连接状态部分恢复，某些流可能仍被锁定', null, 'warning');
+                    }
+                    
                 } catch (readerWriterError) {
                     this.debugLog('重新获取读写器时发生错误: ' + readerWriterError.message, null, 'warning');
+                    
+                    // 如果是流被锁定的错误，提供更具体的指导
+                    if (readerWriterError.message.includes('locked') || 
+                        readerWriterError.message.includes('ReadableStreamDefaultReader')) {
+                        this.debugLog('⚠️ 检测到流锁定问题，建议刷新页面重新连接', null, 'warning');
+                    }
                 }
             }
             

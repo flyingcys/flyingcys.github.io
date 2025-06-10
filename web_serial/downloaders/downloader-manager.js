@@ -72,6 +72,14 @@ class DownloaderManager {
                 description: '支持ESP32/ESP32-S2/ESP32-S3/ESP32-C3/ESP32-C6/ESP32-H2等系列芯片自动检测',
                 scriptPath: './downloaders/esp32-series-downloader.js',
                 downloaderClass: 'ESP32SeriesDownloader'
+            },
+            'ESP32-Simple': { 
+                displayName: 'ESP32-Simple (极简版)',
+                downloader: 'ESP32SimpleDownloader',
+                order: 7,
+                description: '极简ESP32下载器，直接复用esptool-js底层协议',
+                scriptPath: './downloaders/esp32-simple-downloader.js',
+                downloaderClass: 'ESP32SimpleDownloader'
             }
         };
         
@@ -79,7 +87,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'ESP32-Series'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32-Simple'];
     }
 
     /**
@@ -139,18 +147,34 @@ class DownloaderManager {
             return this.loadedDownloaders[chipName];
         }
 
+        // 首先检查下载器类是否已经在全局范围内可用（静态加载）
+        const DownloaderClass = window[chipConfig.downloaderClass];
+        console.log(`🔍 检查下载器类: ${chipConfig.downloaderClass}`);
+        console.log(`- window[${chipConfig.downloaderClass}]:`, typeof DownloaderClass);
+        console.log(`- 是否为函数:`, typeof DownloaderClass === 'function');
+        
+        if (DownloaderClass && typeof DownloaderClass === 'function') {
+            console.log(`✅ 下载器类 ${chipConfig.downloaderClass} 已静态加载`);
+            this.loadedDownloaders[chipName] = DownloaderClass;
+            return DownloaderClass;
+        } else {
+            console.log(`❌ 下载器类 ${chipConfig.downloaderClass} 未找到，需要动态加载`);
+        }
+
         try {
             // 动态加载脚本
+            console.log(`📥 动态加载下载器脚本: ${chipConfig.scriptPath}`);
             const script = document.createElement('script');
             script.src = chipConfig.scriptPath;
             
             return new Promise((resolve, reject) => {
                 script.onload = () => {
                     // 检查下载器类是否已加载
-                    const DownloaderClass = window[chipConfig.downloaderClass];
-                    if (DownloaderClass) {
-                        this.loadedDownloaders[chipName] = DownloaderClass;
-                        resolve(DownloaderClass);
+                    const LoadedClass = window[chipConfig.downloaderClass];
+                    if (LoadedClass) {
+                        console.log(`✅ 下载器类 ${chipConfig.downloaderClass} 动态加载成功`);
+                        this.loadedDownloaders[chipName] = LoadedClass;
+                        resolve(LoadedClass);
                     } else {
                         reject(new Error(`下载器类 ${chipConfig.downloaderClass} 未找到`));
                     }

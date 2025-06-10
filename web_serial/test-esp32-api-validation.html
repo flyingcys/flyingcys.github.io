@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 API兼容性验证测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .pass { background-color: #d4edda; color: #155724; }
+        .fail { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        #log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP32 API兼容性验证测试</h1>
+        <p>此测试页面验证ESP32SeriesDownloader的API调用是否与esptool-js完全兼容</p>
+
+        <div class="test-section">
+            <h3>📋 API兼容性检查清单</h3>
+            <div id="apiChecks">
+                <div class="test-result info">正在检查...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔌 连接测试</h3>
+            <button onclick="testConnection()">测试ESP32连接</button>
+            <button onclick="testAPICompatibility()">验证API兼容性</button>
+            <div id="connectionResults">
+                <div class="test-result info">点击按钮开始测试</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 测试日志</h3>
+            <div id="log"></div>
+            <button onclick="clearLog()">清空日志</button>
+        </div>
+    </div>
+
+    <!-- 引入依赖 -->
+    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32-series-downloader.js"></script>
+
+    <script>
+        let testLog = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            testLog.push(logEntry);
+            
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `test-result ${type}`;
+            entry.textContent = logEntry;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            console.log(logEntry);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            testLog = [];
+        }
+        
+        // API兼容性检查
+        function checkAPICompatibility() {
+            const checks = [
+                {
+                    name: 'ESPLoader可用性',
+                    test: () => typeof ESPLoader !== 'undefined' || typeof window.ESPLoader !== 'undefined' || (typeof window.esptooljs !== 'undefined' && window.esptooljs.ESPLoader),
+                    fix: 'esptool-js库未正确加载'
+                },
+                {
+                    name: 'writeFlash方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.writeFlash === 'function';
+                    },
+                    fix: 'writeFlash方法不存在，请检查esptool-js版本'
+                },
+                {
+                    name: 'runStub方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.runStub === 'function';
+                    },
+                    fix: 'runStub方法不存在，应该用runStub替代loadStub'
+                },
+                {
+                    name: 'changeBaud方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.changeBaud === 'function';
+                    },
+                    fix: 'changeBaud方法不存在，应该用changeBaud替代setBaudRate'
+                },
+                {
+                    name: 'getFlashSize方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.getFlashSize === 'function';
+                    },
+                    fix: 'getFlashSize方法不存在，应该用getFlashSize替代flashSize'
+                },
+                {
+                    name: 'after方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.after === 'function';
+                    },
+                    fix: 'after方法不存在，需要在下载完成后调用'
+                },
+                {
+                    name: 'eraseFlash方法存在',
+                    test: () => {
+                        const ESPLoaderClass = ESPLoader || window.ESPLoader || (window.esptooljs && window.esptooljs.ESPLoader);
+                        return ESPLoaderClass && ESPLoaderClass.prototype && typeof ESPLoaderClass.prototype.eraseFlash === 'function';
+                    },
+                    fix: 'eraseFlash方法不存在'
+                },
+                {
+                    name: 'ESP32SeriesDownloader类存在',
+                    test: () => typeof ESP32SeriesDownloader !== 'undefined',
+                    fix: 'ESP32SeriesDownloader类未加载'
+                }
+            ];
+            
+            const resultsDiv = document.getElementById('apiChecks');
+            resultsDiv.innerHTML = '';
+            
+            let passCount = 0;
+            let totalCount = checks.length;
+            
+            checks.forEach(check => {
+                const result = document.createElement('div');
+                const passed = check.test();
+                
+                result.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                result.innerHTML = `
+                    <strong>${check.name}:</strong> 
+                    ${passed ? '✅ 通过' : '❌ 失败'} 
+                    ${!passed ? `<br><small>修复建议: ${check.fix}</small>` : ''}
+                `;
+                
+                resultsDiv.appendChild(result);
+                
+                if (passed) {
+                    passCount++;
+                    log(`✅ ${check.name}: 通过`, 'pass');
+                } else {
+                    log(`❌ ${check.name}: 失败 - ${check.fix}`, 'fail');
+                }
+            });
+            
+            const summary = document.createElement('div');
+            summary.className = `test-result ${passCount === totalCount ? 'pass' : 'fail'}`;
+            summary.innerHTML = `<strong>总结: ${passCount}/${totalCount} 项检查通过</strong>`;
+            resultsDiv.appendChild(summary);
+            
+            return passCount === totalCount;
+        }
+        
+        // 模拟连接测试
+        async function testConnection() {
+            log('开始ESP32连接测试...', 'info');
+            
+            try {
+                // 检查Web Serial API支持
+                if (!navigator.serial) {
+                    throw new Error('浏览器不支持Web Serial API，请使用Chrome等支持的浏览器');
+                }
+                
+                log('✅ Web Serial API支持检查通过', 'pass');
+                
+                // 这里只是模拟测试，不实际连接设备
+                log('⚠️ 注意：这是模拟测试，实际连接需要选择串口设备', 'info');
+                
+                const resultsDiv = document.getElementById('connectionResults');
+                resultsDiv.innerHTML = `
+                    <div class="test-result pass">
+                        <strong>连接测试环境验证通过</strong><br>
+                        可以进行实际的ESP32设备连接测试
+                    </div>
+                `;
+                
+            } catch (error) {
+                log(`❌ 连接测试失败: ${error.message}`, 'fail');
+                
+                const resultsDiv = document.getElementById('connectionResults');
+                resultsDiv.innerHTML = `
+                    <div class="test-result fail">
+                        <strong>连接测试失败</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // API兼容性验证
+        function testAPICompatibility() {
+            log('开始API兼容性验证...', 'info');
+            
+            const isCompatible = checkAPICompatibility();
+            
+            if (isCompatible) {
+                log('🎉 API兼容性验证通过！ESP32SeriesDownloader已正确修复', 'pass');
+            } else {
+                log('❌ API兼容性验证失败，需要进一步修复', 'fail');
+            }
+        }
+        
+        // 页面加载时自动运行检查
+        window.addEventListener('load', () => {
+            log('页面加载完成，开始自动检查...', 'info');
+            setTimeout(() => {
+                checkAPICompatibility();
+            }, 1000);
+        });
+        
+        // 检查修复状态
+        function checkFixStatus() {
+            const fixes = [
+                {
+                    name: 'flashData → writeFlash',
+                    check: () => !ESP32SeriesDownloader.prototype.downloadFirmware.toString().includes('flashData'),
+                    description: '已修复：使用writeFlash替代不存在的flashData方法'
+                },
+                {
+                    name: 'loadStub → runStub',
+                    check: () => ESP32SeriesDownloader.prototype.downloadFirmware.toString().includes('runStub'),
+                    description: '已修复：使用runStub替代不存在的loadStub方法'
+                },
+                {
+                    name: 'setBaudRate → changeBaud',
+                    check: () => ESP32SeriesDownloader.prototype.downloadFirmware.toString().includes('changeBaud'),
+                    description: '已修复：使用changeBaud替代不存在的setBaudRate方法'
+                },
+                {
+                    name: '添加了ui8ToBstr辅助方法',
+                    check: () => typeof ESP32SeriesDownloader.prototype.ui8ToBstr === 'function',
+                    description: '已修复：添加了数据格式转换方法'
+                },
+                {
+                    name: '添加了after调用',
+                    check: () => ESP32SeriesDownloader.prototype.downloadFirmware.toString().includes('after'),
+                    description: '已修复：在下载完成后调用after方法'
+                }
+            ];
+            
+            log('=== ESP32SeriesDownloader修复状态检查 ===', 'info');
+            fixes.forEach(fix => {
+                const status = fix.check();
+                log(`${status ? '✅' : '❌'} ${fix.name}: ${fix.description}`, status ? 'pass' : 'fail');
+            });
+            
+            return fixes.every(fix => fix.check());
+        }
+        
+        // 页面加载后检查修复状态
+        setTimeout(() => {
+            checkFixStatus();
+        }, 2000);
+    </script>
+</body>
+</html> 

@@ -782,29 +782,85 @@
     <script src="i18n/loader.js"></script>
     
     <!-- 引入esptool-js用于ESP32系列支持 -->
-    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    <script src="third_party/esptool-js-umd.bundle.js" onerror="loadEspToolJsFromCDN()"></script>
     <script>
-        // 检查UMD版本是否正确加载
-        if (typeof esptooljs !== 'undefined') {
-            console.log('✅ esptooljs UMD模块已加载');
-            console.log('esptooljs 内容:', Object.keys(esptooljs));
+        // 备用加载函数
+        function loadEspToolJsFromCDN() {
+            console.warn('本地esptool-js加载失败，尝试从CDN加载...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/esptool-js@latest/bundle.js';
+            script.onload = function() {
+                console.log('✅ 从CDN成功加载esptool-js');
+                // CDN版本可能直接设置全局ESPLoader
+                if (typeof ESPLoader !== 'undefined') {
+                    window.ESPLoader = ESPLoader;
+                    window.dispatchEvent(new CustomEvent('esploader-ready'));
+                }
+            };
+            script.onerror = function() {
+                console.error('❌ CDN esptool-js也加载失败');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    <script>
+        // 等待模块加载完成
+        function waitForEspToolJs() {
+            let attempts = 0;
+            const maxAttempts = 100; // 10秒超时
             
-            // 将ESPLoader设置为全局变量
-            window.ESPLoader = esptooljs.ESPLoader;
+            const checkAndInit = () => {
+                attempts++;
+                
+                // 检查UMD版本是否正确加载
+                if (typeof esptooljs !== 'undefined') {
+                    console.log('✅ esptooljs UMD模块已加载');
+                    console.log('esptooljs 内容:', Object.keys(esptooljs));
+                    
+                    // 将ESPLoader设置为全局变量
+                    if (esptooljs.ESPLoader && typeof esptooljs.ESPLoader === 'function') {
+                        window.ESPLoader = esptooljs.ESPLoader;
+                        console.log('✅ ESPLoader 已加载到全局变量');
+                        console.log('ESPLoader 类型:', typeof window.ESPLoader);
+                        
+                        // 确保ESPLoader可用后再发送事件
+                        window.dispatchEvent(new CustomEvent('esploader-ready'));
+                        return true;
+                    } else {
+                        console.error('❌ esptooljs.ESPLoader 不存在或不是函数');
+                        console.log('esptooljs.ESPLoader 类型:', typeof esptooljs.ESPLoader);
+                    }
+                }
+                
+                if (attempts >= maxAttempts) {
+                    console.error('❌ esptool-js 加载超时');
+                    console.error('当前状态:');
+                    console.error('- esptooljs 类型:', typeof esptooljs);
+                    console.error('- window.ESPLoader 类型:', typeof window.ESPLoader);
+                    return false;
+                }
+                
+                // 继续等待
+                setTimeout(checkAndInit, 100);
+                return false;
+            };
             
-            if (window.ESPLoader) {
-                console.log('✅ ESPLoader 已加载到全局变量');
-                window.dispatchEvent(new CustomEvent('esploader-ready'));
-            } else {
-                console.error('❌ 无法找到 ESPLoader 导出');
-            }
-        } else {
-            console.error('❌ esptooljs UMD模块未加载');
+            return checkAndInit();
+        }
+        
+        // 立即检查，如果失败则开始等待
+        if (!waitForEspToolJs()) {
+            console.log('esptool-js 尚未加载，等待中...');
         }
     </script>
     
     <!-- 下载器相关文件 -->
+    <!-- ESP协议复用模块 -->
+    <script src="esp-protocol-reuse.js"></script>
+    
+    <!-- 下载器脚本 -->
     <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32-simple-downloader.js"></script>
     <script src="downloaders/esp32-series-downloader.js"></script>
     <script src="downloaders/downloader-manager.js"></script>
     
@@ -997,8 +1053,26 @@
                 
                 window.addEventListener('esploader-ready', onReady);
                 
-                // 也检查是否已经加载
-                if (typeof ESPLoader !== 'undefined') {
+                // 增强检查逻辑 - 检查多个可能的位置
+                const checkAvailability = () => {
+                    if (typeof ESPLoader !== 'undefined' && typeof ESPLoader === 'function') {
+                        return true;
+                    }
+                    if (typeof window.ESPLoader !== 'undefined' && typeof window.ESPLoader === 'function') {
+                        return true;
+                    }
+                    if (typeof window.esptooljs !== 'undefined' && 
+                        window.esptooljs.ESPLoader && 
+                        typeof window.esptooljs.ESPLoader === 'function') {
+                        // 设置全局引用
+                        window.ESPLoader = window.esptooljs.ESPLoader;
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // 立即检查是否已经加载
+                if (checkAvailability()) {
                     window.removeEventListener('esploader-ready', onReady);
                     console.log('✅ esptool-js 已经加载');
                     resolve(true);
@@ -1008,9 +1082,25 @@
                 // 10秒超时
                 setTimeout(() => {
                     window.removeEventListener('esploader-ready', onReady);
-                    console.error('❌ esptool-js 加载超时 - 可能是网络问题或文件损坏');
-                    console.error('请检查: 1. 网络连接 2. third_party/esptool-js.bundle.js 文件是否存在 3. 浏览器是否支持ES6模块');
-                    resolve(false);
+                    
+                    // 超时前再次检查
+                    if (checkAvailability()) {
+                        console.log('✅ esptool-js 延迟加载成功');
+                        resolve(true);
+                    } else {
+                        console.error('❌ esptool-js 加载超时');
+                        console.error('检查状态:');
+                        console.error('- typeof ESPLoader:', typeof ESPLoader);
+                        console.error('- typeof window.ESPLoader:', typeof window.ESPLoader);
+                        console.error('- typeof window.esptooljs:', typeof window.esptooljs);
+                        
+                        if (typeof window.esptooljs !== 'undefined') {
+                            console.error('- esptooljs keys:', Object.keys(window.esptooljs));
+                        }
+                        
+                        console.error('解决方案: 1. 刷新页面 2. 检查网络 3. 确认文件完整性');
+                        resolve(false);
+                    }
                 }, 10000);
             });
         }

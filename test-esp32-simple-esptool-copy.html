@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 Simple 下载器测试 - esptool-js 复制实现</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #log { 
+            border: 1px solid #ccc; 
+            height: 400px; 
+            overflow-y: scroll; 
+            padding: 10px; 
+            white-space: pre-wrap; 
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button { 
+            margin: 5px; 
+            padding: 10px 15px; 
+            font-size: 14px;
+        }
+        .status { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>ESP32 Simple 下载器测试</h1>
+    <p>基于 esptool-js 的完全复制实现</p>
+    
+    <div class="status info">
+        <strong>使用说明：</strong><br>
+        1. 确保ESP32设备已连接到电脑<br>
+        2. 让ESP32进入下载模式：按住BOOT键 → 按下RST键 → 释放RST键 → 释放BOOT键<br>
+        3. 点击"连接串口"选择ESP32设备<br>
+        4. 点击"测试连接"开始测试
+    </div>
+    
+    <div id="status" class="status">未连接</div>
+    
+    <div>
+        <button onclick="connectSerial()">连接串口</button>
+        <button onclick="testConnection()" id="testBtn" disabled>测试连接</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div id="log"></div>
+
+    <!-- 加载依赖 -->
+    <script src="web_serial/downloaders/base-downloader.js"></script>
+    <script src="web_serial/esp-protocol-reuse.js"></script>
+    <script src="web_serial/downloaders/esp32-simple-downloader.js"></script>
+
+    <script>
+        let port = null;
+        let downloader = null;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        async function connectSerial() {
+            try {
+                setStatus('正在请求串口权限...', 'info');
+                log('请求串口连接...');
+                
+                port = await navigator.serial.requestPort();
+                await port.open({ 
+                    baudRate: 115200,
+                    dataBits: 8,
+                    stopBits: 1,
+                    parity: 'none',
+                    flowControl: 'none'
+                });
+                
+                setStatus('串口已连接', 'success');
+                log('串口连接成功');
+                document.getElementById('testBtn').disabled = false;
+                
+                // 初始化下载器
+                downloader = new ESP32SimpleDownloader(port, {
+                    debug: true,
+                    logger: {
+                        log: log,
+                        error: log,
+                        info: log,
+                        debug: log
+                    }
+                });
+                
+                log('下载器已初始化');
+                
+            } catch (error) {
+                setStatus(`连接失败: ${error.message}`, 'error');
+                log(`串口连接失败: ${error.message}`);
+            }
+        }
+
+        async function testConnection() {
+            if (!downloader) {
+                log('请先连接串口');
+                return;
+            }
+
+            try {
+                setStatus('正在测试连接...', 'info');
+                log('=== 开始连接测试 ===');
+                
+                // 测试连接
+                await downloader.connect();
+                
+                setStatus('连接测试成功！', 'success');
+                log('=== 连接测试完成 ===');
+                
+            } catch (error) {
+                setStatus(`连接测试失败: ${error.message}`, 'error');
+                log(`连接测试失败: ${error.message}`);
+                log('=== 连接测试失败 ===');
+            }
+        }
+
+        // 页面加载完成后的提示
+        window.onload = function() {
+            if (!navigator.serial) {
+                setStatus('浏览器不支持 Web Serial API', 'error');
+                log('错误: 当前浏览器不支持 Web Serial API');
+                log('请使用 Chrome、Edge 等支持的浏览器');
+            } else {
+                log('浏览器支持 Web Serial API');
+                log('准备就绪，可以开始测试');
+            }
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Simple Downloader 调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .log-area {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .debug-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .debug-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .info-panel {
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP32 Simple Downloader 调试</h1>
+        
+        <div class="section">
+            <h3>模块状态检查</h3>
+            <div id="moduleStatus" class="status warning">检查中...</div>
+            <button onclick="checkModules()">重新检查模块</button>
+        </div>
+
+        <div class="section">
+            <h3>串口连接</h3>
+            <div class="debug-controls">
+                <button id="connectBtn" onclick="connectSerial()">连接串口</button>
+                <button id="disconnectBtn" onclick="disconnectSerial()" disabled>断开连接</button>
+                <div class="debug-toggle">
+                    <input type="checkbox" id="debugMode" checked>
+                    <label for="debugMode">调试模式</label>
+                </div>
+            </div>
+            <div id="connectionStatus" class="status warning">未连接</div>
+            
+            <!-- 连接信息面板 -->
+            <div id="connectionInfo" class="info-panel" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">连接状态:</span>
+                    <span class="info-value" id="infoConnected">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">芯片类型:</span>
+                    <span class="info-value" id="infoChipType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">芯片Magic值:</span>
+                    <span class="info-value" id="infoChipMagic">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>ESP32下载器测试</h3>
+            <button id="testConnectionBtn" onclick="testConnection()" disabled>连接并检测芯片</button>
+            <button id="detectChipBtn" onclick="detectChip()" disabled>仅检测芯片</button>
+            <button id="readRegBtn" onclick="readRegister()" disabled>读取寄存器</button>
+            <button id="statusBtn" onclick="showStatus()" disabled>显示状态</button>
+            <div id="testStatus" class="status warning">等待测试</div>
+        </div>
+
+        <div class="section">
+            <h3>调试日志</h3>
+            <button onclick="clearLog()">清空日志</button>
+            <div id="logArea" class="log-area"></div>
+        </div>
+    </div>
+
+    <!-- 只需要加载ESP32SimpleDownloader -->
+    <script src="downloaders/esp32-simple-downloader.js"></script>
+
+    <script>
+        let serialPort = null;
+        let downloader = null;
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : 
+                             type === 'warning' ? 'warning' : 
+                             type === 'success' ? 'success' : 'info';
+            
+            logArea.innerHTML += `<span class="${colorClass}">[${timestamp}] ${message}</span>\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '';
+        }
+
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        // 更新连接信息面板
+        function updateConnectionInfo() {
+            if (!downloader) {
+                document.getElementById('connectionInfo').style.display = 'none';
+                return;
+            }
+
+            const status = downloader.getConnectionStatus();
+            document.getElementById('connectionInfo').style.display = 'block';
+            document.getElementById('infoConnected').textContent = status.isConnected ? '已连接' : '未连接';
+            document.getElementById('infoChipType').textContent = status.chipType || '-';
+            document.getElementById('infoChipMagic').textContent = status.chipMagicValue ? `0x${status.chipMagicValue}` : '-';
+        }
+
+        // 更新按钮状态
+        function updateButtonStates() {
+            const connected = downloader && downloader.getConnectionStatus().isConnected;
+            const chipDetected = downloader && downloader.getConnectionStatus().chipType;
+
+            document.getElementById('testConnectionBtn').disabled = !downloader;
+            document.getElementById('detectChipBtn').disabled = !connected;
+            document.getElementById('readRegBtn').disabled = !connected;
+            document.getElementById('statusBtn').disabled = !downloader;
+        }
+
+        // 检查模块状态
+        function checkModules() {
+            log('检查模块状态...');
+            
+            try {
+                // 检查ESP32SimpleDownloader
+                if (typeof window.ESP32SimpleDownloader === 'undefined') {
+                    throw new Error('ESP32SimpleDownloader模块未找到');
+                }
+                
+                // 检查Web Serial API支持
+                if (!navigator.serial) {
+                    throw new Error('浏览器不支持Web Serial API');
+                }
+                
+                updateStatus('moduleStatus', '所有模块加载正常', 'success');
+                log('✓ ESP32SimpleDownloader模块已加载', 'success');
+                log('✓ Web Serial API支持正常', 'success');
+                
+            } catch (error) {
+                updateStatus('moduleStatus', `模块检查失败: ${error.message}`, 'error');
+                log(`✗ 模块检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 连接串口
+        async function connectSerial() {
+            try {
+                log('请选择串口...');
+                serialPort = await navigator.serial.requestPort();
+                
+                if (!serialPort) {
+                    throw new Error('未选择串口');
+                }
+                
+                log('串口已选择，创建下载器实例...');
+                const debugMode = document.getElementById('debugMode').checked;
+                downloader = new ESP32SimpleDownloader(serialPort, { debug: debugMode });
+                
+                updateStatus('connectionStatus', '串口已连接', 'success');
+                log('✓ 串口连接成功', 'success');
+                
+                // 更新按钮状态
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                updateButtonStates();
+                updateConnectionInfo();
+                
+            } catch (error) {
+                updateStatus('connectionStatus', `连接失败: ${error.message}`, 'error');
+                log(`✗ 串口连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 断开连接
+        async function disconnectSerial() {
+            try {
+                if (downloader) {
+                    await downloader.disconnect();
+                    downloader = null;
+                }
+                
+                if (serialPort && serialPort.readable) {
+                    await serialPort.close();
+                }
+                
+                serialPort = null;
+                
+                updateStatus('connectionStatus', '已断开连接', 'warning');
+                updateStatus('testStatus', '等待测试', 'warning');
+                log('✓ 串口已断开', 'success');
+                
+                // 更新按钮状态
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                updateButtonStates();
+                updateConnectionInfo();
+                
+            } catch (error) {
+                log(`✗ 断开连接时出错: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试连接（完整的连接和检测过程）
+        async function testConnection() {
+            if (!downloader) {
+                log('✗ 下载器未初始化', 'error');
+                return;
+            }
+            
+            try {
+                log('开始连接和芯片检测...');
+                updateStatus('testStatus', '正在连接和检测芯片...', 'warning');
+                
+                const result = await downloader.connectAndDetect();
+                
+                if (result.success) {
+                    updateStatus('testStatus', `连接成功 - 芯片: ${result.chipType}`, 'success');
+                    log(`✓ 连接和检测成功，芯片: ${result.chipType}`, 'success');
+                } else {
+                    updateStatus('testStatus', `连接失败: ${result.error}`, 'error');
+                    log(`✗ 连接和检测失败: ${result.error}`, 'error');
+                }
+                
+                updateButtonStates();
+                updateConnectionInfo();
+                
+            } catch (error) {
+                updateStatus('testStatus', `测试异常: ${error.message}`, 'error');
+                log(`✗ 连接测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 检测芯片（如果已连接，直接检测；如果未连接，会自动连接）
+        async function detectChip() {
+            if (!downloader) {
+                log('✗ 下载器未初始化', 'error');
+                return;
+            }
+            
+            try {
+                const status = downloader.getConnectionStatus();
+                
+                if (status.chipType) {
+                    log(`芯片已检测过: ${status.chipType}`, 'info');
+                    updateStatus('testStatus', `已知芯片: ${status.chipType}`, 'success');
+                    return;
+                }
+                
+                if (!status.isConnected) {
+                    log('设备未连接，先进行连接...');
+                    await downloader.connect();
+                    log('✓ 设备连接成功', 'success');
+                }
+                
+                log('开始芯片检测...');
+                const chipType = await downloader.detectChip();
+                log(`✓ 芯片检测成功: ${chipType}`, 'success');
+                updateStatus('testStatus', `芯片检测成功: ${chipType}`, 'success');
+                
+                updateConnectionInfo();
+                
+            } catch (error) {
+                log(`✗ 芯片检测失败: ${error.message}`, 'error');
+                updateStatus('testStatus', `芯片检测失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 读取寄存器测试
+        async function readRegister() {
+            if (!downloader) {
+                log('✗ 下载器未初始化', 'error');
+                return;
+            }
+            
+            const status = downloader.getConnectionStatus();
+            if (!status.isConnected) {
+                log('✗ 设备未连接', 'error');
+                return;
+            }
+            
+            try {
+                log('读取芯片版本寄存器...');
+                const regValue = await downloader.readReg(0x3ff00058); // CHIP_VER_REG
+                log(`✓ 寄存器读取成功: 0x${regValue.toString(16)}`, 'success');
+                
+                const regValue2 = await downloader.readReg(0x3ff5a000); // GPIO_BASE_REG
+                log(`✓ GPIO基址寄存器: 0x${regValue2.toString(16)}`, 'success');
+                
+            } catch (error) {
+                log(`✗ 寄存器读取失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示状态信息
+        function showStatus() {
+            if (!downloader) {
+                log('✗ 下载器未初始化', 'error');
+                return;
+            }
+            
+            const status = downloader.getConnectionStatus();
+            log('=== 当前状态 ===', 'info');
+            log(`连接状态: ${status.isConnected ? '已连接' : '未连接'}`, 'info');
+            log(`芯片类型: ${status.chipType || '未知'}`, 'info');
+            log(`芯片Magic值: ${status.chipMagicValue ? '0x' + status.chipMagicValue : '未读取'}`, 'info');
+            log('===============', 'info');
+        }
+
+        // 页面加载时检查模块
+        window.addEventListener('DOMContentLoaded', checkModules);
+    </script>
+</body>
+</html> 
