@@ -364,7 +364,10 @@
                                 <select id="deviceSelect">
                                     <option value="T5AI">T5AI</option>
                                     <option value="T3">T3</option>
-                                    <option value="ESP32-Series">ESP32-Series (自动检测)</option>
+                                    <option value="ESP32-Series" selected>ESP32-Series (自动检测)</option>
+                                    <option value="ESP32">ESP32 (专用)</option>
+                                    <option value="ESP32C3">ESP32-C3 (专用)</option>
+                                    <option value="ESP32S3">ESP32-S3 (专用)</option>
                                     <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
                                     <!-- <option value="T2">T2</option> -->
                                     <!-- <option value="BK7231N">BK7231N</option> -->
@@ -396,6 +399,14 @@
                         <button id="stopDownloadBtn" class="btn btn-secondary" disabled>
                             <span class="icon">⏹️</span>
                             <span data-i18n="stop_download">停止下载</span>
+                        </button>
+                        <button id="testConnectBtn" class="btn btn-secondary" style="display: none;">
+                            <span class="icon">🔧</span>
+                            <span>测试连接</span>
+                        </button>
+                        <button id="detectChipBtn" class="btn btn-secondary" disabled style="display: none;">
+                            <span class="icon">🔍</span>
+                            <span>检测芯片</span>
                         </button>
                     </div>
 
@@ -781,7 +792,14 @@
     <!-- 多语言配置文件 -->
     <script src="i18n/loader.js"></script>
     
+    <!-- 主要功能脚本 -->
+    <script src="script-clean.js"></script>
+    
+    <!-- ESP32 esptool-js 库 -->
+    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    
     <!-- 下载器脚本 -->
+    <script src="flash-downloader.js"></script>
     <script src="downloaders/base-downloader.js"></script>
     <script src="downloaders/esp32-esptool-js-wrapper.js"></script>
     <script src="downloaders/downloader-manager.js"></script>
@@ -1004,6 +1022,276 @@
             const newLang = event.detail.language;
             updateLanguageDisplay(newLang);
             console.log('主页语言已切换到:', newLang);
+        });
+        
+        // ESP32专用固件下载管理器
+        // 不影响现有T5AI/T3逻辑，专注于ESP32优化
+        class ESP32FlashManager {
+            constructor() {
+                this.downloader = null;
+                this.isConnected = false;
+                this.chipInfo = null;
+                this.serialPort = null;
+                this.isDownloading = false;
+                
+                // 只在固件下载Tab页面初始化
+                if (document.getElementById('flashTab')) {
+                    this.initializeESP32Events();
+                }
+            }
+            
+            initializeESP32Events() {
+                // 只处理ESP32相关的事件，不影响T5AI/T3
+                const deviceSelect = document.getElementById('deviceSelect');
+                if (!deviceSelect) {
+                    console.error('deviceSelect element not found');
+                    return;
+                }
+                
+                // 监听设备选择变化
+                deviceSelect.addEventListener('change', (e) => {
+                    if (this.isESP32Device(e.target.value)) {
+                        this.enableESP32Features();
+                    } else {
+                        this.disableESP32Features();
+                    }
+                });
+                
+                // 添加测试连接按钮事件
+                const testConnectBtn = document.getElementById('testConnectBtn');
+                if (testConnectBtn) {
+                    testConnectBtn.addEventListener('click', () => {
+                        if (this.isESP32Device(deviceSelect.value)) {
+                            this.testESP32Connection();
+                        }
+                    });
+                }
+                
+                // 添加检测芯片按钮事件
+                const detectChipBtn = document.getElementById('detectChipBtn');
+                if (detectChipBtn) {
+                    detectChipBtn.addEventListener('click', () => {
+                        if (this.isESP32Device(deviceSelect.value)) {
+                            this.detectESP32Chip();
+                        }
+                    });
+                }
+                
+                // 初始状态检查
+                if (this.isESP32Device(deviceSelect.value)) {
+                    this.enableESP32Features();
+                }
+            }
+            
+            isESP32Device(deviceType) {
+                return ['ESP32-Series', 'ESP32', 'ESP32C3', 'ESP32S3'].includes(deviceType);
+            }
+            
+            enableESP32Features() {
+                // 显示ESP32专用按钮
+                const testConnectBtn = document.getElementById('testConnectBtn');
+                const detectChipBtn = document.getElementById('detectChipBtn');
+                
+                if (testConnectBtn) testConnectBtn.style.display = 'inline-block';
+                if (detectChipBtn) detectChipBtn.style.display = 'inline-block';
+                
+                this.logESP32('ESP32设备已选择，启用专用功能', 'info');
+            }
+            
+            disableESP32Features() {
+                // 隐藏ESP32专用按钮，不影响T5AI/T3
+                const testConnectBtn = document.getElementById('testConnectBtn');
+                const detectChipBtn = document.getElementById('detectChipBtn');
+                
+                if (testConnectBtn) testConnectBtn.style.display = 'none';
+                if (detectChipBtn) detectChipBtn.style.display = 'none';
+            }
+            
+            async testESP32Connection() {
+                try {
+                    this.logESP32('=== ESP32连接测试开始 ===', 'info');
+                    
+                    // 检查浏览器支持
+                    if (!('serial' in navigator)) {
+                        throw new Error('浏览器不支持Web Serial API');
+                    }
+                    
+                    this.logESP32('✅ 浏览器支持Web Serial API', 'success');
+                    
+                    // 检查esptool-js包装器
+                    if (typeof ESP32EsptoolJSWrapper === 'undefined') {
+                        throw new Error('ESP32EsptoolJSWrapper未加载');
+                    }
+                    
+                    this.logESP32('✅ ESP32EsptoolJSWrapper已加载', 'success');
+                    
+                    // 请求串口连接
+                    this.logESP32('请选择ESP32设备串口...', 'info');
+                    const port = await navigator.serial.requestPort();
+                    this.serialPort = port;
+                    
+                    this.logESP32('✅ 串口选择成功', 'success');
+                    
+                    // 创建ESP32下载器实例
+                    this.downloader = new ESP32EsptoolJSWrapper(port, {
+                        log: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'debug'),
+                        error: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'error'),
+                        info: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'info')
+                    });
+                    
+                    this.logESP32('✅ ESP32EsptoolJSWrapper实例创建成功', 'success');
+                    
+                    // 初始化
+                    const initialized = await this.downloader.initialize();
+                    if (!initialized) {
+                        throw new Error('ESP32包装器初始化失败');
+                    }
+                    
+                    this.logESP32('✅ ESP32包装器初始化成功', 'success');
+                    
+                    // 连接测试
+                    const connected = await this.downloader.connect();
+                    if (connected) {
+                        this.isConnected = true;
+                        this.chipInfo = this.downloader.getChipInfo();
+                        
+                        this.logESP32('✅ ESP32设备连接成功!', 'success');
+                        
+                        if (this.chipInfo) {
+                            this.logESP32(`芯片信息: ${JSON.stringify(this.chipInfo)}`, 'info');
+                        }
+                        
+                        // 启用检测芯片按钮
+                        const detectBtn = document.getElementById('detectChipBtn');
+                        if (detectBtn) detectBtn.disabled = false;
+                        
+                        this.logESP32('=== ESP32连接测试完成 ===', 'success');
+                        
+                    } else {
+                        throw new Error('ESP32设备连接失败');
+                    }
+                    
+                } catch (error) {
+                    this.logESP32(`连接测试失败: ${error.message}`, 'error');
+                    this.logESP32('💡 提示: 请确保ESP32已连接并进入下载模式（按住BOOT按钮重启）', 'info');
+                }
+            }
+            
+            async detectESP32Chip() {
+                try {
+                    this.logESP32('=== ESP32芯片检测开始 ===', 'info');
+                    
+                    if (!this.isConnected || !this.downloader) {
+                        this.logESP32('请先进行连接测试', 'warning');
+                        return;
+                    }
+                    
+                    // 同步通信测试
+                    this.logESP32('测试设备同步...', 'debug');
+                    await this.downloader.sync();
+                    this.logESP32('✅ 设备同步成功', 'success');
+                    
+                    // 读取芯片ID
+                    this.logESP32('读取芯片ID...', 'debug');
+                    const chipId = await this.downloader.getChipId();
+                    if (chipId) {
+                        this.logESP32(`芯片ID: 0x${chipId.toString(16)}`, 'success');
+                    }
+                    
+                    // 尝试读取Flash ID（可能失败，这是正常的）
+                    this.logESP32('尝试读取Flash ID...', 'debug');
+                    try {
+                        const flashId = await this.downloader.getFlashId();
+                        if (flashId) {
+                            this.logESP32(`Flash ID: 0x${flashId.toString(16)}`, 'success');
+                        }
+                    } catch (e) {
+                        this.logESP32(`Flash ID读取失败（ROM模式下正常）: ${e.message}`, 'warning');
+                    }
+                    
+                    // 获取设备状态
+                    const status = this.downloader.getDeviceStatus();
+                    this.logESP32(`设备状态: 连接=${status.isConnected}, loader就绪=${status.espLoaderReady}`, 'info');
+                    
+                    this.logESP32('=== ESP32芯片检测完成 ===', 'success');
+                    
+                } catch (error) {
+                    this.logESP32(`芯片检测失败: ${error.message}`, 'error');
+                }
+            }
+            
+            logESP32(message, type = 'info') {
+                try {
+                    // 只在调试模式下显示详细日志
+                    const debugModeCheckbox = document.getElementById('flashDebugMode');
+                    const debugMode = debugModeCheckbox ? debugModeCheckbox.checked : false;
+                    
+                    if (!debugMode && type === 'debug') {
+                        return; // 非调试模式下不显示debug日志
+                    }
+                    
+                    const logDisplay = document.getElementById('flashLogDisplay');
+                    if (!logDisplay) {
+                        console.log('[ESP32]', message); // 备用日志
+                        return;
+                    }
+                    
+                    const timestamp = new Date().toLocaleTimeString();
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                
+                let icon = '📝';
+                switch (type) {
+                    case 'success': icon = '✅'; break;
+                    case 'error': icon = '❌'; break;
+                    case 'warning': icon = '⚠️'; break;
+                    case 'debug': icon = '🔍'; break;
+                    case 'info': 
+                    default: icon = 'ℹ️'; break;
+                }
+                
+                logEntry.innerHTML = 
+                    '<span class="log-time">[' + timestamp + ']</span>' +
+                    '<span class="log-icon">' + icon + '</span>' +
+                    '<span class="log-message">' + message + '</span>';
+                
+                // 清除占位符
+                if (logDisplay.querySelector('.placeholder')) {
+                    logDisplay.innerHTML = '';
+                }
+                
+                logDisplay.appendChild(logEntry);
+                
+                // 自动滚动
+                const autoScrollCheckbox = document.getElementById('flashAutoScroll');
+                if (autoScrollCheckbox && autoScrollCheckbox.checked) {
+                    logDisplay.scrollTop = logDisplay.scrollHeight;
+                }
+                } catch (error) {
+                    console.error('logESP32 error:', error);
+                    console.log('[ESP32]', message); // 备用日志
+                }
+            }
+        }
+        
+        // 初始化ESP32管理器（不影响现有初始化流程）
+        window.addEventListener('DOMContentLoaded', () => {
+            // 确保esptool-js库加载完成后再初始化ESP32管理器
+            const waitForEsptoolJs = () => {
+                if (typeof window.esptooljs !== 'undefined' && window.esptooljs.ESPLoader) {
+                    if (document.getElementById('flashTab')) {
+                        window.esp32FlashManager = new ESP32FlashManager();
+                        console.log('ESP32固件下载管理器已初始化 (esptool-js已就绪)');
+                    }
+                } else {
+                    // 如果esptool-js还没加载完，等待一段时间再试
+                    setTimeout(waitForEsptoolJs, 100);
+                }
+            };
+            
+            // 延迟启动，确保其他脚本都加载完
+            setTimeout(waitForEsptoolJs, 500);
         });
     </script>
 </body>

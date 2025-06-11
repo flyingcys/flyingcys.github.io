@@ -74,12 +74,12 @@ class DownloaderManager {
                 downloaderClass: 'ESP32EsptoolJSWrapper'
             },
             'ESP32-Legacy': { 
-                displayName: 'ESP32-Legacy (旧版实现)',
-                downloader: 'ESP32SeriesDownloader',
+                displayName: 'ESP32-Legacy (已删除)',
+                downloader: 'ESP32EsptoolJSWrapper',
                 order: 9,
-                description: '旧版ESP32下载器（包含重复实现，不推荐使用）',
-                scriptPath: './downloaders/esp32-series-downloader.js',
-                downloaderClass: 'ESP32SeriesDownloader'
+                description: '已删除旧版实现，现在统一使用esptool-js包装器',
+                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                downloaderClass: 'ESP32EsptoolJSWrapper'
             }
         };
         

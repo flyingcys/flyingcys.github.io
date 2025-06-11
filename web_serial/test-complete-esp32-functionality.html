@@ -125,7 +125,7 @@
 <body>
     <div class="header">
         <h1>🚀 ESP32 完整功能测试套件</h1>
-        <p>对比 ESP32SeriesDownloader vs esptool-js 功能实现</p>
+        <p>验证 ESP32EsptoolJSWrapper vs esptool-js 功能实现</p>
     </div>
     
     <!-- 连接控制面板 -->
@@ -134,6 +134,7 @@
         <div class="test-grid">
             <div>
                 <button id="connectBtn">连接ESP32设备</button>
+                <button id="mockTestBtn">🧪 模拟测试（无设备）</button>
                 <button id="disconnectBtn" disabled>断开连接</button>
                 <button id="detectChipBtn" disabled>重新检测芯片</button>
             </div>
@@ -268,11 +269,87 @@
         // === 详细调试信息开始 ===
         console.log('🔍 [DEBUG] Script starting...');
         console.log('🔍 [DEBUG] navigator.serial available:', !!navigator.serial);
-        console.log('🔍 [DEBUG] window.ESP32SeriesDownloader available:', !!window.ESP32SeriesDownloader);
+        console.log('🔍 [DEBUG] window.ESP32EsptoolJSWrapper available:', !!window.ESP32EsptoolJSWrapper);
         console.log('🔍 [DEBUG] window.BaseDownloader available:', !!window.BaseDownloader);
         
+        // ========== 完整的esptool-js调试系统 ==========
+        console.log('🔍 [DEBUG] ========== esptool-js 完整调试开始 ==========');
+        
+        // 1. 基础库检查
+        console.log('🔍 [DEBUG] window.esptooljs exists:', !!window.esptooljs);
+        if (window.esptooljs) {
+            console.log('🔍 [DEBUG] esptooljs type:', typeof window.esptooljs);
+            console.log('🔍 [DEBUG] esptooljs keys:', Object.keys(window.esptooljs));
+            
+            // 2. 核心类检查
+            const coreClasses = ['ESPLoader', 'Transport', 'ClassicReset', 'HardReset', 'UsbJtagSerialReset', 'CustomReset'];
+            coreClasses.forEach(className => {
+                const classRef = window.esptooljs[className];
+                console.log(`🔍 [DEBUG] ${className}:`, {
+                    exists: !!classRef,
+                    type: typeof classRef,
+                    isConstructor: typeof classRef === 'function',
+                    prototype: classRef?.prototype ? Object.getOwnPropertyNames(classRef.prototype) : null
+                });
+            });
+            
+            // 3. 工具函数检查
+            const utilFunctions = ['validateCustomResetStringSequence', 'inflate', 'deflate'];
+            utilFunctions.forEach(funcName => {
+                console.log(`🔍 [DEBUG] ${funcName}:`, {
+                    exists: !!window.esptooljs[funcName],
+                    type: typeof window.esptooljs[funcName]
+                });
+            });
+            
+            // 4. 尝试构造ESPLoader测试
+            try {
+                console.log('🔍 [DEBUG] 测试 ESPLoader 构造...');
+                                 const mockTransport = {
+                     device: null,
+                     baudrate: 115200,
+                     connect: async () => {},
+                     disconnect: async () => {},
+                     write: async () => {},
+                     read: async function*() {},
+                     setRTS: async () => {},
+                     setDTR: async () => {},
+                     getInfo: () => "Mock Serial Port",
+                     waitForUnlock: async () => {},
+                     slip_writer: async () => {},
+                     slip_reader: async function*() {},
+                     checksum: () => 0,
+                     trace: false,
+                     traceLog: []
+                 };
+                
+                const testLoader = new window.esptooljs.ESPLoader({
+                    transport: mockTransport,
+                    baudrate: 115200,
+                    terminal: {
+                        clean: () => {},
+                        writeLine: (data) => console.log('[MOCK]', data),
+                        write: (data) => console.log('[MOCK]', data)
+                    },
+                    debugLogging: true
+                });
+                
+                console.log('✅ [DEBUG] ESPLoader 构造成功:', testLoader);
+                console.log('🔍 [DEBUG] ESPLoader methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(testLoader)));
+                
+            } catch (error) {
+                console.error('❌ [DEBUG] ESPLoader 构造失败:', error);
+                console.error('❌ [DEBUG] Error stack:', error.stack);
+            }
+            
+        } else {
+            console.error('❌ [DEBUG] esptool-js 未加载！');
+        }
+        
+        console.log('🔍 [DEBUG] ========== esptool-js 调试结束 ==========');
+        
         // 检查所有依赖
-        const requiredGlobals = ['ESP32SeriesDownloader', 'BaseDownloader'];
+        const requiredGlobals = ['ESP32EsptoolJSWrapper', 'BaseDownloader'];
         requiredGlobals.forEach(name => {
             if (window[name]) {
                 console.log(`✅ [DEBUG] ${name} loaded successfully`);
@@ -328,6 +405,13 @@
                         this.connect();
                     };
                     console.log('✅ [DEBUG] Connect button setup complete');
+                    
+                    // 模拟测试按钮
+                    document.getElementById('mockTestBtn').onclick = () => {
+                        console.log('🔍 [DEBUG] Mock test button clicked');
+                        this.runMockTest();
+                    };
+                    console.log('✅ [DEBUG] Mock test button setup complete');
                     
                     console.log('🔍 [DEBUG] Setting up disconnect button...');
                     document.getElementById('disconnectBtn').onclick = () => {
@@ -506,27 +590,26 @@
                         }
                     }
                     
-                    // 使用esptool-js标准连接流程
-                    console.log('🔍 [DEBUG] Creating esptool.js transport and loader...');
-                    const transport = new esptooljs.Transport(this.serialPort);
+                    // 使用ESP32EsptoolJSWrapper标准连接流程
+                    console.log('🔍 [DEBUG] Creating ESP32EsptoolJSWrapper...');
                     
-                    this.downloader = new esptooljs.ESPLoader(transport, 115200, {
+                    this.downloader = new ESP32EsptoolJSWrapper(this.serialPort, {
                         log: (msg) => this.log(`[esptool.js] ${msg}`, 'debug'),
                         debug: (msg) => this.log(`[esptool.js] ${msg}`, 'debug'),
                         error: (msg) => this.log(`[esptool.js] ${msg}`, 'error')
                     });
                     
-                    this.log('ESPLoader实例创建成功', 'success');
-                    console.log('✅ [DEBUG] ESPLoader instance created:', this.downloader);
+                    this.log('ESP32EsptoolJSWrapper实例创建成功', 'success');
+                    console.log('✅ [DEBUG] ESP32EsptoolJSWrapper instance created:', this.downloader);
                     
-                    // ✅ 使用esptool-js标准连接方法：connect() + detectChip()
+                    // ✅ 使用包装器的标准连接方法
                     const startTime = performance.now();
                     
-                    this.log('使用标准connect()方法连接...', 'info');
-                    await this.downloader.connect('default_reset', 7, true); // mode, attempts, detecting
+                    this.log('使用包装器connect()方法连接...', 'info');
+                    await this.downloader.connect();
                     
                     // 获取连接后的芯片实例
-                    this.chip = this.downloader.chip;
+                    this.chip = this.downloader.detectedChip;
                     
                     const connectTime = performance.now() - startTime;
                     
@@ -864,7 +947,7 @@
                     
                     // ClassicReset 构造器
                     try {
-                        if (typeof esptooljs.ClassicReset === 'function') {
+                        if (typeof window.esptooljs.ClassicReset === 'function') {
                             this.log('ClassicReset 构造器可用 ✓', 'success');
                         }
                     } catch (e) {
@@ -873,7 +956,7 @@
                     
                     // HardReset 构造器
                     try {
-                        if (typeof esptooljs.HardReset === 'function') {
+                        if (typeof window.esptooljs.HardReset === 'function') {
                             this.log('HardReset 构造器可用 ✓', 'success');
                         }
                     } catch (e) {
@@ -882,7 +965,7 @@
                     
                     // UsbJtagSerialReset 构造器
                     try {
-                        if (typeof esptooljs.UsbJtagSerialReset === 'function') {
+                        if (typeof window.esptooljs.UsbJtagSerialReset === 'function') {
                             this.log('UsbJtagSerialReset 构造器可用 ✓', 'success');
                         }
                     } catch (e) {
@@ -891,7 +974,7 @@
                     
                     // CustomReset 构造器
                     try {
-                        if (typeof esptooljs.CustomReset === 'function') {
+                        if (typeof window.esptooljs.CustomReset === 'function') {
                             this.log('CustomReset 构造器可用 ✓', 'success');
                         }
                     } catch (e) {
@@ -921,7 +1004,7 @@
                     validSequences.forEach(seq => {
                         try {
                             // ✅ 使用esptool-js的validateCustomResetStringSequence方法
-                            const isValid = esptooljs.validateCustomResetStringSequence(seq);
+                            const isValid = window.esptooljs.validateCustomResetStringSequence(seq);
                             if (!isValid) throw new Error(`序列验证失败: ${seq}`);
                             this.log(`序列验证通过: ${seq} ✓`, 'success');
                         } catch (e) {
@@ -1506,9 +1589,9 @@
                     // ✅ 测试esptool-js工具方法 - decodeBase64Data
                     this.log('测试 decodeBase64Data()...', 'debug');
                     try {
-                        if (typeof esptooljs.decodeBase64Data === 'function') {
+                        if (typeof window.esptooljs.decodeBase64Data === 'function') {
                             const testBase64 = 'SGVsbG8gV29ybGQ='; // "Hello World" in base64
-                            const decoded = esptooljs.decodeBase64Data(testBase64);
+                            const decoded = window.esptooljs.decodeBase64Data(testBase64);
                             this.log(`decodeBase64Data() 测试成功: ${new TextDecoder().decode(decoded)}`, 'success');
                         } else {
                             this.log('decodeBase64Data() 方法不可用', 'warning');
@@ -1520,10 +1603,10 @@
                     // ✅ 测试esptool-js工具方法 - getStubJsonByChipName
                     this.log('测试 getStubJsonByChipName()...', 'debug');
                     try {
-                        if (typeof esptooljs.getStubJsonByChipName === 'function') {
+                        if (typeof window.esptooljs.getStubJsonByChipName === 'function') {
                             // 测试获取当前芯片的Stub信息
                             const chipName = this.chip?.CHIP_NAME || 'ESP32';
-                            const stubInfo = await esptooljs.getStubJsonByChipName(chipName);
+                            const stubInfo = await window.esptooljs.getStubJsonByChipName(chipName);
                             if (stubInfo) {
                                 this.log(`getStubJsonByChipName() 成功，获取${chipName} Stub信息`, 'success');
                                 this.log(`Stub入口点: 0x${stubInfo.entry.toString(16)}`, 'debug');
@@ -1540,9 +1623,9 @@
                     // ✅ 测试esptool-js工具方法 - validateCustomResetStringSequence
                     this.log('测试 validateCustomResetStringSequence()...', 'debug');
                     try {
-                        if (typeof esptooljs.validateCustomResetStringSequence === 'function') {
+                        if (typeof window.esptooljs.validateCustomResetStringSequence === 'function') {
                             const testSequence = 'D0|R1|W100|D1|R0|W50|D0';
-                            const isValid = esptooljs.validateCustomResetStringSequence(testSequence);
+                            const isValid = window.esptooljs.validateCustomResetStringSequence(testSequence);
                             this.log(`validateCustomResetStringSequence() 测试: ${testSequence} -> ${isValid ? '有效' : '无效'}`, 'success');
                         } else {
                             this.log('validateCustomResetStringSequence() 方法不可用', 'warning');
@@ -1618,6 +1701,186 @@
                     
                 } catch (error) {
                     this.log(`断开连接失败: ${error.message}`, 'error');
+                }
+            }
+
+            async runMockTest() {
+                this.log('========== 开始模拟测试模式 ==========', 'info');
+                this.log('🧪 在没有ESP32设备的情况下测试所有功能', 'info');
+                
+                try {
+                    // 模拟连接
+                    this.log('🔍 模拟ESP32设备连接...', 'info');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // 创建完整的模拟包装器实例 - 不重复造轮子，复用现有方法
+                    this.downloader = {
+                        // 芯片信息
+                        detectedChip: {
+                            CHIP_NAME: 'ESP32-S3 (Mock)',
+                            getChipDescription: async () => 'ESP32-S3 Mock Device',
+                            getChipFeatures: async () => ['WiFi', 'BLE', 'PSRAM'],
+                            getCrystalFreq: async () => 40,
+                            readMac: async () => '24:0A:C4:XX:XX:XX'
+                        },
+                        
+                        // 基础连接状态
+                        isConnected: () => true,
+                        
+                        // ✅ 使用简单的模拟返回，不重新实现esptool-js功能
+                        sync: async () => [0xC0, new Uint8Array([0x00, 0x08])],
+                        readReg: async (addr) => 0x15122500, // 模拟ESP32芯片检测值
+                        writeReg: async () => {},
+                        flushInput: async () => {},
+                        readFlashId: async () => 0x001640EF,
+                        getFlashSize: async () => '8MB',
+                        
+                        // Flash操作 - 简单模拟响应
+                        flashBegin: async () => {},
+                        flashBlock: async () => {},
+                        flashFinish: async () => {},
+                        flashDeflBegin: async () => {},
+                        flashDeflBlock: async () => {},
+                        flashDeflFinish: async () => {},
+                        
+                        // 内存操作
+                        memBegin: async () => {},
+                        memBlock: async () => {},
+                        memFinish: async () => {},
+                        
+                        // 高级功能
+                        IS_STUB: false,
+                        _connectAttempt: async () => {},
+                        changeBaud: async () => {},
+                        softReset: async () => {},
+                        FLASH_WRITE_SIZE: 0x4000,
+                        
+                        // 工具方法 - 简单模拟，不重新实现
+                        _intToByteArray: () => [0x00, 0x01, 0x02, 0x03],
+                        _byteArrayToInt: () => 0x03020100,
+                        _shortToBytearray: () => [0x34, 0x12],
+                        _byteArrayToShort: () => 0x1234,
+                        _appendArray: () => new Uint8Array([1, 2, 3, 4]),
+                        checksum: () => 0xAB,
+                        toHex: () => "00 01 02 03",
+                        
+                        // 终端方法
+                        write: (msg) => this.log(`[Mock Terminal] ${msg}`, 'debug'),
+                        info: (msg) => this.log(`[Mock Info] ${msg}`, 'info'),
+                        debug: (msg) => this.log(`[Mock Debug] ${msg}`, 'debug'),
+                        error: (msg) => this.log(`[Mock Error] ${msg}`, 'error'),
+                        
+                        // 其他缺失的方法 - 简单模拟，不重新实现功能
+                        command: async () => [0x00, new Uint8Array([0x00, 0x00])],
+                        _sleep: async () => {},
+                        
+                        // 其他属性
+                        timeoutPerMb: () => 3000,
+                        CHIP_DETECT_MAGIC_REG_ADDR: 0x40001000
+                    };
+                    
+                    // 设置chip引用，指向detectedChip
+                    this.chip = this.downloader.detectedChip;
+                    
+                    this.log('✅ 模拟连接成功：ESP32-S3 (Mock)', 'success');
+                    this.updateStatus('已连接到模拟设备', 'success');
+                    
+                    // 显示模拟芯片信息
+                    document.getElementById('chipInfo').style.display = 'block';
+                    document.getElementById('chipType').textContent = 'ESP32-S3 (Mock)';
+                    document.getElementById('chipDesc').textContent = '模拟设备用于测试';
+                    document.getElementById('chipMac').textContent = '24:0A:C4:XX:XX:XX';
+                    document.getElementById('chipFreq').textContent = '40MHz (Mock)';
+                    document.getElementById('chipFlash').textContent = '8MB (Mock)';
+                    document.getElementById('chipFeatures').textContent = 'WiFi, BLE, PSRAM';
+                    
+                    // 启用所有测试按钮
+                    const testButtons = [
+                        'testBasicBtn', 'testDataBtn', 'testFlashBtn', 'testResetBtn',
+                        'testRomBtn', 'testTerminalBtn', 'testErrorBtn', 'testPerformanceBtn',
+                        'testFlashWriteBtn', 'testMemoryBtn', 'testStubBtn', 'testAdvancedBtn'
+                    ];
+                    
+                    testButtons.forEach(btnId => {
+                        const btn = document.getElementById(btnId);
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = btn.textContent.replace('测试', '模拟测试');
+                        }
+                    });
+                    
+                    // 运行基础验证测试
+                    this.log('🔍 开始基础API验证...', 'info');
+                    await this.runMockApiValidation();
+                    
+                    this.log('✅ 模拟测试环境准备完成！', 'success');
+                    this.log('💡 现在可以点击各个测试按钮进行模拟测试', 'info');
+                    
+                } catch (error) {
+                    this.log(`❌ 模拟测试初始化失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async runMockApiValidation() {
+                this.log('🔍 验证 esptool-js API 可用性...', 'info');
+                
+                                 // 验证ESPLoader构造
+                 try {
+                     const mockTransport = {
+                         device: null,
+                         baudrate: 115200,
+                         connect: async () => {},
+                         disconnect: async () => {},
+                         write: async () => {},
+                         read: async function*() {},
+                         setRTS: async () => {},
+                         setDTR: async () => {},
+                         getInfo: () => "Mock Serial Port",
+                         waitForUnlock: async () => {},
+                         slip_writer: async () => {},
+                         slip_reader: async function*() {},
+                         checksum: () => 0,
+                         trace: false,
+                         traceLog: []
+                     };
+                    
+                    const testLoader = new window.esptooljs.ESPLoader({
+                        transport: mockTransport,
+                        baudrate: 115200,
+                        terminal: {
+                            clean: () => {},
+                            writeLine: (data) => this.log(`[Mock esptool.js] ${data}`, 'debug'),
+                            write: (data) => this.log(`[Mock esptool.js] ${data}`, 'debug')
+                        },
+                        debugLogging: true
+                    });
+                    
+                    this.log('✅ ESPLoader API 验证成功', 'success');
+                    
+                    // 验证主要方法存在性
+                    const methods = ['main', 'connect', 'detectChip', 'readReg', 'writeReg', 'sync'];
+                    const missingMethods = methods.filter(method => typeof testLoader[method] !== 'function');
+                    
+                    if (missingMethods.length === 0) {
+                        this.log('✅ 所有核心方法验证通过', 'success');
+                    } else {
+                        this.log(`⚠️ 缺失方法: ${missingMethods.join(', ')}`, 'warning');
+                    }
+                    
+                    // 验证重置策略
+                    const resetClasses = ['ClassicReset', 'HardReset', 'UsbJtagSerialReset', 'CustomReset'];
+                    const availableResets = resetClasses.filter(cls => window.esptooljs[cls]);
+                    this.log(`✅ 可用重置策略: ${availableResets.join(', ')}`, 'success');
+                    
+                    // 验证工具函数
+                    const utilFunctions = ['validateCustomResetStringSequence', 'inflate', 'deflate'];
+                    const availableUtils = utilFunctions.filter(func => window.esptooljs[func]);
+                    this.log(`✅ 可用工具函数: ${availableUtils.join(', ')}`, 'success');
+                    
+                } catch (error) {
+                    this.log(`❌ API 验证失败: ${error.message}`, 'error');
+                    this.log(`❌ 错误详情: ${error.stack}`, 'debug');
+                    throw error;
                 }
             }
 

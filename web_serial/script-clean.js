@@ -1698,8 +1698,17 @@ class SerialTerminal {
 
             this.addToFlashLog(i18n.t('start_download_to', device), 'info');
 
-            // 开始下载
-            await this.flashDownloader.downloadBinary(new Uint8Array(fileData), device);
+            // 根据设备类型选择下载器
+            if (this.isESP32Device(device)) {
+                // 使用ESP32专用下载器
+                await this.downloadWithESP32Manager(fileData, device);
+            } else {
+                // 使用通用FlashDownloader
+                if (!this.flashDownloader) {
+                    throw new Error('FlashDownloader未初始化');
+                }
+                await this.flashDownloader.downloadBinary(new Uint8Array(fileData), device);
+            }
 
             this.addToFlashLog(i18n.t('download_complete'), 'success');
 
@@ -1725,6 +1734,117 @@ class SerialTerminal {
             this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
             this.stopDownloadBtn.disabled = true;
         }
+    }
+
+    // 检查是否为ESP32设备
+    isESP32Device(deviceType) {
+        return ['ESP32-Series', 'ESP32', 'ESP32C3', 'ESP32S3'].includes(deviceType);
+    }
+
+    // 使用ESP32管理器进行下载
+    async downloadWithESP32Manager(fileData, device) {
+        this.addToFlashLog('=== ESP32固件下载开始 ===', 'info');
+        
+        // 检查esptool-js包装器
+        if (typeof ESP32EsptoolJSWrapper === 'undefined') {
+            throw new Error('ESP32EsptoolJSWrapper未加载');
+        }
+        
+        // 检查是否已有固件下载串口连接
+        if (!this.flashPort || !this.isFlashConnected) {
+            throw new Error('请先连接固件下载串口');
+        }
+        
+        this.addToFlashLog('使用已连接的固件下载串口进行ESP32下载...', 'info');
+        this.addToFlashLog('正在释放串口锁定以供ESP32使用...', 'debug');
+        
+        // 临时释放SerialTerminal对串口的锁定
+        await this.releaseFlashPortLocks();
+        
+        // 创建ESP32下载器实例，复用已连接的串口
+        const esp32Downloader = new ESP32EsptoolJSWrapper(this.flashPort, (msg, type, prefix) => {
+            this.addToFlashLog(msg, type || 'debug', prefix);
+        });
+        
+        this.addToFlashLog('✅ ESP32EsptoolJSWrapper实例创建成功', 'success');
+        
+        try {
+            // 步骤1: 初始化esptool-js包装器
+            await esp32Downloader.initialize();
+            this.addToFlashLog('✅ ESP32包装器初始化成功', 'success');
+            
+            // 步骤2: 连接设备
+            const connected = await esp32Downloader.connect();
+            if (!connected) {
+                throw new Error('ESP32设备连接失败');
+            }
+            
+            // 步骤3: 获取设备信息
+            const deviceInfo = await esp32Downloader.getDeviceInfo();
+            this.addToFlashLog(`✅ ESP32设备连接成功 - 芯片: ${deviceInfo.chipName}, MAC: ${deviceInfo.macAddress}`, 'success');
+            
+            // 步骤4: 开始固件下载
+            this.addToFlashLog(`开始下载固件到 ${device}...`, 'info');
+            this.addToFlashLog(`文件大小: ${fileData.byteLength} 字节`, 'info');
+            
+            // 使用ESP32下载器的新API下载固件
+            await esp32Downloader.downloadFirmware(new Uint8Array(fileData), 0x10000, (idx, total) => {
+                const percent = Math.round((idx / total) * 100);
+                this.addToFlashLog(`下载进度: ${percent}% (${idx}/${total})`, 'progress');
+            });
+            
+            this.addToFlashLog('=== ESP32固件下载完成 ===', 'success');
+            
+        } finally {
+            // 下载完成后断开ESP32连接
+            try {
+                await esp32Downloader.disconnect();
+                this.addToFlashLog('✅ ESP32下载器已断开', 'info');
+            } catch (e) {
+                this.addToFlashLog(`⚠️ 断开ESP32连接时出错: ${e.message}`, 'warning');
+            }
+            
+            // 恢复SerialTerminal对串口的锁定（如果需要）
+            // this.addToFlashLog('固件下载串口保持连接状态', 'info');
+        }
+    }
+
+    // 释放固件下载串口的reader/writer锁定
+    async releaseFlashPortLocks() {
+        // 释放flashReader
+        if (this.flashReader) {
+            try {
+                // 先取消读取操作
+                await this.flashReader.cancel();
+                this.addToFlashLog('✅ 固件下载reader读取已取消', 'debug');
+            } catch (e) {
+                this.addToFlashLog(`⚠️ 取消flashReader时出错: ${e.message}`, 'debug');
+            }
+            
+            try {
+                // 然后释放锁定
+                this.flashReader.releaseLock();
+                this.addToFlashLog('✅ 固件下载reader锁定已释放', 'debug');
+            } catch (e) {
+                this.addToFlashLog(`⚠️ 释放flashReader锁定时出错: ${e.message}`, 'debug');
+            }
+            
+            this.flashReader = null;
+        }
+        
+        // 释放flashWriter
+        if (this.flashWriter) {
+            try {
+                await this.flashWriter.releaseLock();
+                this.addToFlashLog('✅ 固件下载writer锁定已释放', 'debug');
+            } catch (e) {
+                this.addToFlashLog(`⚠️ 释放flashWriter时出错: ${e.message}`, 'debug');
+            }
+            this.flashWriter = null;
+        }
+        
+        // 等待一点时间确保锁定完全释放
+        await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     // 停止固件下载

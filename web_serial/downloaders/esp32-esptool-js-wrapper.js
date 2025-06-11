@@ -1,475 +1,336 @@
 /**
- * ESP32 esptool-js 原生包装器
- * 直接使用esptool-js所有原生功能，不重复实现任何功能
- * 这是真正"不重新造轮子"的实现
+ * ESP32 esptool-js 包装器
+ * 架构设计：
+ * - 串口管理：使用我们自己的（支持多芯片切换：T5AI ↔ ESP32 ↔ BK7231N）  
+ * - 协议逻辑：100%使用esptool-js原生（完全按照官方示例，不重复造轮子）
+ * - 最小适配：仅适配底层串口读写，其他全部使用esptool-js标准流程
  */
-class ESP32EsptoolJSWrapper extends (typeof BaseDownloader !== 'undefined' ? BaseDownloader : class {}) {
-    constructor(serialPort, debugCallback) {
-        if (!serialPort) {
-            throw new Error('serialPort is required');
-        }
-        
-        super();
-        
-        this.serialPort = serialPort;
-        this.debugCallback = debugCallback || { log: console.log };
-        this.chipName = 'ESP32-Series';
-        
-        // esptool-js实例
+class ESP32EsptoolJSWrapper {
+    constructor(device, logger) {
+        this.device = device;  // 我们自己的串口
+        this.logger = logger;
         this.espLoader = null;
+        this.terminal = null;
         this.transport = null;
-        
-        // 状态管理
-        this.isInitialized = false;
-        this.detectedChip = null;
+        this.chip = null;  // 添加chip引用，按照官方示例
+        this.logPrefix = '[WRAPPER]';
+        this.debugCallback = {
+            log: (message) => {
+                if (this.logger) {
+                    this.logger(message, 'debug', this.logPrefix);
+                }
+            }
+        };
     }
-    
-    /**
-     * 创建Web Serial Transport适配器
-     * 这是唯一的自定义代码 - Web Serial到esptool-js Transport的适配
-     */
-    createWebSerialTransport() {
-        const self = this;
+
+    // 创建最小串口适配器 - 让esptool-js的Transport以为在使用标准Web Serial API
+    createMinimalSerialAdapter() {
         return {
-            device: this.serialPort,
-            baudrate: 115200,
-            tracing: false,
-            leftOver: new Uint8Array(0),
-            slipReaderEnabled: false,
-            
-            // === 基础串口操作 ===
-            async connect(baud = 115200) {
-                if (!this.device.readable || !this.device.writable) {
-                    await this.device.open({ baudRate: baud, bufferSize: 255 });
+            // 最小化的Web Serial API接口
+            readable: this.device.readable,
+            writable: this.device.writable,
+
+            // 设备信息方法
+            getInfo: () => {
+                if (this.device.getInfo) {
+                    return this.device.getInfo();
                 }
-                this.baudrate = baud;
-                this.leftOver = new Uint8Array(0);
+                return {
+                    usbVendorId: 4292,  // 0x10c4 (Silicon Labs)
+                    usbProductId: 60000  // 0xea60 (CP210x)
+                };
             },
-            
-            async disconnect() {
-                if (this.device.readable && this.device.readable.locked) {
-                    await this.device.readable.cancel();
-                }
-                if (this.device.writable && this.device.writable.locked) {
-                    await this.device.writable.abort();
-                }
-                if (this.device.readable || this.device.writable) {
-                    await this.device.close();
-                }
-            },
-            
-            async write(data) {
-                const writer = this.device.writable.getWriter();
-                await writer.write(data);
-                writer.releaseLock();
-            },
-            
-            async *read(timeout = 3000) {
-                const startTime = Date.now();
-                const reader = this.device.readable.getReader();
-                
+
+            // DTR/RTS控制方法 - 适配我们的串口接口
+            setSignals: async (signals) => {
                 try {
-                    while (Date.now() - startTime < timeout) {
-                        const { value, done } = await Promise.race([
-                            reader.read(),
-                            new Promise((_, reject) => 
-                                setTimeout(() => reject(new Error('timeout')), timeout)
-                            )
-                        ]);
-                        
-                        if (done) break;
-                        if (value && value.length > 0) {
-                            yield value;
+                    if (signals.hasOwnProperty('dataTerminalReady')) {
+                        if (this.device.setDTR) {
+                            await this.device.setDTR(signals.dataTerminalReady);
+                        } else if (this.device.setSignals) {
+                            await this.device.setSignals({ dataTerminalReady: signals.dataTerminalReady });
+                        }
+                    }
+                    
+                    if (signals.hasOwnProperty('requestToSend')) {
+                        if (this.device.setRTS) {
+                            await this.device.setRTS(signals.requestToSend);
+                        } else if (this.device.setSignals) {
+                            await this.device.setSignals({ requestToSend: signals.requestToSend });
                         }
                     }
                 } catch (error) {
-                    if (error.message !== 'timeout') {
-                        throw error;
-                    }
-                } finally {
-                    reader.releaseLock();
+                    this.debugCallback.log(`串口信号设置失败: ${error.message}`);
+                    // 不抛出异常，某些串口可能不支持信号控制
                 }
             },
-            
-            // === 控制信号 ===
-            async setRTS(state) {
-                await this.device.setSignals({ requestToSend: state });
+
+            // ✅ 串口开关方法 - 按照esptool-js Transport的期望实现
+            open: async (options) => {
+                if (this.device.open && !this.device.readable) {
+                    return await this.device.open(options);
+                }
+                return Promise.resolve();
             },
-            
-            async setDTR(state) {
-                await this.device.setSignals({ dataTerminalReady: state });
+
+            close: async () => {
+                if (this.device.close) {
+                    return await this.device.close();
+                }
+                return Promise.resolve();
             },
-            
-            // === esptool-js需要的其他方法 ===
-            getInfo() {
-                return `WebSerial ESP32 Transport`;
+
+            // 传递原设备的其他方法和属性
+            ...this.device
+        };
+    }
+
+    // 创建标准的esptool-js终端对象
+    createTerminal() {
+        return {
+            clean: () => {
+                this.debugCallback.log('📺 [TERMINAL] clean() 调用');
             },
-            
-            getPid() {
-                return this.device.getInfo?.()?.usbProductId || 0;
-            },
-            
-            trace(message) {
-                if (this.tracing) {
-                    self.debugCallback.log(`[TRACE] ${message}`);
+            writeLine: (data) => {
+                this.debugCallback.log(`📺 [TERMINAL] writeLine: ${data}`);
+                if (this.logger) {
+                    this.logger(data, 'info', this.logPrefix);
                 }
             },
-            
-            hexConvert(uint8Array) {
-                return Array.from(uint8Array)
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join(' ');
+            write: (data) => {
+                this.debugCallback.log(`📺 [TERMINAL] write: ${data}`);
+                if (this.logger) {
+                    this.logger(data, 'info', this.logPrefix);
+                }
             }
         };
     }
-    
-    /**
-     * 初始化 - 使用esptool-js原生初始化
-     */
+
+    // 初始化：100%按照esptool-js官方示例
     async initialize() {
-        if (this.isInitialized) return true;
-        
         try {
-            // 动态导入esptool-js
-            const { ESPLoader, Transport } = await import('../third_party/esptool-js/bundle.js');
+            this.debugCallback.log('🔍 [WRAPPER] 开始初始化...');
             
-            // 创建Transport适配器
-            this.transport = this.createWebSerialTransport();
+            // 检查esptool-js包
+            if (typeof window.esptooljs === 'undefined') {
+                throw new Error('esptool-js包未加载');
+            }
             
-            // 创建ESPLoader实例 - 使用原生构造函数
-            this.espLoader = new ESPLoader({
+            const { ESPLoader, Transport } = window.esptooljs;
+            if (!ESPLoader || !Transport) {
+                throw new Error('ESPLoader或Transport不可用');
+            }
+            
+            this.debugCallback.log('✅ [WRAPPER] esptool-js组件验证通过');
+            
+            // 创建标准终端
+            this.terminal = this.createTerminal();
+            this.debugCallback.log('✅ [WRAPPER] Terminal对象创建成功');
+            
+            // 验证我们的串口设备
+            if (!this.device) {
+                throw new Error('串口设备未提供');
+            }
+            
+            this.debugCallback.log('✅ [WRAPPER] 串口设备验证通过');
+            
+            // ✅ 创建最小适配器，让我们的串口看起来像Web Serial API
+            const serialAdapter = this.createMinimalSerialAdapter();
+            this.debugCallback.log('✅ [WRAPPER] 最小串口适配器创建成功');
+            
+            // ✅ 100%按照官方示例：创建Transport
+            this.transport = new Transport(serialAdapter, true);
+            this.debugCallback.log('✅ [WRAPPER] 使用esptool-js原生Transport成功');
+            
+            // ✅ 100%按照官方示例：创建ESPLoader
+            const flashOptions = {
                 transport: this.transport,
                 baudrate: 115200,
-                terminal: {
-                    clean: () => {},
-                    writeLine: (data) => this.debugCallback.log(data),
-                    write: (data) => this.debugCallback.log(data)
-                },
-                debugLogging: true
-            });
+                terminal: this.terminal,
+                debugLogging: true,
+            };
             
-            this.isInitialized = true;
-            this.debugCallback.log('✅ esptool-js原生包装器初始化完成');
+            this.debugCallback.log('🔍 [WRAPPER] 创建ESPLoader实例...');
+            this.espLoader = new ESPLoader(flashOptions);
+            
+            this.debugCallback.log('✅ [WRAPPER] ESPLoader实例创建成功');
+            this.debugCallback.log('✅ [WRAPPER] 初始化完成 - 100%按照esptool-js官方示例');
             return true;
             
         } catch (error) {
-            this.debugCallback.log(`❌ 初始化失败: ${error.message}`);
-            return false;
+            this.debugCallback.log(`❌ [WRAPPER] 初始化失败: ${error.message}`);
+            throw error;
         }
     }
+
+    // ========== BaseDownloader接口实现 ==========
     
-    /**
-     * 连接设备 - 使用esptool-js原生连接
-     */
+    // 连接设备 - 100%按照esptool-js官方示例流程
     async connect() {
-        if (!this.isInitialized) {
-            await this.initialize();
-        }
-        
         try {
-            // 使用esptool-js原生连接方法
-            await this.espLoader.main();
+            this.debugCallback.log('🔍 [WRAPPER] connect() 开始...');
             
-            this.detectedChip = {
-                name: this.espLoader.chip.CHIP_NAME,
-                features: await this.espLoader.chip.getChipFeatures(this.espLoader),
-                mac: await this.espLoader.chip.readMac(this.espLoader)
-            };
-            
-            this.debugCallback.log(`✅ 已连接到 ${this.detectedChip.name}`);
-            return true;
-            
-        } catch (error) {
-            this.debugCallback.log(`❌ 连接失败: ${error.message}`);
-            return false;
-        }
-    }
-    
-    /**
-     * 下载固件 - 使用esptool-js原生writeFlash
-     */
-    async downloadFirmware(fileData, startAddr = 0x10000) {
-        if (!this.espLoader) {
-            throw new Error('未初始化或未连接');
-        }
-        
-        try {
-            // 使用esptool-js原生writeFlash方法
-            const flashOptions = {
-                fileArray: [{
-                    data: fileData,
-                    address: startAddr
-                }],
-                flashSize: "detect",
-                flashMode: "dio", 
-                flashFreq: "40m",
-                eraseAll: false,
-                compress: true,
-                reportProgress: (fileIndex, written, total) => {
-                    const progress = Math.round((written / total) * 100);
-                    if (this.onProgress) {
-                        this.onProgress(progress, 100, `下载进度: ${progress}%`);
-                    }
-                }
-            };
-            
-            await this.espLoader.writeFlash(flashOptions);
-            
-            this.debugCallback.log('✅ 固件下载完成');
-            return { success: true, message: '固件下载成功' };
-            
-        } catch (error) {
-            this.debugCallback.log(`❌ 下载失败: ${error.message}`);
-            throw new Error(`固件下载失败: ${error.message}`);
-        }
-    }
-    
-    /**
-     * 擦除Flash - 使用esptool-js原生eraseFlash
-     */
-    async eraseFlash() {
-        if (!this.espLoader) {
-            throw new Error('未初始化或未连接');
-        }
-        
-        try {
-            await this.espLoader.eraseFlash();
-            this.debugCallback.log('✅ Flash擦除完成');
-            return { success: true, message: 'Flash擦除成功' };
-            
-        } catch (error) {
-            this.debugCallback.log(`❌ 擦除失败: ${error.message}`);
-            throw new Error(`Flash擦除失败: ${error.message}`);
-        }
-    }
-    
-    /**
-     * 断开连接 - 使用esptool-js原生disconnect
-     */
-    async disconnect() {
-        try {
-            if (this.transport) {
-                await this.transport.disconnect();
+            if (!this.espLoader) {
+                throw new Error('ESPLoader not initialized');
             }
             
-            this.isInitialized = false;
-            this.detectedChip = null;
+            // ✅ 100%按照官方示例：esploader.main()
+            this.debugCallback.log('🔍 [WRAPPER] 调用 espLoader.main()...');
+            this.chip = await this.espLoader.main();
+            
+            this.debugCallback.log(`✅ [WRAPPER] ESP32设备连接成功: ${this.chip}`);
+            return true;
+        } catch (error) {
+            this.debugCallback.log(`❌ [WRAPPER] 连接失败: ${error.message}`);
+            throw error;
+        }
+    }
+
+    // 获取设备信息 - 100%使用main()方法已经获取的信息，不重复造轮子
+    async getDeviceInfo() {
+        try {
+            if (!this.espLoader || !this.espLoader.chip) {
+                throw new Error('设备未连接');
+            }
+
+            // ✅ 100%按照官方示例：main()方法已经获取了所有芯片信息
+            // 不重复调用getChipDescription, getChipFeatures, readMac等方法
+            // 这些信息在main()中已经获取并显示在terminal中
+            
+            // 直接从已连接的芯片获取基本信息
+            const chipName = this.chip || 'Unknown ESP32 Chip';
+            
+            // 从espLoader获取运行时信息
+            const isStub = this.espLoader.IS_STUB;
+            const flashWriteSize = this.espLoader.FLASH_WRITE_SIZE;
+            
+            // 如果需要详细信息，可以直接访问芯片对象的属性
+            // 但不重复调用方法，避免重复造轮子
+            const chipType = this.espLoader.chip.CHIP_NAME || 'ESP32';
+            
+            return {
+                chipName: chipName,
+                chipType: chipType,
+                isStub: isStub,
+                flashWriteSize: flashWriteSize,
+                // 注意：MAC地址等详细信息已经在main()中通过terminal显示给用户
+                // 不需要重复获取，遵循esptool-js的标准流程
+                note: 'Detailed chip info (MAC, features, crystal freq) displayed in terminal during connection'
+            };
+        } catch (error) {
+            this.debugCallback.log(`❌ [WRAPPER] 获取设备信息失败: ${error.message}`);
+            throw error;
+        }
+    }
+
+    // 下载固件 - 100%按照esptool-js官方示例流程
+    async downloadFirmware(firmwareData, startAddress = 0x10000, progressCallback = null) {
+        try {
+            if (!this.espLoader) {
+                throw new Error('ESPLoader not initialized');
+            }
+
+            this.debugCallback.log('🔍 [WRAPPER] 开始固件下载...');
+            this.debugCallback.log(`文件大小: ${firmwareData.length} 字节`);
+            this.debugCallback.log(`起始地址: 0x${startAddress.toString(16)}`);
+
+            // ✅ 100%使用esptool-js原生数据转换函数
+            let binaryData;
+            if (firmwareData instanceof Uint8Array) {
+                binaryData = this.espLoader.ui8ToBstr(firmwareData);
+            } else if (typeof firmwareData === 'string') {
+                binaryData = firmwareData;
+            } else if (firmwareData instanceof ArrayBuffer) {
+                binaryData = this.espLoader.ui8ToBstr(new Uint8Array(firmwareData));
+            } else {
+                throw new Error('不支持的固件数据格式');
+            }
+
+            // ✅ 100%按照官方示例：FlashOptions格式
+            const flashOptions = {
+                fileArray: [{
+                    data: binaryData,
+                    address: startAddress
+                }],
+                flashSize: "keep",
+                eraseAll: false,
+                compress: true,
+                reportProgress: progressCallback ? (fileIndex, written, total) => {
+                    progressCallback(written, total);
+                } : undefined,
+                calculateMD5Hash: (image) => CryptoJS.MD5(CryptoJS.enc.Latin1.parse(image))
+            };
+
+            // ✅ 100%按照官方示例：writeFlash + after
+            await this.espLoader.writeFlash(flashOptions);
+            await this.espLoader.after();  // 按照官方示例添加after调用
+            
+            this.debugCallback.log('✅ [WRAPPER] 固件下载完成');
+            return true;
+
+        } catch (error) {
+            this.debugCallback.log(`❌ [WRAPPER] 固件下载失败: ${error.message}`);
+            throw error;
+        }
+    }
+
+    // 断开连接 - 100%按照esptool-js官方示例流程
+    async disconnect() {
+        try {
+            this.debugCallback.log('🔍 [WRAPPER] 断开连接...');
+            
+            // ✅ 100%按照官方示例：transport.disconnect()
+            if (this.transport) {
+                await this.transport.disconnect();
+                this.debugCallback.log('✅ [WRAPPER] Transport已断开');
+            }
+
+            // ✅ 按照官方示例：清理变量引用
+            this.chip = null;
             this.espLoader = null;
             this.transport = null;
+            this.terminal = null;
             
-            this.debugCallback.log('✅ 已断开连接');
-            
+            this.debugCallback.log('✅ [WRAPPER] 已断开连接，串口保持可用供其他芯片使用');
         } catch (error) {
-            this.debugCallback.log(`⚠️ 断开连接时出错: ${error.message}`);
+            this.debugCallback.log(`❌ [WRAPPER] 断开连接失败: ${error.message}`);
         }
     }
+
+    // ========== 直接访问esptool-js原生对象，完全不重复造轮子 ==========
     
-    // === 信息获取 - 所有方法都委托给esptool-js ===
-    
-    async getChipId() {
-        if (!this.espLoader) return null;
-        
-        try {
-            return await this.espLoader.readReg(this.espLoader.CHIP_DETECT_MAGIC_REG_ADDR);
-        } catch (error) {
-            return null;
-        }
+    // 获取100%原生ESPLoader实例
+    getESPLoader() {
+        return this.espLoader;
     }
-    
-    async getFlashId() {
-        if (!this.espLoader) return null;
-        
-        try {
-            return await this.espLoader.readFlashId();
-        } catch (error) {
-            return null;
-        }
+
+    // 获取100%原生芯片实例
+    getChip() {
+        return this.espLoader ? this.espLoader.chip : null;
     }
-    
-    getChipInfo() {
-        return this.detectedChip;
+
+    // 获取100%原生Transport实例
+    getTransport() {
+        return this.transport;
     }
-    
-    isConnected() {
-        return this.isInitialized && this.detectedChip !== null;
+
+    // 获取我们自己的串口设备（供多芯片管理使用）
+    getSerialDevice() {
+        return this.device;
     }
-    
-    getDeviceStatus() {
-        return {
-            isConnected: this.isConnected(),
-            chipInfo: this.detectedChip,
-            espLoaderReady: this.espLoader !== null
-        };
+
+    // 获取芯片描述（按照官方示例）
+    getChipDescription() {
+        return this.chip;
     }
-    
-    // === 高级功能 - 直接委托给esptool-js ===
-    
-    async setBaudrate(baudrate) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.changeBaud(baudrate);
-    }
-    
-    async readReg(addr, timeout) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.readReg(addr, timeout);
-    }
-    
-    async writeReg(addr, value, mask, delayUs, delayAfterUs) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.writeReg(addr, value, mask, delayUs, delayAfterUs);
-    }
-    
-    async sync() {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.sync();
-    }
-    
-    async flashMd5sum(addr, size) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashMd5sum(addr, size);
-    }
-    
-    async runStub() {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.runStub();
-    }
-    
-    // === 所有Flash操作都委托给esptool-js ===
-    
-    async flashBegin(size, offset) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashBegin(size, offset);
-    }
-    
-    async flashBlock(data, seq, timeout) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashBlock(data, seq, timeout);
-    }
-    
-    async flashFinish(reboot = false) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashFinish(reboot);
-    }
-    
-    async flashDeflBegin(size, compsize, offset) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashDeflBegin(size, compsize, offset);
-    }
-    
-    async flashDeflBlock(data, seq, timeout) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashDeflBlock(data, seq, timeout);
-    }
-    
-    async flashDeflFinish(reboot = false) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.flashDeflFinish(reboot);
-    }
-    
-    // === 内存操作都委托给esptool-js ===
-    
-    async memBegin(size, blocks, blocksize, offset) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.memBegin(size, blocks, blocksize, offset);
-    }
-    
-    async memBlock(buffer, seq) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.memBlock(buffer, seq);
-    }
-    
-    async memFinish(entrypoint) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.memFinish(entrypoint);
-    }
-    
-    // === 所有常量都来自esptool-js ===
-    
-    get ESP_FLASH_BEGIN() { return this.espLoader?.ESP_FLASH_BEGIN; }
-    get ESP_FLASH_DATA() { return this.espLoader?.ESP_FLASH_DATA; }
-    get ESP_FLASH_END() { return this.espLoader?.ESP_FLASH_END; }
-    get ESP_MEM_BEGIN() { return this.espLoader?.ESP_MEM_BEGIN; }
-    get ESP_MEM_DATA() { return this.espLoader?.ESP_MEM_DATA; }
-    get ESP_MEM_END() { return this.espLoader?.ESP_MEM_END; }
-    get CHIP_DETECT_MAGIC_REG_ADDR() { return this.espLoader?.CHIP_DETECT_MAGIC_REG_ADDR; }
-    
-    // === 所有工具方法都来自esptool-js ===
-    
-    _intToByteArray(i) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader._intToByteArray(i);
-    }
-    
-    _appendArray(arr1, arr2) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader._appendArray(arr1, arr2);
-    }
-    
-    checksum(data, state) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader.checksum(data, state);
-    }
-    
-    toHex(buffer) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader.toHex(buffer);
-    }
-    
-    async checkCommand(opDescription, op, data, chk, timeout) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.checkCommand(opDescription, op, data, chk, timeout);
-    }
-    
-    async command(op, data, chk, waitResponse, timeout) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return await this.espLoader.command(op, data, chk, waitResponse, timeout);
-    }
-    
-    // === 重置策略 - 使用esptool-js原生reset类 ===
-    
-    createClassicReset() {
-        if (!this.espLoader) throw new Error('未初始化');
-        const { ClassicReset } = this.espLoader;
-        return new ClassicReset(this.transport);
-    }
-    
-    createHardReset() {
-        if (!this.espLoader) throw new Error('未初始化');
-        const { HardReset } = this.espLoader;
-        return new HardReset(this.transport);
-    }
-    
-    createUsbJtagSerialReset() {
-        if (!this.espLoader) throw new Error('未初始化');
-        const { UsbJtagSerialReset } = this.espLoader;
-        return new UsbJtagSerialReset(this.transport);
-    }
-    
-    createCustomReset(sequenceString) {
-        if (!this.espLoader) throw new Error('未初始化');
-        const { CustomReset } = this.espLoader;
-        return new CustomReset(this.transport, sequenceString);
-    }
-    
-    validateCustomResetStringSequence(seqStr) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader.validateCustomResetStringSequence(seqStr);
-    }
-    
-    // === 工具方法 ===
-    
-    decodeBase64Data(base64Data) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader.decodeBase64Data(base64Data);
-    }
-    
-    getStubJsonByChipName(chipName) {
-        if (!this.espLoader) throw new Error('未初始化');
-        return this.espLoader.getStubJsonByChipName(chipName);
+
+    // 检查是否使用Stub
+    isStub() {
+        return this.espLoader ? this.espLoader.IS_STUB : false;
     }
 }
 
-// 导出类
+// 确保类可以全局访问
 if (typeof window !== 'undefined') {
     window.ESP32EsptoolJSWrapper = ESP32EsptoolJSWrapper;
-} 
+}
