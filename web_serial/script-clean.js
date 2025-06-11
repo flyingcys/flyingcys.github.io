@@ -1783,14 +1783,48 @@ class SerialTerminal {
             const deviceInfo = await esp32Downloader.getDeviceInfo();
             this.addToFlashLog(`✅ ESP32设备连接成功 - 芯片: ${deviceInfo.chipName}, MAC: ${deviceInfo.macAddress}`, 'success');
             
-            // 步骤4: 开始固件下载
+            // 步骤4: 设置进度回调 - 与T5AI保持一致的接口
+            esp32Downloader.setProgressCallback((progressData) => {
+                // 统一处理进度数据，与T5AI格式保持一致
+                if (progressData.status === 'downloading') {
+                    // 更新UI进度条
+                    this.updateFlashProgress({
+                        message: progressData.message,
+                        percent: progressData.percent,
+                        downloadedSize: progressData.progress,
+                        totalSize: progressData.total
+                    });
+                    
+                    // 同时添加到日志（与T5AI一致）
+                    if (progressData.percent % 10 === 0 || progressData.percent >= 95) {
+                        // 只在特定百分比时记录日志，避免日志过多
+                        this.addToFlashLog(`ESP32固件下载中... ${Math.round(progressData.percent)}%`, 'progress');
+                    }
+                }
+            });
+            
+            // 步骤5: 开始固件下载
             this.addToFlashLog(`开始下载固件到 ${device}...`, 'info');
             this.addToFlashLog(`文件大小: ${fileData.byteLength} 字节`, 'info');
             
+            // 初始化进度条显示
+            this.progressArea.style.display = 'block';
+            this.updateFlashProgress({
+                message: '准备ESP32固件下载...',
+                percent: 0,
+                downloadedSize: 0,
+                totalSize: fileData.byteLength
+            });
+            
             // 使用ESP32下载器的新API下载固件
-            await esp32Downloader.downloadFirmware(new Uint8Array(fileData), 0x10000, (idx, total) => {
-                const percent = Math.round((idx / total) * 100);
-                this.addToFlashLog(`下载进度: ${percent}% (${idx}/${total})`, 'progress');
+            await esp32Downloader.downloadFirmware(new Uint8Array(fileData), 0x10000);
+            
+            // 下载完成，更新进度条到100%
+            this.updateFlashProgress({
+                message: 'ESP32固件下载完成！',
+                percent: 100,
+                downloadedSize: fileData.byteLength,
+                totalSize: fileData.byteLength
             });
             
             this.addToFlashLog('=== ESP32固件下载完成 ===', 'success');
