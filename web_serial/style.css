@@ -441,27 +441,49 @@ header p {
 .config-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
 }
 
 .config-group label {
     font-weight: 600;
     color: #555;
     font-size: 0.9em;
+    margin-bottom: 2px;
 }
 
 .config-group select {
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 2px solid #e1e5e9;
     border-radius: 6px;
     background: white;
     font-size: 14px;
     transition: border-color 0.3s ease;
+    min-height: 40px;
+    box-sizing: border-box;
 }
 
 .config-group select:focus {
     border-color: #4f46e5;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.config-group input[type="text"] {
+    padding: 10px 12px;
+    border: 2px solid #e1e5e9;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    min-height: 40px;
+    box-sizing: border-box;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.config-group input[type="text"]:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 /* 按钮样式 */
@@ -722,9 +744,11 @@ header p {
 }
 
 .flash-controls {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+    margin-bottom: 20px;
 }
 
 .file-select-area {
@@ -1317,6 +1341,12 @@ header p {
     
     .serial-config {
         grid-template-columns: 1fr;
+    }
+    
+    .flash-controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .data-header,
@@ -2071,7 +2101,7 @@ header p {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
-    align-items: end;
+    align-items: start;
 }
 
 /* 数据显示区域样式 */
@@ -2146,11 +2176,7 @@ header p {
     gap: 10px;
 }
 
-.flash-controls {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
+
 
 .progress-section {
     background: rgba(255, 255, 255, 0.95);

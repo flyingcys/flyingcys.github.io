@@ -372,12 +372,10 @@
                             <div class="config-group" id="esp32AddressGroup" style="display: none;">
                                 <label for="esp32FlashAddress">ESP32下载地址:</label>
                                 <select id="esp32FlashAddress">
-                                    <option value="0x0000">0x0000 (特殊完整包-非标准)</option>
-                                    <option value="0x1000">0x1000 (ESP32标准完整包)</option>
-                                    <option value="0x10000" selected>0x10000 (仅应用程序)</option>
+                                    <option value="0x0000" selected>0x0000 (完整固件包)</option>
                                     <option value="custom">自定义地址...</option>
                                 </select>
-                                <input type="text" id="customAddressInput" placeholder="0x..." style="display: none; margin-top: 5px; width: 100px;" maxlength="10">
+                                <input type="text" id="customAddressInput" placeholder="0x10000" maxlength="10" style="display: none; margin-top: 8px;">
                             </div>
                         </div>
                     </div>
@@ -1059,32 +1057,38 @@
                 const esp32AddressSelect = document.getElementById('esp32FlashAddress');
                 const customAddressInput = document.getElementById('customAddressInput');
                 
-                if (esp32AddressSelect && customAddressInput) {
+                if (esp32AddressSelect) {
                     esp32AddressSelect.addEventListener('change', (e) => {
                         if (e.target.value === 'custom') {
-                            customAddressInput.style.display = 'block';
-                            customAddressInput.focus();
+                            if (customAddressInput) {
+                                customAddressInput.style.display = 'block';
+                                customAddressInput.focus();
+                            }
                         } else {
-                            customAddressInput.style.display = 'none';
+                            if (customAddressInput) {
+                                customAddressInput.style.display = 'none';
+                            }
                         }
                         this.logESP32(`ESP32下载地址已选择: ${this.getESP32FlashAddress()}`, 'info');
                     });
                     
                     // 自定义地址输入验证
-                    customAddressInput.addEventListener('input', (e) => {
-                        let value = e.target.value.trim();
-                        // 自动添加0x前缀
-                        if (value && !value.startsWith('0x')) {
-                            value = '0x' + value;
-                            e.target.value = value;
-                        }
-                        // 验证十六进制格式
-                        if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
-                            e.target.style.borderColor = 'red';
-                        } else {
-                            e.target.style.borderColor = '';
-                        }
-                    });
+                    if (customAddressInput) {
+                        customAddressInput.addEventListener('input', (e) => {
+                            let value = e.target.value.trim();
+                            // 自动添加0x前缀
+                            if (value && !value.startsWith('0x')) {
+                                value = '0x' + value;
+                                e.target.value = value;
+                            }
+                            // 验证十六进制格式
+                            if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
+                                e.target.style.borderColor = 'red';
+                            } else {
+                                e.target.style.borderColor = '';
+                            }
+                        });
+                    }
                 }
                 
                 // 初始状态检查
@@ -1109,8 +1113,12 @@
             disableESP32Features() {
                 // 隐藏ESP32地址配置
                 const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+                const customAddressInput = document.getElementById('customAddressInput');
                 if (esp32AddressGroup) {
                     esp32AddressGroup.style.display = 'none';
+                }
+                if (customAddressInput) {
+                    customAddressInput.style.display = 'none';
                 }
             }
             
