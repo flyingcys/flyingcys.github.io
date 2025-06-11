@@ -43,43 +43,43 @@ class DownloaderManager {
             },
             ESP32: { 
                 displayName: 'ESP32',
-                downloader: 'ESP32SeriesDownloader',
+                downloader: 'ESP32EsptoolJSWrapper',
                 order: 6,
-                description: 'ESP32系列芯片（自动检测）',
-                scriptPath: './downloaders/esp32-series-downloader.js',
-                downloaderClass: 'ESP32SeriesDownloader'
+                description: 'ESP32系列芯片（使用esptool-js原生功能）',
+                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                downloaderClass: 'ESP32EsptoolJSWrapper'
             },
             ESP32C3: { 
                 displayName: 'ESP32-C3',
-                downloader: 'ESP32SeriesDownloader',
+                downloader: 'ESP32EsptoolJSWrapper',
                 order: 7,
-                description: 'ESP32-C3系列芯片',
-                scriptPath: './downloaders/esp32-series-downloader.js',
-                downloaderClass: 'ESP32SeriesDownloader'
+                description: 'ESP32-C3系列芯片（使用esptool-js原生功能）',
+                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                downloaderClass: 'ESP32EsptoolJSWrapper'
             },
             ESP32S3: { 
                 displayName: 'ESP32-S3',
-                downloader: 'ESP32SeriesDownloader',
+                downloader: 'ESP32EsptoolJSWrapper',
                 order: 8,
-                description: 'ESP32-S3系列芯片',
-                scriptPath: './downloaders/esp32-series-downloader.js',
-                downloaderClass: 'ESP32SeriesDownloader'
+                description: 'ESP32-S3系列芯片（使用esptool-js原生功能）',
+                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                downloaderClass: 'ESP32EsptoolJSWrapper'
             },
             'ESP32-Series': { 
-                displayName: 'ESP32-Series (自动检测)',
-                downloader: 'ESP32SeriesDownloader',
+                displayName: 'ESP32-Series (esptool-js原生)',
+                downloader: 'ESP32EsptoolJSWrapper',
                 order: 6,
-                description: '支持ESP32/ESP32-S2/ESP32-S3/ESP32-C3/ESP32-C6/ESP32-H2等系列芯片自动检测',
+                description: '100%使用esptool-js原生功能，支持ESP32全系列芯片自动检测',
+                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                downloaderClass: 'ESP32EsptoolJSWrapper'
+            },
+            'ESP32-Legacy': { 
+                displayName: 'ESP32-Legacy (旧版实现)',
+                downloader: 'ESP32SeriesDownloader',
+                order: 9,
+                description: '旧版ESP32下载器（包含重复实现，不推荐使用）',
                 scriptPath: './downloaders/esp32-series-downloader.js',
                 downloaderClass: 'ESP32SeriesDownloader'
-            },
-            'ESP32-Simple': { 
-                displayName: 'ESP32-Simple (极简版)',
-                downloader: 'ESP32SimpleDownloader',
-                order: 7,
-                description: '极简ESP32下载器，直接复用esptool-js底层协议',
-                scriptPath: './downloaders/esp32-simple-downloader.js',
-                downloaderClass: 'ESP32SimpleDownloader'
             }
         };
         
@@ -87,7 +87,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32-Series', 'ESP32-Simple'];
+        this.visibleChips = ['T5AI', 'T3', 'ESP32', 'ESP32-Series'];
     }
 
     /**

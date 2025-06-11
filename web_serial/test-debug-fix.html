@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug方法修复测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>ESP32SeriesDownloader Debug方法修复测试</h1>
+    
+    <div id="status" class="status info">等待测试...</div>
+    
+    <div>
+        <button onclick="connectTest()">连接测试</button>
+        <button onclick="debugTest()">Debug方法测试</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div id="log" class="log">准备开始测试...</div>
+
+    <!-- 加载依赖 -->
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32-esptool-js-wrapper.js"></script>
+
+    <script>
+        let downloader = null;
+        let port = null;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+            log('日志已清空');
+        }
+
+        async function connectTest() {
+            try {
+                setStatus('正在请求串口权限...', 'info');
+                log('开始连接测试...');
+                
+                if (!navigator.serial) {
+                    throw new Error('浏览器不支持 Web Serial API');
+                }
+                
+                port = await navigator.serial.requestPort();
+                log('串口选择成功');
+                
+                // 创建下载器实例 - 测试debug方法兼容性
+                downloader = new ESP32SeriesDownloader(port, {
+                    log: (msg) => log(`[CALLBACK] ${msg}`),
+                    error: (msg) => log(`[ERROR] ${msg}`),
+                    info: (msg) => log(`[INFO] ${msg}`),
+                    debug: (msg) => log(`[DEBUG] ${msg}`)
+                });
+                
+                log('ESP32SeriesDownloader 实例创建成功');
+                setStatus('下载器实例创建成功，可以进行debug测试', 'success');
+                
+            } catch (error) {
+                log(`连接测试失败: ${error.message}`);
+                setStatus(`连接测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function debugTest() {
+            if (!downloader) {
+                log('请先运行连接测试创建下载器实例');
+                return;
+            }
+
+            try {
+                log('=== Debug方法兼容性测试 ===');
+                
+                // 测试1: ESP32SeriesDownloader的debug方法 (str, withNewline)
+                log('测试1: ESP32SeriesDownloader debug方法');
+                downloader.debug('这是ESP32SeriesDownloader的debug测试');
+                downloader.debug('这是不换行的debug测试', false);
+                log('ESP32SeriesDownloader debug方法测试完成');
+                
+                // 测试2: BaseDownloader的debug方法 (level, message, data)  
+                log('测试2: BaseDownloader debug方法兼容性');
+                downloader.debug('info', '这是BaseDownloader的info级别debug');
+                downloader.debug('debug', '这是BaseDownloader的debug级别', { test: 'data' });
+                downloader.debug('error', '这是BaseDownloader的error级别');
+                log('BaseDownloader debug方法兼容性测试完成');
+                
+                // 测试3: info方法
+                log('测试3: info方法');
+                downloader.info('这是info方法测试');
+                log('info方法测试完成');
+                
+                // 测试4: error方法
+                log('测试4: error方法');
+                downloader.error('这是error方法测试');
+                log('error方法测试完成');
+                
+                // 测试5: write方法
+                log('测试5: write方法');
+                downloader.write('这是write方法测试');
+                log('write方法测试完成');
+                
+                // 测试6: 检查方法是否存在
+                log('测试6: 方法存在性检查');
+                const methods = ['debug', 'info', 'error', 'write', 'toHex', 'checksum'];
+                methods.forEach(method => {
+                    if (typeof downloader[method] === 'function') {
+                        log(`✅ ${method} 方法存在`);
+                    } else {
+                        log(`❌ ${method} 方法不存在`);
+                    }
+                });
+                
+                log('=== 所有debug方法测试完成 ===');
+                setStatus('Debug方法测试完成，检查日志输出', 'success');
+                
+            } catch (error) {
+                log(`Debug测试失败: ${error.message}`);
+                setStatus(`Debug测试失败: ${error.message}`, 'error');
+                console.error('Debug测试错误详情:', error);
+            }
+        }
+
+        // 页面加载完成后的提示
+        window.onload = function() {
+            if (!navigator.serial) {
+                setStatus('浏览器不支持 Web Serial API', 'error');
+                log('错误: 当前浏览器不支持 Web Serial API');
+            } else {
+                log('浏览器支持 Web Serial API，可以开始测试');
+            }
+        };
+    </script>
+</body>
+</html> 
