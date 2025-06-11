@@ -172,8 +172,8 @@ class FlashManager {
             }
         });
         
-        // 初始化支持的芯片列表
-        this.initializeSupportedChips();
+        // 初始化支持的芯片列表 - 注释掉，避免与script-clean.js冲突
+        // this.initializeSupportedChips();
         
         this.eventBus.emit('flash:downloader-initialized');
     }

@@ -1738,7 +1738,7 @@ class SerialTerminal {
 
     // 检查是否为ESP32设备
     isESP32Device(deviceType) {
-        return ['ESP32-Series', 'ESP32', 'ESP32C3', 'ESP32S3'].includes(deviceType);
+        return ['ESP32-Series'].includes(deviceType);
     }
 
     // 使用ESP32管理器进行下载

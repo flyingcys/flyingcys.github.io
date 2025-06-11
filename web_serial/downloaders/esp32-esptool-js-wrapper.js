@@ -13,6 +13,7 @@ class ESP32EsptoolJSWrapper {
         this.terminal = null;
         this.transport = null;
         this.chip = null;  // 添加chip引用，按照官方示例
+        this.onProgress = null;  // 添加进度回调支持
         this.logPrefix = '[WRAPPER]';
         this.debugCallback = {
             log: (message) => {
@@ -21,6 +22,13 @@ class ESP32EsptoolJSWrapper {
                 }
             }
         };
+    }
+
+    // ========== BaseDownloader接口：进度回调支持 ==========
+    
+    // 设置进度回调 - 与T5AI保持一致的接口
+    setProgressCallback(callback) {
+        this.onProgress = callback;
     }
 
     // 创建最小串口适配器 - 让esptool-js的Transport以为在使用标准Web Serial API
@@ -255,9 +263,24 @@ class ESP32EsptoolJSWrapper {
                 flashSize: "keep",
                 eraseAll: false,
                 compress: true,
-                reportProgress: progressCallback ? (fileIndex, written, total) => {
-                    progressCallback(written, total);
-                } : undefined,
+                reportProgress: (fileIndex, written, total) => {
+                    // 调用传入的进度回调
+                    if (progressCallback) {
+                        progressCallback(written, total);
+                    }
+                    
+                    // 调用设置的进度回调（与T5AI保持一致的接口）
+                    if (this.onProgress) {
+                        const percent = (written / total) * 100;
+                        this.onProgress({
+                            status: 'downloading',
+                            message: `ESP32固件下载中... ${Math.round(percent)}%`,
+                            progress: written,
+                            total: total,
+                            percent: percent
+                        });
+                    }
+                },
                 calculateMD5Hash: (image) => CryptoJS.MD5(CryptoJS.enc.Latin1.parse(image))
             };
 
