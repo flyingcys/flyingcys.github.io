@@ -1816,30 +1816,91 @@ class SerialTerminal {
                 totalSize: fileData.byteLength
             });
             
-            // 使用ESP32下载器的新API下载固件
-            await esp32Downloader.downloadFirmware(new Uint8Array(fileData), 0x10000);
+            // 获取用户选择的下载地址
+            let downloadAddress = 0x10000; // 默认地址
+            if (window.esp32FlashManager && typeof window.esp32FlashManager.getESP32FlashAddress === 'function') {
+                downloadAddress = window.esp32FlashManager.getESP32FlashAddress();
+            }
             
-            // 下载完成，更新进度条到100%
+            this.addToFlashLog(`下载地址: 0x${downloadAddress.toString(16).toUpperCase()}`, 'info');
+            
+            // 使用ESP32下载器的新API下载固件
+            await esp32Downloader.downloadFirmware(new Uint8Array(fileData), downloadAddress);
+            
+            // 下载完成，更新进度条到100% - 与T5AI格式保持一致
             this.updateFlashProgress({
-                message: 'ESP32固件下载完成！',
+                message: 'ESP32固件下载完成，设备已重启',
                 percent: 100,
                 downloadedSize: fileData.byteLength,
                 totalSize: fileData.byteLength
             });
             
+            // 触发与T5AI一致的完成回调
+            if (esp32Downloader.onProgress) {
+                esp32Downloader.onProgress({
+                    stage: 'completed',
+                    status: 'completed',
+                    message: 'ESP32固件下载完成，设备已重启',
+                    progress: fileData.byteLength,
+                    total: fileData.byteLength,
+                    percent: 100
+                });
+            }
+            
             this.addToFlashLog('=== ESP32固件下载完成 ===', 'success');
             
         } finally {
-            // 下载完成后断开ESP32连接
+            // 下载完成后的清理处理 - 与T5AI保持一致
             try {
+                // 1. 断开ESP32连接
                 await esp32Downloader.disconnect();
                 this.addToFlashLog('✅ ESP32下载器已断开', 'info');
+                
+                // 2. 重置串口波特率到115200（与T5AI一致）
+                if (this.flashPort && this.flashPort.readable && this.flashPort.writable) {
+                    try {
+                        this.addToFlashLog('重置串口波特率到115200...', 'info');
+                        
+                        // 关闭串口
+                        await this.flashPort.close();
+                        
+                        // 重新打开串口，波特率设为115200
+                        await this.flashPort.open({
+                            baudRate: 115200,
+                            dataBits: 8,
+                            stopBits: 1,
+                            parity: 'none'
+                        });
+                        
+                        this.addToFlashLog('✅ 串口波特率已重置到115200', 'success');
+                        
+                        // 重新设置reader/writer
+                        this.flashReader = this.flashPort.readable.getReader();
+                        this.flashWriter = this.flashPort.writable.getWriter();
+                        
+                    } catch (resetError) {
+                        this.addToFlashLog(`⚠️ 串口波特率重置失败: ${resetError.message}`, 'warning');
+                        // 即使重置失败，也保持连接状态
+                    }
+                }
+                
+                // 3. 确保固件下载连接状态正确
+                this.isFlashConnected = this.flashPort && this.flashPort.readable && this.flashPort.writable;
+                this.updateFlashConnectionStatus(this.isFlashConnected);
+                
+                if (this.isFlashConnected) {
+                    this.addToFlashLog('✅ 固件下载串口连接保持，可以继续下载', 'success');
+                } else {
+                    this.addToFlashLog('⚠️ 固件下载串口连接异常，需要重新连接', 'warning');
+                }
+                
             } catch (e) {
-                this.addToFlashLog(`⚠️ 断开ESP32连接时出错: ${e.message}`, 'warning');
+                this.addToFlashLog(`⚠️ ESP32下载完成处理时出错: ${e.message}`, 'warning');
+                
+                // 错误时简化处理
+                this.isFlashConnected = this.flashPort && this.flashPort.readable;
+                this.updateFlashConnectionStatus(this.isFlashConnected);
             }
-            
-            // 恢复SerialTerminal对串口的锁定（如果需要）
-            // this.addToFlashLog('固件下载串口保持连接状态', 'info');
         }
     }
 

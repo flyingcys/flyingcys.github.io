@@ -254,6 +254,13 @@ class ESP32EsptoolJSWrapper {
                 throw new Error('不支持的固件数据格式');
             }
 
+            // 特殊处理：如果用户选择0x0000，可能需要擦除更多区域
+            const needFullErase = (startAddress === 0);
+            if (needFullErase) {
+                this.debugCallback.log('⚠️ [WRAPPER] 检测到0x0000起始地址，这可能覆盖引导程序区域');
+                this.debugCallback.log('ℹ️ [WRAPPER] ESP32标准引导程序地址是0x1000，请确认您的固件是完整包');
+            }
+
             // ✅ 100%按照官方示例：FlashOptions格式
             const flashOptions = {
                 fileArray: [{
@@ -261,7 +268,7 @@ class ESP32EsptoolJSWrapper {
                     address: startAddress
                 }],
                 flashSize: "keep",
-                eraseAll: false,
+                eraseAll: needFullErase, // 如果从0x0000开始，进行完整擦除
                 compress: true,
                 reportProgress: (fileIndex, written, total) => {
                     // 调用传入的进度回调

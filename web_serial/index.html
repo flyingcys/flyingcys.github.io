@@ -369,6 +369,16 @@
                                     <!-- <option value="LN882H">LN882H</option> -->
                                 </select>
                             </div>
+                            <div class="config-group" id="esp32AddressGroup" style="display: none;">
+                                <label for="esp32FlashAddress">ESP32下载地址:</label>
+                                <select id="esp32FlashAddress">
+                                    <option value="0x0000">0x0000 (特殊完整包-非标准)</option>
+                                    <option value="0x1000">0x1000 (ESP32标准完整包)</option>
+                                    <option value="0x10000" selected>0x10000 (仅应用程序)</option>
+                                    <option value="custom">自定义地址...</option>
+                                </select>
+                                <input type="text" id="customAddressInput" placeholder="0x..." style="display: none; margin-top: 5px; width: 100px;" maxlength="10">
+                            </div>
                         </div>
                     </div>
                     
@@ -394,14 +404,6 @@
                         <button id="stopDownloadBtn" class="btn btn-secondary" disabled>
                             <span class="icon">⏹️</span>
                             <span data-i18n="stop_download">停止下载</span>
-                        </button>
-                        <button id="testConnectBtn" class="btn btn-secondary" style="display: none;">
-                            <span class="icon">🔧</span>
-                            <span>测试连接</span>
-                        </button>
-                        <button id="detectChipBtn" class="btn btn-secondary" disabled style="display: none;">
-                            <span class="icon">🔍</span>
-                            <span>检测芯片</span>
                         </button>
                     </div>
 
@@ -1053,22 +1055,34 @@
                     }
                 });
                 
-                // 添加测试连接按钮事件
-                const testConnectBtn = document.getElementById('testConnectBtn');
-                if (testConnectBtn) {
-                    testConnectBtn.addEventListener('click', () => {
-                        if (this.isESP32Device(deviceSelect.value)) {
-                            this.testESP32Connection();
-                        }
-                    });
-                }
+                // ESP32地址选择事件
+                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
+                const customAddressInput = document.getElementById('customAddressInput');
                 
-                // 添加检测芯片按钮事件
-                const detectChipBtn = document.getElementById('detectChipBtn');
-                if (detectChipBtn) {
-                    detectChipBtn.addEventListener('click', () => {
-                        if (this.isESP32Device(deviceSelect.value)) {
-                            this.detectESP32Chip();
+                if (esp32AddressSelect && customAddressInput) {
+                    esp32AddressSelect.addEventListener('change', (e) => {
+                        if (e.target.value === 'custom') {
+                            customAddressInput.style.display = 'block';
+                            customAddressInput.focus();
+                        } else {
+                            customAddressInput.style.display = 'none';
+                        }
+                        this.logESP32(`ESP32下载地址已选择: ${this.getESP32FlashAddress()}`, 'info');
+                    });
+                    
+                    // 自定义地址输入验证
+                    customAddressInput.addEventListener('input', (e) => {
+                        let value = e.target.value.trim();
+                        // 自动添加0x前缀
+                        if (value && !value.startsWith('0x')) {
+                            value = '0x' + value;
+                            e.target.value = value;
+                        }
+                        // 验证十六进制格式
+                        if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
+                            e.target.style.borderColor = 'red';
+                        } else {
+                            e.target.style.borderColor = '';
                         }
                     });
                 }
@@ -1084,137 +1098,46 @@
             }
             
             enableESP32Features() {
-                // 显示ESP32专用按钮
-                const testConnectBtn = document.getElementById('testConnectBtn');
-                const detectChipBtn = document.getElementById('detectChipBtn');
-                
-                if (testConnectBtn) testConnectBtn.style.display = 'inline-block';
-                if (detectChipBtn) detectChipBtn.style.display = 'inline-block';
-                
-                this.logESP32('ESP32设备已选择，启用专用功能', 'info');
+                // 显示ESP32地址配置
+                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+                if (esp32AddressGroup) {
+                    esp32AddressGroup.style.display = 'block';
+                }
+                this.logESP32(`ESP32设备已选择，下载地址: ${this.getESP32FlashAddress()}`, 'info');
             }
             
             disableESP32Features() {
-                // 隐藏ESP32专用按钮，不影响T5AI/T3
-                const testConnectBtn = document.getElementById('testConnectBtn');
-                const detectChipBtn = document.getElementById('detectChipBtn');
+                // 隐藏ESP32地址配置
+                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+                if (esp32AddressGroup) {
+                    esp32AddressGroup.style.display = 'none';
+                }
+            }
+            
+            getESP32FlashAddress() {
+                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
+                const customAddressInput = document.getElementById('customAddressInput');
                 
-                if (testConnectBtn) testConnectBtn.style.display = 'none';
-                if (detectChipBtn) detectChipBtn.style.display = 'none';
-            }
-            
-            async testESP32Connection() {
-                try {
-                    this.logESP32('=== ESP32连接测试开始 ===', 'info');
-                    
-                    // 检查浏览器支持
-                    if (!('serial' in navigator)) {
-                        throw new Error('浏览器不支持Web Serial API');
-                    }
-                    
-                    this.logESP32('✅ 浏览器支持Web Serial API', 'success');
-                    
-                    // 检查esptool-js包装器
-                    if (typeof ESP32EsptoolJSWrapper === 'undefined') {
-                        throw new Error('ESP32EsptoolJSWrapper未加载');
-                    }
-                    
-                    this.logESP32('✅ ESP32EsptoolJSWrapper已加载', 'success');
-                    
-                    // 请求串口连接
-                    this.logESP32('请选择ESP32设备串口...', 'info');
-                    const port = await navigator.serial.requestPort();
-                    this.serialPort = port;
-                    
-                    this.logESP32('✅ 串口选择成功', 'success');
-                    
-                    // 创建ESP32下载器实例
-                    this.downloader = new ESP32EsptoolJSWrapper(port, {
-                        log: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'debug'),
-                        error: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'error'),
-                        info: (msg) => this.logESP32(`[Wrapper] ${msg}`, 'info')
-                    });
-                    
-                    this.logESP32('✅ ESP32EsptoolJSWrapper实例创建成功', 'success');
-                    
-                    // 初始化
-                    const initialized = await this.downloader.initialize();
-                    if (!initialized) {
-                        throw new Error('ESP32包装器初始化失败');
-                    }
-                    
-                    this.logESP32('✅ ESP32包装器初始化成功', 'success');
-                    
-                    // 连接测试
-                    const connected = await this.downloader.connect();
-                    if (connected) {
-                        this.isConnected = true;
-                        this.chipInfo = this.downloader.getChipInfo();
-                        
-                        this.logESP32('✅ ESP32设备连接成功!', 'success');
-                        
-                        if (this.chipInfo) {
-                            this.logESP32(`芯片信息: ${JSON.stringify(this.chipInfo)}`, 'info');
-                        }
-                        
-                        // 启用检测芯片按钮
-                        const detectBtn = document.getElementById('detectChipBtn');
-                        if (detectBtn) detectBtn.disabled = false;
-                        
-                        this.logESP32('=== ESP32连接测试完成 ===', 'success');
-                        
+                if (!esp32AddressSelect) {
+                    return 0x10000; // 默认地址
+                }
+                
+                const selectedValue = esp32AddressSelect.value;
+                
+                if (selectedValue === 'custom') {
+                    const customValue = customAddressInput ? customAddressInput.value.trim() : '';
+                    if (customValue && /^0x[0-9a-fA-F]+$/.test(customValue)) {
+                        return parseInt(customValue, 16);
                     } else {
-                        throw new Error('ESP32设备连接失败');
+                        this.logESP32('⚠️ 自定义地址格式错误，使用默认地址0x10000', 'warning');
+                        return 0x10000;
                     }
-                    
-                } catch (error) {
-                    this.logESP32(`连接测试失败: ${error.message}`, 'error');
-                    this.logESP32('💡 提示: 请确保ESP32已连接并进入下载模式（按住BOOT按钮重启）', 'info');
+                } else {
+                    return parseInt(selectedValue, 16);
                 }
             }
             
-            async detectESP32Chip() {
-                try {
-                    this.logESP32('=== ESP32芯片检测开始 ===', 'info');
-                    
-                    if (!this.isConnected || !this.downloader) {
-                        this.logESP32('请先进行连接测试', 'warning');
-                        return;
-                    }
-                    
-                    // 同步通信测试
-                    this.logESP32('测试设备同步...', 'debug');
-                    await this.downloader.sync();
-                    this.logESP32('✅ 设备同步成功', 'success');
-                    
-                    // 读取芯片ID
-                    this.logESP32('读取芯片ID...', 'debug');
-                    const chipId = await this.downloader.getChipId();
-                    if (chipId) {
-                        this.logESP32(`芯片ID: 0x${chipId.toString(16)}`, 'success');
-                    }
-                    
-                    // 尝试读取Flash ID（可能失败，这是正常的）
-                    this.logESP32('尝试读取Flash ID...', 'debug');
-                    try {
-                        const flashId = await this.downloader.getFlashId();
-                        if (flashId) {
-                            this.logESP32(`Flash ID: 0x${flashId.toString(16)}`, 'success');
-                        }
-                    } catch (e) {
-                        this.logESP32(`Flash ID读取失败（ROM模式下正常）: ${e.message}`, 'warning');
-                    }
-                    
-                    // 获取设备状态
-                    const status = this.downloader.getDeviceStatus();
-                    this.logESP32(`设备状态: 连接=${status.isConnected}, loader就绪=${status.espLoaderReady}`, 'info');
-                    
-                    this.logESP32('=== ESP32芯片检测完成 ===', 'success');
-                    
-                } catch (error) {
-                    this.logESP32(`芯片检测失败: ${error.message}`, 'error');
-                }
-            }
+
             
             logESP32(message, type = 'info') {
                 try {
