@@ -602,7 +602,7 @@
                 <button class="btn" onclick="exportFile()">💾 导出</button>
                 <button class="btn" onclick="formatJson()">✨ 格式化</button>
                 <button class="btn" onclick="compressJson()">🗜️ 压缩</button>
-                <button class="btn" onclick="resetPanels()" id="resetPanelsBtn" style="display: none;">🔄 恢复面板</button>
+
                 <button class="btn primary" onclick="validateJson()">✅ 验证</button>
             </div>
         </div>
@@ -755,7 +755,7 @@
                 }
             });
             
-            updatePanelButtonStates();
+
         });
 
         // 防抖函数
@@ -1196,14 +1196,12 @@
 
         // 面板折叠功能
         function togglePanel(panelType) {
-            console.log('togglePanel called with:', panelType);
             const editorPanel = document.querySelector('.editor-panel');
             const viewerPanel = document.querySelector('.viewer-panel');
             const expandEditorBtn = document.getElementById('expandEditorBtn');
             const expandViewerBtn = document.getElementById('expandViewerBtn');
             const collapseEditorBtn = document.getElementById('collapseEditor');
             const collapseViewerBtn = document.getElementById('collapseViewer');
-            const resetBtn = document.getElementById('resetPanelsBtn');
 
             if (panelType === 'editor') {
                 // 如果预览已经折叠，不允许再折叠编辑器
@@ -1220,7 +1218,6 @@
                     expandEditorBtn.style.display = 'flex';
                     collapseEditorBtn.innerHTML = '展开 ►';
                     collapseEditorBtn.title = '展开编辑器';
-                    resetBtn.style.display = 'inline-block';
                     
                     // 扩展预览面板
                     viewerPanel.classList.add('panel-expanded');
@@ -1231,10 +1228,6 @@
                     
                     // 恢复预览面板
                     viewerPanel.classList.remove('panel-expanded');
-                    
-                    if (!viewerPanel.classList.contains('panel-collapsed')) {
-                        resetBtn.style.display = 'none';
-                    }
                 }
             } else if (panelType === 'viewer') {
                 // 如果编辑器已经折叠，不允许再折叠预览
@@ -1251,7 +1244,6 @@
                     expandViewerBtn.style.display = 'flex';
                     collapseViewerBtn.innerHTML = '◄ 展开';
                     collapseViewerBtn.title = '展开预览';
-                    resetBtn.style.display = 'inline-block';
                     
                     // 扩展编辑器面板
                     editorPanel.classList.add('panel-expanded');
@@ -1262,124 +1254,15 @@
                     
                     // 恢复编辑器面板
                     editorPanel.classList.remove('panel-expanded');
-                    
-                    if (!editorPanel.classList.contains('panel-collapsed')) {
-                        resetBtn.style.display = 'none';
-                    }
                 }
             }
-            
-            console.log('Panel states after toggle:', {
-                editorCollapsed: editorPanel.classList.contains('panel-collapsed'),
-                viewerCollapsed: viewerPanel.classList.contains('panel-collapsed'),
-                editorExpanded: editorPanel.classList.contains('panel-expanded'),
-                viewerExpanded: viewerPanel.classList.contains('panel-expanded'),
-                expandEditorBtnDisplay: expandEditorBtn.style.display,
-                expandViewerBtnDisplay: expandViewerBtn.style.display
-            });
-            
-            // 更新按钮状态
-            updatePanelButtonStates();
         }
 
-        function updateExpandButtonVisibility() {
-            console.log('updateExpandButtonVisibility called');
-            const editorPanel = document.querySelector('.editor-panel');
-            const viewerPanel = document.querySelector('.viewer-panel');
-            const expandEditorBtn = document.getElementById('expandEditorBtn');
-            const expandViewerBtn = document.getElementById('expandViewerBtn');
-            const resetBtn = document.getElementById('resetPanelsBtn');
 
-            // 根据面板状态显示/隐藏展开按钮
-            expandEditorBtn.style.display = editorPanel.classList.contains('panel-collapsed') ? 'flex' : 'none';
-            expandViewerBtn.style.display = viewerPanel.classList.contains('panel-collapsed') ? 'flex' : 'none';
-            
-            // 如果任一面板折叠，显示恢复按钮
-            resetBtn.style.display = (editorPanel.classList.contains('panel-collapsed') || 
-                                     viewerPanel.classList.contains('panel-collapsed')) ? 
-                                     'inline-block' : 'none';
-                                     
-            console.log('Button visibility updated:', {
-                editorCollapsed: editorPanel.classList.contains('panel-collapsed'),
-                viewerCollapsed: viewerPanel.classList.contains('panel-collapsed'),
-                expandEditorBtnDisplay: expandEditorBtn.style.display,
-                expandViewerBtnDisplay: expandViewerBtn.style.display,
-                resetBtnDisplay: resetBtn.style.display
-            });
-        }
 
-        // 更新折叠/展开按钮的状态和文本
-        function updatePanelButtonStates() {
-            const editorPanel = document.querySelector('.editor-panel');
-            const viewerPanel = document.querySelector('.viewer-panel');
-            const expandEditorBtn = document.getElementById('expandEditorBtn');
-            const expandViewerBtn = document.getElementById('expandViewerBtn');
-            const resetBtn = document.getElementById('resetPanelsBtn');
 
-            const editorCollapsed = editorPanel.classList.contains('panel-collapsed');
-            const viewerCollapsed = viewerPanel.classList.contains('panel-collapsed');
 
-            // 显示或隐藏恢复按钮
-            resetBtn.style.display = editorCollapsed || viewerCollapsed ? 'inline-block' : 'none';
 
-            // 更新编辑器按钮
-            if (editorCollapsed) {
-                expandEditorBtn.disabled = viewerCollapsed; // 如果另一个已折叠，则禁用此按钮
-                expandEditorBtn.title = viewerCollapsed ? '不能同时折叠两个面板' : '折叠编辑器';
-                expandEditorBtn.innerHTML = '展开 ►';
-            } else {
-                expandEditorBtn.disabled = viewerCollapsed; // 如果另一个已折叠，则禁用此按钮
-                expandEditorBtn.title = viewerCollapsed ? '不能同时折叠两个面板' : '折叠编辑器';
-                expandEditorBtn.innerHTML = '◄ 折叠';
-            }
-
-            // 更新预览器按钮
-            if (viewerCollapsed) {
-                expandViewerBtn.classList.add('expand');
-                expandViewerBtn.title = '展开预览';
-                expandViewerBtn.innerHTML = '◄ 展开';
-            } else {
-                expandViewerBtn.disabled = editorCollapsed; // 如果另一个已折叠，则禁用此按钮
-                expandViewerBtn.title = editorCollapsed ? '不能同时折叠两个面板' : '折叠预览';
-                expandViewerBtn.innerHTML = '折叠 ►';
-            }
-        }
-
-        // 重置面板布局
-        function resetPanels() {
-            const editorPanel = document.querySelector('.editor-panel');
-            const viewerPanel = document.querySelector('.viewer-panel');
-            const expandEditorBtn = document.getElementById('expandEditorBtn');
-            const expandViewerBtn = document.getElementById('expandViewerBtn');
-            const collapseEditorBtn = document.getElementById('collapseEditor');
-            const collapseViewerBtn = document.getElementById('collapseViewer');
-            const resetBtn = document.getElementById('resetPanelsBtn');
-
-            // 移除所有折叠和展开类
-            editorPanel.classList.remove('panel-collapsed', 'panel-expanded');
-            viewerPanel.classList.remove('panel-collapsed', 'panel-expanded');
-
-            // 隐藏展开按钮
-            expandEditorBtn.style.display = 'none';
-            expandViewerBtn.style.display = 'none';
-
-            // 重置按钮状态
-            collapseEditorBtn.innerHTML = '◄ 折叠';
-            collapseEditorBtn.classList.remove('expand');
-            collapseEditorBtn.title = '折叠编辑器';
-            collapseEditorBtn.disabled = false;
-
-            collapseViewerBtn.innerHTML = '折叠 ►';
-            collapseViewerBtn.classList.remove('expand');
-            collapseViewerBtn.title = '折叠预览';
-            collapseViewerBtn.disabled = false;
-
-            // 隐藏恢复按钮
-            resetBtn.style.display = 'none';
-
-            // 显示通知
-            showNotification('面板布局已重置', 'success');
-        }
 
         // 显示通知消息
         function showNotification(message, type = 'info') {

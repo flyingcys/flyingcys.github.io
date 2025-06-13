@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML 可视化工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn.primary {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+        }
+
+        .btn.primary:hover {
+            background: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .editor-panel, .viewer-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .editor-panel {
+            border-right: 1px solid #eee;
+        }
+
+        .panel-collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            border: none !important;
+            position: relative;
+            padding: 0 !important;
+            margin: 0 !important;
+            flex: 0 !important;
+        }
+
+        .panel-collapsed * {
+            visibility: hidden;
+        }
+
+        .panel-expanded {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            transition: all 0.3s ease;
+        }
+
+        .expand-handle {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 60px;
+            background: rgba(102, 126, 234, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: monospace;
+            z-index: 9999;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            opacity: 0.9;
+        }
+
+        .expand-handle:hover {
+            width: 36px;
+            background: rgba(118, 75, 162, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        #expandEditorBtn, #expandViewerBtn {
+            visibility: visible !important;
+        }
+
+        #expandEditorBtn {
+            left: 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        #expandViewerBtn {
+            right: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .panel-header {
+            background: #f8f9ff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .collapse-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .collapse-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .panel-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .panel-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .code-editor {
+            flex: 1;
+            margin: 0;
+            padding: 20px;
+            border: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background: #f8f9ff;
+        }
+
+        .xml-viewer {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #fafbff;
+        }
+
+        .xml-element {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+
+        .xml-element:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .xml-tag {
+            color: #0066cc;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .xml-attribute {
+            color: #d73a49;
+            margin-left: 5px;
+        }
+
+        .xml-attribute-name {
+            color: #6f42c1;
+        }
+
+        .xml-attribute-value {
+            color: #22863a;
+        }
+
+        .xml-text {
+            color: #333;
+            margin-left: 20px;
+            white-space: pre-wrap;
+        }
+
+        .xml-comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .xml-cdata {
+            color: #e36209;
+            background: #fff5b4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .xml-toggle {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 5px;
+            user-select: none;
+        }
+
+        .xml-toggle:hover {
+            background: #764ba2;
+        }
+
+        .xml-collapsed {
+            display: none;
+        }
+
+        .xml-controls {
+            display: none;
+            margin-left: auto;
+            gap: 5px;
+        }
+
+        .xml-element:hover .xml-controls {
+            display: flex;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .control-btn.add {
+            background: #28a745;
+        }
+
+        .control-btn.edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .control-btn.delete {
+            background: #dc3545;
+        }
+
+        .status-bar {
+            background: #f8f9ff;
+            padding: 10px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #764ba2;
+        }
+
+        .modal-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .search-box {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .highlight {
+            background: yellow;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .editor-panel, .viewer-panel {
+                width: 100% !important;
+                height: 50%;
+            }
+            
+            .editor-panel {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .expand-handle {
+                width: 60px;
+                height: 28px;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) translateY(-50%);
+                border-radius: 12px;
+            }
+            
+            #expandEditorBtn {
+                top: 0;
+            }
+            
+            #expandViewerBtn {
+                bottom: 0;
+                top: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 XML 可视化工具</h1>
+            <div class="header-controls">
+                <button class="btn" onclick="importFile()">📁 导入</button>
+                <button class="btn" onclick="exportFile()">💾 导出</button>
+                <button class="btn" onclick="formatXml()">✨ 格式化</button>
+                <button class="btn" onclick="compressXml()">🗜️ 压缩</button>
+
+                <button class="btn primary" onclick="validateXml()">✅ 验证</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <button class="expand-handle" id="expandEditorBtn" onclick="togglePanel('editor')" title="展开编辑器">
+                &gt;&gt;
+            </button>
+            <div class="editor-panel">
+                <div class="panel-header">
+                    📝 XML 编辑器
+                    <div class="panel-controls">
+                        <button class="collapse-btn" id="collapseEditor" onclick="togglePanel('editor')" title="折叠编辑器">
+                            ◄ 折叠
+                        </button>
+                        <button class="panel-btn" onclick="clearEditor()">清空</button>
+                        <button class="panel-btn" onclick="loadSample()">示例</button>
+                    </div>
+                </div>
+                <textarea id="xmlEditor" class="code-editor" placeholder="在此输入或粘贴您的XML数据..."><?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+    <book id="1" category="fiction">
+        <title lang="en">Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <year>1925</year>
+        <price currency="USD">10.99</price>
+        <description><![CDATA[A classic American novel about the Jazz Age.]]></description>
+    </book>
+    <book id="2" category="science">
+        <title lang="en">Brief History of Time</title>
+        <author>Stephen Hawking</author>
+        <year>1988</year>
+        <price currency="USD">15.99</price>
+        <description><![CDATA[An exploration of cosmology and physics.]]></description>
+    </book>
+    <!-- 更多书籍可以在这里添加 -->
+</bookstore></textarea>
+            </div>
+
+            <button class="expand-handle" id="expandViewerBtn" onclick="togglePanel('viewer')" title="展开预览">
+                &lt;&lt;
+            </button>
+            
+            <div class="viewer-panel">
+                <div class="panel-header">
+                    🌳 可视化视图
+                    <div class="toolbar">
+                        <input type="text" id="searchBox" class="search-box" placeholder="搜索..." onkeyup="searchXml(this.value)">
+                        <div class="panel-controls">
+                            <button class="collapse-btn" id="collapseViewer" onclick="togglePanel('viewer')" title="折叠预览">
+                                折叠 ►
+                            </button>
+                            <button class="panel-btn" onclick="expandAll()">展开全部</button>
+                            <button class="panel-btn" onclick="collapseAll()">折叠全部</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="xmlViewer" class="xml-viewer">
+                    <!-- XML视图将在这里渲染 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">就绪</span>
+            <span id="xmlStats">行数: 0 | 字符数: 0</span>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">编辑XML节点</div>
+            <div class="form-group">
+                <label>标签名:</label>
+                <input type="text" id="editTagName" placeholder="输入标签名">
+            </div>
+            <div class="form-group">
+                <label>属性 (格式: name="value"):</label>
+                <textarea id="editAttributes" rows="3" placeholder="例如: id=&quot;1&quot; class=&quot;example&quot;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>内容类型:</label>
+                <select id="editContentType" onchange="updateContentInput()">
+                    <option value="text">文本内容</option>
+                    <option value="cdata">CDATA内容</option>
+                    <option value="element">子元素</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>内容:</label>
+                <textarea id="editContent" rows="4" placeholder="输入内容"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="fileInput" accept=".xml" style="display: none;" onchange="handleFileImport(event)">
+
+    <script>
+        let xmlData = null;
+        let currentEditElement = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const editor = document.getElementById('xmlEditor');
+            editor.addEventListener('input', debounce(updateViewer, 300));
+            updateViewer();
+            
+            // 确保展开按钮初始状态正确
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            expandEditorBtn.style.display = 'none';
+            expandViewerBtn.style.display = 'none';
+            
+            // 添加键盘快捷键支持
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Tab') {
+                    e.preventDefault();
+                    const editorPanel = document.querySelector('.editor-panel');
+                    const viewerPanel = document.querySelector('.viewer-panel');
+                    
+                    if (editorPanel.classList.contains('panel-collapsed')) {
+                        togglePanel('editor');
+                    } else if (viewerPanel.classList.contains('panel-collapsed')) {
+                        togglePanel('viewer');
+                    } else {
+                        togglePanel('editor');
+                    }
+                }
+            });
+        });
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 更新状态栏
+        function updateStats() {
+            const editor = document.getElementById('xmlEditor');
+            const text = editor.value;
+            const lines = text.split('\n').length;
+            const chars = text.length;
+            document.getElementById('xmlStats').textContent = `行数: ${lines} | 字符数: ${chars}`;
+        }
+
+        // 更新视图
+        function updateViewer() {
+            const editor = document.getElementById('xmlEditor');
+            const viewer = document.getElementById('xmlViewer');
+            const statusText = document.getElementById('statusText');
+            
+            updateStats();
+            
+            try {
+                const parser = new DOMParser();
+                xmlData = parser.parseFromString(editor.value, 'text/xml');
+                
+                // 检查解析错误
+                const parseError = xmlData.querySelector('parsererror');
+                if (parseError) {
+                    throw new Error(parseError.textContent);
+                }
+                
+                viewer.innerHTML = renderXml(xmlData.documentElement);
+                statusText.textContent = '✅ XML 格式正确';
+                statusText.style.color = '#28a745';
+            } catch (error) {
+                viewer.innerHTML = `<div class="error-message">❌ XML 格式错误: ${error.message}</div>`;
+                statusText.textContent = '❌ XML 格式错误';
+                statusText.style.color = '#dc3545';
+            }
+        }
+
+        // 渲染XML
+        function renderXml(element, level = 0) {
+            if (!element) return '';
+            
+            let html = '';
+            const indent = '  '.repeat(level);
+            
+            if (element.nodeType === Node.ELEMENT_NODE) {
+                const tagName = element.tagName;
+                const attributes = Array.from(element.attributes);
+                const hasChildren = element.children.length > 0 || element.textContent.trim();
+                
+                html += `<div class="xml-element" style="margin-left: ${level * 20}px;">`;
+                
+                if (hasChildren) {
+                    html += `<span class="xml-toggle" onclick="toggleCollapse(this)">-</span>`;
+                } else {
+                    html += `<span style="width: 16px; display: inline-block;"></span>`;
+                }
+                
+                html += `<span class="xml-tag">&lt;${tagName}`;
+                
+                // 渲染属性
+                attributes.forEach(attr => {
+                    html += ` <span class="xml-attribute">`;
+                    html += `<span class="xml-attribute-name">${attr.name}</span>=`;
+                    html += `<span class="xml-attribute-value">"${escapeHtml(attr.value)}"</span>`;
+                    html += `</span>`;
+                });
+                
+                if (hasChildren) {
+                    html += `&gt;</span>`;
+                    
+                    // 渲染子元素和文本内容
+                    html += `<div class="xml-content">`;
+                    
+                    // 处理文本内容
+                    const textContent = getDirectTextContent(element);
+                    if (textContent.trim()) {
+                        if (textContent.includes('<![CDATA[')) {
+                            html += `<div class="xml-text xml-cdata" style="margin-left: ${(level + 1) * 20}px;">${escapeHtml(textContent)}</div>`;
+                        } else {
+                            html += `<div class="xml-text" style="margin-left: ${(level + 1) * 20}px;">${escapeHtml(textContent)}</div>`;
+                        }
+                    }
+                    
+                    // 处理子元素
+                    Array.from(element.children).forEach(child => {
+                        html += renderXml(child, level + 1);
+                    });
+                    
+                    html += `</div>`;
+                    html += `<div style="margin-left: ${level * 20}px;"><span class="xml-tag">&lt;/${tagName}&gt;</span></div>`;
+                } else {
+                    html += ` /&gt;</span>`;
+                }
+                
+                // 添加控制按钮
+                html += `<div class="xml-controls">`;
+                html += `<button class="control-btn add" onclick="addElement(this)" title="添加子元素">+</button>`;
+                html += `<button class="control-btn edit" onclick="editElement(this)" title="编辑">✎</button>`;
+                html += `<button class="control-btn delete" onclick="deleteElement(this)" title="删除">×</button>`;
+                html += `</div>`;
+                
+                html += `</div>`;
+            }
+            
+            return html;
+        }
+
+        // 获取直接文本内容（不包括子元素的文本）
+        function getDirectTextContent(element) {
+            let text = '';
+            for (let node of element.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.CDATA_SECTION_NODE) {
+                    text += node.textContent;
+                }
+            }
+            return text;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // 切换折叠状态
+        function toggleCollapse(toggle) {
+            const content = toggle.parentElement.querySelector('.xml-content');
+            if (content) {
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    toggle.textContent = '-';
+                } else {
+                    content.style.display = 'none';
+                    toggle.textContent = '+';
+                }
+            }
+        }
+
+        // 展开全部
+        function expandAll() {
+            const toggles = document.querySelectorAll('.xml-toggle');
+            toggles.forEach(toggle => {
+                const content = toggle.parentElement.querySelector('.xml-content');
+                if (content) {
+                    content.style.display = 'block';
+                    toggle.textContent = '-';
+                }
+            });
+        }
+
+        // 折叠全部
+        function collapseAll() {
+            const toggles = document.querySelectorAll('.xml-toggle');
+            toggles.forEach(toggle => {
+                const content = toggle.parentElement.querySelector('.xml-content');
+                if (content) {
+                    content.style.display = 'none';
+                    toggle.textContent = '+';
+                }
+            });
+        }
+
+        // 搜索XML
+        function searchXml(query) {
+            const viewer = document.getElementById('xmlViewer');
+            const elements = viewer.querySelectorAll('.xml-tag, .xml-text, .xml-attribute-value');
+            
+            elements.forEach(element => {
+                const text = element.textContent;
+                if (query && text.toLowerCase().includes(query.toLowerCase())) {
+                    element.innerHTML = text.replace(
+                        new RegExp(`(${query})`, 'gi'),
+                        '<span class="highlight">$1</span>'
+                    );
+                } else {
+                    element.textContent = text;
+                }
+            });
+        }
+
+        // 文件操作
+        function importFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('xmlEditor').value = e.target.result;
+                    updateViewer();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function exportFile() {
+            const content = document.getElementById('xmlEditor').value;
+            const blob = new Blob([content], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.xml';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // XML格式化
+        function formatXml() {
+            try {
+                const editor = document.getElementById('xmlEditor');
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(editor.value, 'text/xml');
+                
+                const parseError = xmlDoc.querySelector('parsererror');
+                if (parseError) {
+                    throw new Error('XML格式错误');
+                }
+                
+                const serializer = new XMLSerializer();
+                let xmlString = serializer.serializeToString(xmlDoc);
+                
+                // 格式化XML
+                xmlString = formatXmlString(xmlString);
+                editor.value = xmlString;
+                updateViewer();
+                showNotification('XML已格式化', 'success');
+            } catch (error) {
+                showNotification('格式化失败: ' + error.message, 'error');
+            }
+        }
+
+        function formatXmlString(xml) {
+            const PADDING = '  ';
+            const reg = /(>)(<)(\/*)/g;
+            let formatted = xml.replace(reg, '$1\r\n$2$3');
+            let pad = 0;
+            
+            return formatted.split('\r\n').map(line => {
+                let indent = 0;
+                if (line.match(/.+<\/\w[^>]*>$/)) {
+                    indent = 0;
+                } else if (line.match(/^<\/\w/) && pad > 0) {
+                    pad -= 1;
+                } else if (line.match(/^<\w[^>]*[^\/]>.*$/)) {
+                    indent = 1;
+                } else {
+                    indent = 0;
+                }
+                
+                const padding = PADDING.repeat(pad);
+                pad += indent;
+                return padding + line;
+            }).join('\r\n');
+        }
+
+        // XML压缩
+        function compressXml() {
+            try {
+                const editor = document.getElementById('xmlEditor');
+                const compressed = editor.value
+                    .replace(/>\s+</g, '><')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                editor.value = compressed;
+                updateViewer();
+                showNotification('XML已压缩', 'success');
+            } catch (error) {
+                showNotification('压缩失败: ' + error.message, 'error');
+            }
+        }
+
+        // 验证XML
+        function validateXml() {
+            try {
+                const editor = document.getElementById('xmlEditor');
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(editor.value, 'text/xml');
+                
+                const parseError = xmlDoc.querySelector('parsererror');
+                if (parseError) {
+                    throw new Error(parseError.textContent);
+                }
+                
+                showNotification('XML格式正确！', 'success');
+            } catch (error) {
+                showNotification('XML格式错误: ' + error.message, 'error');
+            }
+        }
+
+        // 清空编辑器
+        function clearEditor() {
+            if (confirm('确定要清空编辑器内容吗？')) {
+                document.getElementById('xmlEditor').value = '';
+                updateViewer();
+            }
+        }
+
+        // 加载示例
+        function loadSample() {
+            const sample = `<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    <books>
+        <book id="1" category="fiction" available="true">
+            <title lang="zh">红楼梦</title>
+            <author>曹雪芹</author>
+            <publisher>人民文学出版社</publisher>
+            <year>1791</year>
+            <price currency="CNY">45.00</price>
+            <description><![CDATA[中国古典四大名著之一，描述了贾宝玉、林黛玉等人的爱情悲剧。]]></description>
+            <tags>
+                <tag>古典文学</tag>
+                <tag>爱情</tag>
+                <tag>悲剧</tag>
+            </tags>
+        </book>
+        <book id="2" category="technology" available="true">
+            <title lang="zh">JavaScript高级程序设计</title>
+            <author>Nicholas C. Zakas</author>
+            <publisher>人民邮电出版社</publisher>
+            <year>2020</year>
+            <price currency="CNY">99.00</price>
+            <description><![CDATA[全面介绍JavaScript语言的高级特性和最佳实践。]]></description>
+            <tags>
+                <tag>编程</tag>
+                <tag>JavaScript</tag>
+                <tag>前端开发</tag>
+            </tags>
+        </book>
+    </books>
+    <members>
+        <member id="001" type="student">
+            <name>张三</name>
+            <email>zhangsan@example.com</email>
+            <phone>13800138000</phone>
+            <address>
+                <city>北京</city>
+                <district>海淀区</district>
+                <street>中关村大街1号</street>
+            </address>
+        </member>
+        <member id="002" type="teacher">
+            <name>李四</name>
+            <email>lisi@example.com</email>
+            <phone>13900139000</phone>
+            <address>
+                <city>上海</city>
+                <district>浦东新区</district>
+                <street>陆家嘴环路1000号</street>
+            </address>
+        </member>
+    </members>
+    <!-- 图书馆管理系统示例数据 -->
+</library>`;
+            document.getElementById('xmlEditor').value = sample;
+            updateViewer();
+        }
+
+        // 面板折叠功能
+        function togglePanel(panelType) {
+            const editorPanel = document.querySelector('.editor-panel');
+            const viewerPanel = document.querySelector('.viewer-panel');
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            const collapseEditorBtn = document.getElementById('collapseEditor');
+            const collapseViewerBtn = document.getElementById('collapseViewer');
+
+            if (panelType === 'editor') {
+                if (!editorPanel.classList.contains('panel-collapsed') && viewerPanel.classList.contains('panel-collapsed')) {
+                    showNotification('不能同时折叠两个面板', 'warning');
+                    return;
+                }
+                
+                editorPanel.classList.toggle('panel-collapsed');
+                
+                if (editorPanel.classList.contains('panel-collapsed')) {
+                    expandEditorBtn.style.display = 'flex';
+                    collapseEditorBtn.innerHTML = '展开 ►';
+                    collapseEditorBtn.title = '展开编辑器';
+                    viewerPanel.classList.add('panel-expanded');
+                } else {
+                    expandEditorBtn.style.display = 'none';
+                    collapseEditorBtn.innerHTML = '◄ 折叠';
+                    collapseEditorBtn.title = '折叠编辑器';
+                    viewerPanel.classList.remove('panel-expanded');
+                }
+            } else if (panelType === 'viewer') {
+                if (!viewerPanel.classList.contains('panel-collapsed') && editorPanel.classList.contains('panel-collapsed')) {
+                    showNotification('不能同时折叠两个面板', 'warning');
+                    return;
+                }
+                
+                viewerPanel.classList.toggle('panel-collapsed');
+                
+                if (viewerPanel.classList.contains('panel-collapsed')) {
+                    expandViewerBtn.style.display = 'flex';
+                    collapseViewerBtn.innerHTML = '◄ 展开';
+                    collapseViewerBtn.title = '展开预览';
+                    editorPanel.classList.add('panel-expanded');
+                } else {
+                    expandViewerBtn.style.display = 'none';
+                    collapseViewerBtn.innerHTML = '折叠 ►';
+                    collapseViewerBtn.title = '折叠预览';
+                    editorPanel.classList.remove('panel-expanded');
+                }
+            }
+        }
+
+
+
+        // 编辑功能
+        function addElement(btn) {
+            currentEditElement = btn.closest('.xml-element');
+            document.getElementById('editTagName').value = '';
+            document.getElementById('editAttributes').value = '';
+            document.getElementById('editContent').value = '';
+            document.getElementById('editContentType').value = 'text';
+            updateContentInput();
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function editElement(btn) {
+            currentEditElement = btn.closest('.xml-element');
+            // 这里可以添加编辑现有元素的逻辑
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function deleteElement(btn) {
+            if (confirm('确定要删除此元素吗？')) {
+                // 这里可以添加删除元素的逻辑
+                showNotification('元素已删除', 'success');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function updateContentInput() {
+            const contentType = document.getElementById('editContentType').value;
+            const contentInput = document.getElementById('editContent');
+            
+            if (contentType === 'cdata') {
+                contentInput.placeholder = '输入CDATA内容';
+            } else if (contentType === 'element') {
+                contentInput.placeholder = '输入子元素XML';
+            } else {
+                contentInput.placeholder = '输入文本内容';
+            }
+        }
+
+        function saveEdit() {
+            // 这里可以添加保存编辑的逻辑
+            closeModal();
+            showNotification('编辑已保存', 'success');
+        }
+
+        // 通知系统
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html> 

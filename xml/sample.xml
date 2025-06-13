@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 企业员工管理系统示例数据 -->
+<company xmlns:hr="http://company.com/hr" xmlns:finance="http://company.com/finance">
+    <info>
+        <name>科技创新有限公司</name>
+        <founded>2010</founded>
+        <location>
+            <country>中国</country>
+            <city>深圳</city>
+            <address><![CDATA[深圳市南山区科技园南区R2-A栋15楼]]></address>
+        </location>
+        <description><![CDATA[
+            一家专注于人工智能和大数据技术的创新型企业，
+            致力于为客户提供智能化解决方案。
+        ]]></description>
+    </info>
+    
+    <departments>
+        <department id="001" type="技术部门">
+            <name>研发部</name>
+            <manager>张三</manager>
+            <budget currency="CNY">5000000</budget>
+            <employees>
+                <employee id="E001" status="active" hr:level="senior">
+                    <personal>
+                        <name>张三</name>
+                        <age>32</age>
+                        <gender>男</gender>
+                        <email>zhangsan@company.com</email>
+                        <phone>13800138001</phone>
+                    </personal>
+                    <position>
+                        <title>技术总监</title>
+                        <department>研发部</department>
+                        <hire_date>2015-03-15</hire_date>
+                        <finance:salary currency="CNY">25000</finance:salary>
+                    </position>
+                    <skills>
+                        <skill level="expert">Python</skill>
+                        <skill level="expert">JavaScript</skill>
+                        <skill level="advanced">Machine Learning</skill>
+                        <skill level="intermediate">Docker</skill>
+                    </skills>
+                    <projects>
+                        <project id="P001" status="completed">
+                            <name>智能推荐系统</name>
+                            <role>项目负责人</role>
+                            <start_date>2023-01-01</start_date>
+                            <end_date>2023-06-30</end_date>
+                        </project>
+                        <project id="P002" status="ongoing">
+                            <name>大数据分析平台</name>
+                            <role>架构师</role>
+                            <start_date>2023-07-01</start_date>
+                        </project>
+                    </projects>
+                </employee>
+                
+                <employee id="E002" status="active" hr:level="junior">
+                    <personal>
+                        <name>李四</name>
+                        <age>26</age>
+                        <gender>女</gender>
+                        <email>lisi@company.com</email>
+                        <phone>13800138002</phone>
+                    </personal>
+                    <position>
+                        <title>前端工程师</title>
+                        <department>研发部</department>
+                        <hire_date>2022-08-01</hire_date>
+                        <finance:salary currency="CNY">15000</finance:salary>
+                    </position>
+                    <skills>
+                        <skill level="expert">React</skill>
+                        <skill level="expert">Vue.js</skill>
+                        <skill level="advanced">TypeScript</skill>
+                        <skill level="intermediate">Node.js</skill>
+                    </skills>
+                    <projects>
+                        <project id="P003" status="completed">
+                            <name>企业门户网站</name>
+                            <role>前端开发</role>
+                            <start_date>2022-09-01</start_date>
+                            <end_date>2023-02-28</end_date>
+                        </project>
+                    </projects>
+                </employee>
+            </employees>
+        </department>
+        
+        <department id="002" type="业务部门">
+            <name>市场部</name>
+            <manager>王五</manager>
+            <budget currency="CNY">2000000</budget>
+            <employees>
+                <employee id="E003" status="active" hr:level="senior">
+                    <personal>
+                        <name>王五</name>
+                        <age>35</age>
+                        <gender>男</gender>
+                        <email>wangwu@company.com</email>
+                        <phone>13800138003</phone>
+                    </personal>
+                    <position>
+                        <title>市场总监</title>
+                        <department>市场部</department>
+                        <hire_date>2012-05-20</hire_date>
+                        <finance:salary currency="CNY">22000</finance:salary>
+                    </position>
+                    <skills>
+                        <skill level="expert">市场策划</skill>
+                        <skill level="expert">品牌管理</skill>
+                        <skill level="advanced">数据分析</skill>
+                    </skills>
+                    <achievements>
+                        <achievement year="2022">
+                            <title>年度最佳营销案例</title>
+                            <description><![CDATA[成功策划并执行了"智能未来"品牌推广活动，提升品牌知名度30%]]></description>
+                        </achievement>
+                        <achievement year="2023">
+                            <title>销售业绩突破</title>
+                            <description><![CDATA[带领团队实现年度销售目标120%，创历史新高]]></description>
+                        </achievement>
+                    </achievements>
+                </employee>
+            </employees>
+        </department>
+        
+        <department id="003" type="支持部门">
+            <name>人力资源部</name>
+            <manager>赵六</manager>
+            <budget currency="CNY">800000</budget>
+            <employees>
+                <employee id="E004" status="active" hr:level="intermediate">
+                    <personal>
+                        <name>赵六</name>
+                        <age>29</age>
+                        <gender>女</gender>
+                        <email>zhaoliu@company.com</email>
+                        <phone>13800138004</phone>
+                    </personal>
+                    <position>
+                        <title>HR经理</title>
+                        <department>人力资源部</department>
+                        <hire_date>2020-01-15</hire_date>
+                        <finance:salary currency="CNY">18000</finance:salary>
+                    </position>
+                    <certifications>
+                        <certification>
+                            <name>人力资源管理师</name>
+                            <level>二级</level>
+                            <issue_date>2019-06-15</issue_date>
+                            <issuer>人力资源和社会保障部</issuer>
+                        </certification>
+                        <certification>
+                            <name>心理咨询师</name>
+                            <level>三级</level>
+                            <issue_date>2021-03-20</issue_date>
+                            <issuer>中国心理学会</issuer>
+                        </certification>
+                    </certifications>
+                </employee>
+            </employees>
+        </department>
+    </departments>
+    
+    <policies>
+        <policy id="POL001" effective_date="2023-01-01">
+            <title>远程办公管理规定</title>
+            <category>工作制度</category>
+            <content><![CDATA[
+                为适应现代办公模式，规范远程办公管理，特制定本规定：
+                1. 远程办公需提前申请并获得部门主管批准
+                2. 远程办公期间需保持正常工作时间和沟通渠道畅通
+                3. 定期汇报工作进度和完成情况
+                4. 确保信息安全和数据保护
+            ]]></content>
+        </policy>
+        
+        <policy id="POL002" effective_date="2023-06-01">
+            <title>员工培训发展计划</title>
+            <category>人才发展</category>
+            <content><![CDATA[
+                为提升员工专业技能和综合素质，公司制定年度培训计划：
+                1. 新员工入职培训：企业文化、制度流程、岗位技能
+                2. 在职员工技能提升：专业技术、管理能力、沟通技巧
+                3. 管理层领导力培训：战略思维、团队管理、决策能力
+                4. 外部培训和认证：行业会议、专业认证、学历提升
+            ]]></content>
+        </policy>
+    </policies>
+    
+    <!-- 系统配置信息 -->
+    <system_config>
+        <database>
+            <host>localhost</host>
+            <port>3306</port>
+            <name>company_db</name>
+            <charset>utf8mb4</charset>
+        </database>
+        <cache>
+            <type>redis</type>
+            <host>127.0.0.1</host>
+            <port>6379</port>
+            <ttl>3600</ttl>
+        </cache>
+        <logging>
+            <level>INFO</level>
+            <file_path>/var/log/company/app.log</file_path>
+            <max_size>100MB</max_size>
+            <backup_count>5</backup_count>
+        </logging>
+    </system_config>
+</company> 
