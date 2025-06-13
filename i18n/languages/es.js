@@ -486,19 +486,21 @@ const es = {
     
     // Traducciones de páginas comunes
     // Página raíz
-    page_title: "Caja de herramientas flyingcys",
-    page_subtitle: "Colección de herramientas en línea prácticas para desarrolladores",
+    page_title: "Caja de Herramientas - Tools",
+    main_title: "Caja de Herramientas",
+    main_subtitle: "Colección de Herramientas Prácticas - Mejore Su Productividad",
+    footer_text: "Seleccione una herramienta arriba para comenzar | Todas las herramientas funcionan directamente en su navegador",
     
     // Lista de herramientas
     tools_title: "Lista de herramientas",
     tool_tuyaopen: "TuyaOpen",
-    tool_tuyaopen_desc: "Herramienta de flash de firmware ESP32",
+    tool_tuyaopen_desc: "Herramienta de comunicación serie basada en Web Serial API que admite depuración de dispositivos, flasheo de firmware y más sin instalar software adicional.",
     tool_json: "JSON",
-    tool_json_desc: "Herramienta de formato y validación JSON",
+    tool_json_desc: "Potente editor de visualización JSON que admite visualización de estructura de árbol, colapsar/expandir nodos, operaciones CRUD para visualización clara de datos JSON.",
     tool_xml: "XML",
-    tool_xml_desc: "Herramienta de formato y validación XML",
-    tool_mp3: "Conversión MP3",
-    tool_mp3_desc: "Convertidor MP3 a matriz C",
+    tool_xml_desc: "Editor profesional de visualización de documentos XML que admite edición de atributos de elementos, procesamiento CDATA, visualización de espacios de nombres para experiencia completa de operación XML.",
+    tool_mp3: "Herramienta Convertidor MP3",
+    tool_mp3_desc: "Convierte archivos MP3 a arrays de C para uso en desarrollo embebido. Admite conversión en línea sin instalar software adicional.",
     tool_protobuf: "Protobuf",
     tool_protobuf_desc: "Herramienta de visualización Protocol Buffers",
     
@@ -541,4 +543,47 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = es;
 } else if (typeof exports !== 'undefined') {
     exports.default = es;
-} 
+}
+
+// 西班牙语语言包 (Spanish)
+(function() {
+    if (!window.LANGUAGE_DATA) {
+        window.LANGUAGE_DATA = {};
+    }
+    
+    window.LANGUAGE_DATA['es'] = {
+        // 主页面翻译
+        'page_title': 'Caja de Herramientas - Tools',
+        'main_title': 'Caja de Herramientas',
+        'main_subtitle': 'Colección de Herramientas Prácticas - Mejore Su Productividad',
+        'footer_text': 'Seleccione una herramienta arriba para comenzar | Todas las herramientas funcionan directamente en su navegador',
+        
+        // 工具翻译
+        'tuya_tool_title': 'TuyaOpen',
+        'tuya_tool_desc': 'Herramienta de comunicación serie basada en Web Serial API que admite depuración de dispositivos, flasheo de firmware y más sin instalar software adicional.',
+        
+        'mp3_tool_title': 'Herramienta Convertidor MP3',
+        'mp3_tool_desc': 'Convierte archivos MP3 a arrays de C para uso en desarrollo embebido. Admite conversión en línea sin instalar software adicional.',
+        
+        'json_tool_title': 'Herramienta de Visualización JSON',
+        'json_tool_desc': 'Potente editor de visualización JSON que admite visualización de estructura de árbol, colapsar/expandir nodos, operaciones CRUD para visualización clara de datos JSON.',
+        
+        'xml_tool_title': 'Herramienta de Visualización XML',
+        'xml_tool_desc': 'Editor profesional de visualización de documentos XML que admite edición de atributos de elementos, procesamiento CDATA, visualización de espacios de nombres para experiencia completa de operación XML.',
+        
+        // 基本翻译
+        'home_btn': 'Volver al Inicio',
+        'test_title': 'Página de Prueba del Conmutador de Idioma',
+        'test_content': 'Este es contenido de prueba en español. El conmutador de idioma funciona correctamente.',
+        'test_button': 'Botón Español',
+        'test_placeholder': 'Marcador de posición español',
+        'debug_title': 'Página de Depuración del Conmutador de Idioma (Español)',
+        'debug_subtitle': 'Para probar y depurar la funcionalidad multiidioma'
+    };
+    
+    // 兼容性
+    if (!window.i18nLanguages) {
+        window.i18nLanguages = {};
+    }
+    window.i18nLanguages['es'] = window.LANGUAGE_DATA['es'];
+})(); 

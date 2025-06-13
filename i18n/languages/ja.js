@@ -1,4 +1,24 @@
-// 日本語 (ja-JP)
+// 日本語 (ja-JP) - 全站统一版本
+if (!window.i18nLanguages) {
+    window.i18nLanguages = {};
+}
+
+window.i18nLanguages['ja'] = {
+    // 主页面翻译
+    "main_title": "ツールボックス",
+    "main_subtitle": "実用的なツール集 - 作業効率の向上",
+    "tuya_tool_title": "TuyaOpen",
+    "tuya_tool_desc": "Web Serial APIベースのシリアル通信ツール。デバイスデバッグ、ファームウェア書き込み機能をサポート。追加ソフトウェアのインストール不要。",
+    "mp3_tool_title": "MP3変換ツール",
+    "mp3_tool_desc": "MP3ファイルをC言語配列に変換。組み込み開発に便利。オンライン変換をサポート、追加ソフトウェアのインストール不要。",
+    "json_tool_title": "JSON可視化ツール",
+    "json_tool_desc": "強力なJSON可視化エディター。ツリー構造表示、ノード折りたたみ展開、CRUD操作をサポート。JSONデータを一目瞭然に。",
+    "xml_tool_title": "XML可視化ツール",
+    "xml_tool_desc": "プロフェッショナルなXMLドキュメント可視化エディター。要素属性編集、CDATA処理、名前空間表示をサポート。完全なXML操作体験。",
+    "footer_text": "上記のツールを選択して使用開始 | すべてのツールはブラウザで直接実行可能"
+};
+
+// TuyaOpen翻译 - 保持现有内容，用于向后兼容
 const ja = {
     // ページタイトルと説明
     title: "TuyaOpenシリアルツール ベータ版",

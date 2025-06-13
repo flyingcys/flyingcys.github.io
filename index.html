@@ -284,16 +284,15 @@
         </div>
     </div>
 
-    <!-- 国际化语言文件 -->
-    <script src="i18n/languages/zh.js"></script>
-    <script src="i18n/languages/en.js"></script>
-    
-    <!-- 手动语言切换器脚本 -->
-    <script src="i18n/components/manual-language-switcher.js"></script>
+    <!-- 全站统一多语言系统 -->
+    <script src="i18n/global-i18n-loader.js"></script>
+    <link rel="stylesheet" href="i18n/components/global-language-switcher.css">
+    <script src="i18n/components/global-language-switcher.js"></script>
 
     <script>
-        // 自动检测工具数量并应用相应的布局类
-        document.addEventListener('DOMContentLoaded', function() {
+        // 初始化全站多语言系统
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 自动检测工具数量并应用相应的布局类
             const toolsGrid = document.querySelector('.tools-grid');
             const toolCards = toolsGrid.querySelectorAll('.tool-card');
             
@@ -301,22 +300,26 @@
                 toolsGrid.classList.add('has-five-or-more');
             }
             
-            // 创建语言切换器实例
-            window.manualLanguageSwitcher = new ManualLanguageSwitcher({
+            // 初始化全站i18n系统
+            await window.globalI18nLoader.init();
+            
+            // 创建统一的语言切换器
+            window.globalLanguageSwitcher = new GlobalLanguageSwitcher({
                 position: 'top-right',
                 onLanguageChange: (langCode) => {
-                    console.log('语言已切换到:', langCode);
-                    
-                    // 触发自定义事件
-                    window.dispatchEvent(new CustomEvent('languageChanged', {
-                        detail: { language: langCode }
-                    }));
+                    console.log('全站语言已切换到:', langCode);
                 }
             });
             
-            // 监听语言变化事件
-            window.addEventListener('languageChanged', (e) => {
-                console.log('检测到语言变化事件:', e.detail.language);
+            // 为所有工具链接添加语言参数传递
+            const toolLinks = document.querySelectorAll('.tool-card');
+            toolLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const currentLang = window.globalI18nLoader.getCurrentLanguage();
+                    const url = new URL(this.href);
+                    url.searchParams.set('lang', currentLang);
+                    this.href = url.toString();
+                });
             });
         });
     </script>

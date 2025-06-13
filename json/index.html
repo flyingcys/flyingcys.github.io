@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON 可视化工具</title>
+    <title data-i18n="json_tool_title">JSON 可视化工具</title>
+    <!-- 全站统一多语言系统 -->
+    <script src="../i18n/global-i18n-loader.js"></script>
+    <link rel="stylesheet" href="../i18n/components/global-language-switcher.css">
+    <script src="../i18n/components/global-language-switcher.js"></script>
     <style>
         * {
             margin: 0;
@@ -1303,6 +1307,29 @@
                     }
                 }, 300);
             }, 3000);
+        }
+        
+        // 初始化多语言系统
+        initMultiLanguageSystem();
+        
+        async function initMultiLanguageSystem() {
+            try {
+                if (window.globalI18nLoader) {
+                    await window.globalI18nLoader.init();
+                    
+                    // 创建语言切换器
+                    if (window.GlobalLanguageSwitcher) {
+                        new GlobalLanguageSwitcher({
+                            position: 'top-right',
+                            onLanguageChange: (langCode) => {
+                                console.log('JSON工具：语言已切换到', langCode);
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.warn('多语言系统初始化失败:', error);
+            }
         }
     </script>
 </body>

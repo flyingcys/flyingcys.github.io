@@ -1,3 +1,23 @@
+// Deutsche Sprachdatei
+if (!window.i18nLanguages) {
+    window.i18nLanguages = {};
+}
+
+window.i18nLanguages['de'] = {
+    // Hauptseite
+    "main_title": "Werkzeugkasten",
+    "main_subtitle": "Praktische Werkzeugsammlung - Steigern Sie Ihre Produktivität",
+    "tuya_tool_title": "TuyaOpen",
+    "tuya_tool_desc": "Web Serial API-basiertes serielles Kommunikationswerkzeug, das Geräte-Debugging, Firmware-Flashing und mehr ohne Installation zusätzlicher Software unterstützt.",
+    "mp3_tool_title": "MP3-Konverter-Tool",
+    "mp3_tool_desc": "Konvertieren Sie MP3-Dateien in C-Arrays für die Verwendung in der eingebetteten Entwicklung. Unterstützt Online-Konvertierung ohne Installation zusätzlicher Software.",
+    "json_tool_title": "JSON-Visualisierungstool",
+    "json_tool_desc": "Leistungsstarker JSON-Visualisierungseditor mit Unterstützung für Baumstrukturanzeige, Knoten-Einklappen/Erweitern, CRUD-Operationen für klare JSON-Datenvisualisierung.",
+    "xml_tool_title": "XML-Visualisierungstool",
+    "xml_tool_desc": "Professioneller XML-Dokument-Visualisierungseditor mit Unterstützung für Elementattributbearbeitung, CDATA-Verarbeitung, Namespace-Anzeige für vollständige XML-Betriebserfahrung.",
+    "footer_text": "Wählen Sie ein Werkzeug oben aus, um zu beginnen | Alle Werkzeuge laufen direkt in Ihrem Browser"
+};
+
 // Deutsch (de-DE)
 const de = {
     // Seitentitel und Beschreibung
@@ -486,7 +506,7 @@ const de = {
     
     // Allgemeine Seitenübersetzungen
     // Startseite
-    page_title: "flyingcys Werkzeugkasten",
+    page_title: "Werkzeugkasten - Tools",
     page_subtitle: "Praktische Online-Tools für Entwickler",
     
     // Werkzeugliste

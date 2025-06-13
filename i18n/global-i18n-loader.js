@@ -1,5 +1,5 @@
-// 多语言加载器
-class I18nLoader {
+// 全站通用多语言加载器 - 基于TuyaOpen的成熟系统
+class GlobalI18nLoader {
     constructor() {
         this.loadedLanguages = new Set();
         this.availableLanguages = {
@@ -15,6 +15,7 @@ class I18nLoader {
             'fr': 'i18n/languages/fr.js'
         };
         this.currentLanguage = 'zh';
+        this.storageKey = 'selectedLanguage';
         
         // 初始化全局语言存储
         window.i18nLanguages = window.i18nLanguages || {};
@@ -85,14 +86,16 @@ class I18nLoader {
         const loaded = await this.loadLanguage(langCode);
         if (loaded) {
             this.currentLanguage = langCode;
-            // 统一使用 selectedLanguage 作为存储键名
-            localStorage.setItem('selectedLanguage', langCode);
+            localStorage.setItem(this.storageKey, langCode);
             this.updatePageText();
             this.updatePageTitle();
             
             // 触发语言变更事件
             const event = new CustomEvent('languageChanged', { 
-                detail: { language: langCode } 
+                detail: { 
+                    language: langCode,
+                    languageInfo: this.getLanguageInfo(langCode)
+                } 
             });
             window.dispatchEvent(event);
             
@@ -101,9 +104,26 @@ class I18nLoader {
         return false;
     }
     
+    // 获取语言信息
+    getLanguageInfo(langCode) {
+        const languageMap = {
+            'zh': { name: '简体中文', nativeName: '简体中文', flag: '🇨🇳' },
+            'zh-tw': { name: '繁体中文', nativeName: '繁體中文', flag: '🇹🇼' },
+            'en': { name: '英语', nativeName: 'English', flag: '🇺🇸' },
+            'ja': { name: '日语', nativeName: '日本語', flag: '🇯🇵' },
+            'ko': { name: '韩语', nativeName: '한국어', flag: '🇰🇷' },
+            'ru': { name: '俄语', nativeName: 'Русский', flag: '🇷🇺' },
+            'pt': { name: '葡萄牙语', nativeName: 'Português', flag: '🇵🇹' },
+            'es': { name: '西班牙语', nativeName: 'Español', flag: '🇪🇸' },
+            'de': { name: '德语', nativeName: 'Deutsch', flag: '🇩🇪' },
+            'fr': { name: '法语', nativeName: 'Français', flag: '🇫🇷' }
+        };
+        
+        return languageMap[langCode] || { name: langCode, nativeName: langCode, flag: '🌐' };
+    }
+    
     // 更新页面文本
     updatePageText() {
-        // 更新所有带有 data-i18n 属性的元素
         this.updateElements();
         
         // 更新所有带有 data-i18n-placeholder 属性的元素
@@ -118,7 +138,6 @@ class I18nLoader {
             element.title = this.t(key);
         });
         
-        // 动态更新页面标题
         this.updatePageTitle();
     }
     
@@ -133,67 +152,35 @@ class I18nLoader {
         await Promise.all(promises);
     }
     
-    // 获取已加载的语言列表
-    getLoadedLanguages() {
-        return Array.from(this.loadedLanguages);
-    }
-    
-    // 获取可用语言列表
-    getAvailableLanguages() {
-        return Object.keys(this.availableLanguages);
-    }
-    
-    // 检查语言是否已加载
-    isLanguageLoaded(langCode) {
-        return this.loadedLanguages.has(langCode);
-    }
-    
     // 检测系统默认语言
     detectSystemLanguage() {
-        // 获取浏览器语言设置
         const browserLang = navigator.language || navigator.userLanguage || 'en';
         console.log('检测到系统语言:', browserLang);
         
-        // 语言映射表：将浏览器语言代码映射到我们支持的语言
+        // 语言映射表
         const languageMap = {
-            'zh': 'zh',           // 中文
-            'zh-CN': 'zh',        // 简体中文
-            'zh-Hans': 'zh',      // 简体中文
-            'zh-TW': 'zh-tw',     // 繁体中文
-            'zh-Hant': 'zh-tw',   // 繁体中文
-            'en': 'en',           // 英文
-            'en-US': 'en',        // 美式英文
-            'en-GB': 'en',        // 英式英文
-            'ja': 'ja',           // 日文
-            'ja-JP': 'ja',        // 日文
-            'ko': 'ko',           // 韩文
-            'ko-KR': 'ko',        // 韩文
-            'fr': 'fr',           // 法文
-            'fr-FR': 'fr',        // 法文
-            'de': 'de',           // 德文
-            'de-DE': 'de',        // 德文
-            'es': 'es',           // 西班牙文
-            'es-ES': 'es',        // 西班牙文
-            'pt': 'pt',           // 葡萄牙文
-            'pt-BR': 'pt',        // 巴西葡萄牙文
-            'pt-PT': 'pt',        // 葡萄牙文
-            'ru': 'ru',           // 俄文
-            'ru-RU': 'ru'         // 俄文
+            'zh': 'zh',           'zh-CN': 'zh',        'zh-Hans': 'zh',      
+            'zh-TW': 'zh-tw',     'zh-Hant': 'zh-tw',   
+            'en': 'en',           'en-US': 'en',        'en-GB': 'en',        
+            'ja': 'ja',           'ja-JP': 'ja',        
+            'ko': 'ko',           'ko-KR': 'ko',        
+            'fr': 'fr',           'fr-FR': 'fr',        
+            'de': 'de',           'de-DE': 'de',        
+            'es': 'es',           'es-ES': 'es',        
+            'pt': 'pt',           'pt-BR': 'pt',        'pt-PT': 'pt',        
+            'ru': 'ru',           'ru-RU': 'ru'         
         };
         
-        // 首先尝试完整匹配
         let detectedLang = languageMap[browserLang];
         
-        // 如果完整匹配失败，尝试匹配语言代码的前两位
         if (!detectedLang) {
             const langPrefix = browserLang.split('-')[0];
             detectedLang = languageMap[langPrefix];
         }
         
-        // 如果仍然没有匹配，回退到英文
         if (!detectedLang) {
-            console.log('系统语言不支持，回退到英文');
-            detectedLang = 'en';
+            console.log('系统语言不支持，回退到中文');
+            detectedLang = 'zh';
         }
         
         console.log('映射后的语言:', detectedLang);
@@ -206,21 +193,17 @@ class I18nLoader {
         const urlParams = new URLSearchParams(window.location.search);
         const langFromUrl = urlParams.get('lang');
         
-        // 检查全局语言管理器
-        const globalLang = window.globalLangManager ? window.globalLangManager.getCurrentLanguage() : null;
-        
         // 从localStorage读取用户偏好语言
-        const savedLang = localStorage.getItem('selectedLanguage');
+        const savedLang = localStorage.getItem(this.storageKey);
         
         // 检测系统默认语言
         const systemLang = this.detectSystemLanguage();
         
-        // 确定要使用的语言（优先级：URL参数 > 全局管理器 > 用户保存的偏好 > 系统语言）
-        const targetLang = langFromUrl || globalLang || savedLang || systemLang;
+        // 确定要使用的语言（优先级：URL参数 > 用户保存的偏好 > 系统语言）
+        const targetLang = langFromUrl || savedLang || systemLang;
         
-        console.log('语言选择过程:', {
+        console.log('全站语言选择过程:', {
             urlParam: langFromUrl,
-            globalManager: globalLang,
             savedPreference: savedLang,
             systemDetected: systemLang,
             finalChoice: targetLang
@@ -229,14 +212,15 @@ class I18nLoader {
         // 预加载中文（作为回退语言）
         await this.loadLanguage('zh');
         
-        // 如果目标语言不是中文，也加载它
-        if (targetLang !== 'zh') {
+        // 预加载英文（常用语言）
+        await this.loadLanguage('en');
+        
+        // 如果目标语言不是中文或英文，也加载它
+        if (targetLang !== 'zh' && targetLang !== 'en') {
             const loaded = await this.loadLanguage(targetLang);
             if (!loaded) {
-                // 如果目标语言加载失败，回退到英文
-                console.warn(`语言 ${targetLang} 加载失败，回退到英文`);
-                await this.loadLanguage('en');
-                this.currentLanguage = 'en';
+                console.warn(`语言 ${targetLang} 加载失败，回退到中文`);
+                this.currentLanguage = 'zh';
             } else {
                 this.currentLanguage = targetLang;
             }
@@ -244,42 +228,25 @@ class I18nLoader {
             this.currentLanguage = targetLang;
         }
         
-        // 如果URL中有语言参数，同步到全局管理器
-        if (langFromUrl && window.globalLangManager) {
-            window.globalLangManager.setLanguage(langFromUrl);
-        } else if (!savedLang) {
-            // 如果没有保存的偏好，保存检测到的语言
-            localStorage.setItem('selectedLanguage', this.currentLanguage);
-        }
-        
-        // 监听全局语言变化事件
-        this.setupGlobalLanguageSync();
+        // 保存当前语言设置
+        localStorage.setItem(this.storageKey, this.currentLanguage);
         
         // 更新页面文本
         this.updatePageText();
         
-        // 触发语言设置完成事件，通知UI更新
-        const event = new CustomEvent('i18nReady', { 
-            detail: { language: this.currentLanguage } 
+        // 触发语言设置完成事件
+        const event = new CustomEvent('globalI18nReady', { 
+            detail: { 
+                language: this.currentLanguage,
+                availableLanguages: this.availableLanguages 
+            } 
         });
         window.dispatchEvent(event);
         
-        console.log('多语言系统初始化完成，当前语言:', this.currentLanguage);
-    }
-    
-    // 设置全局语言同步
-    setupGlobalLanguageSync() {
-        window.addEventListener('globalLanguageChanged', (e) => {
-            const newLanguage = e.detail.language;
-            console.log('TuyaOpen接收到全局语言变化事件:', newLanguage);
-            if (this.availableLanguages[newLanguage] && newLanguage !== this.currentLanguage) {
-                this.setLanguage(newLanguage);
-            }
-        });
+        console.log('全站多语言系统初始化完成，当前语言:', this.currentLanguage);
     }
 
     updatePageTitle() {
-        // 更新页面标题
         const titleElement = document.querySelector('title[data-i18n]');
         if (titleElement && titleElement.dataset.i18n) {
             const translatedTitle = this.t(titleElement.dataset.i18n);
@@ -288,12 +255,10 @@ class I18nLoader {
     }
 
     updateElements() {
-        // 更新所有带有 data-i18n 属性的元素（包括隐藏的元素）
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
             const text = this.t(key);
             
-            // 对于option元素，需要特殊处理
             if (element.tagName.toLowerCase() === 'option') {
                 element.textContent = text;
             } else {
@@ -301,15 +266,27 @@ class I18nLoader {
             }
         });
     }
+    
+    // 获取可用语言列表
+    getAvailableLanguages() {
+        return Object.keys(this.availableLanguages);
+    }
+    
+    // 检查语言是否已加载
+    isLanguageLoaded(langCode) {
+        return this.loadedLanguages.has(langCode);
+    }
 }
 
 // 创建全局实例
-window.i18nLoader = new I18nLoader();
+window.globalI18nLoader = new GlobalI18nLoader();
 
-// 为了兼容现有代码，创建简化的i18n对象
+// 兼容性接口
 window.i18n = {
-    t: (...args) => window.i18nLoader.t(...args),
-    setLanguage: (lang) => window.i18nLoader.setLanguage(lang),
-    getCurrentLanguage: () => window.i18nLoader.getCurrentLanguage(),
-    updatePageText: () => window.i18nLoader.updatePageText()
+    t: (...args) => window.globalI18nLoader.t(...args),
+    setLanguage: (lang) => window.globalI18nLoader.setLanguage(lang),
+    getCurrentLanguage: () => window.globalI18nLoader.getCurrentLanguage(),
+    updatePageText: () => window.globalI18nLoader.updatePageText(),
+    getAvailableLanguages: () => window.globalI18nLoader.getAvailableLanguages(),
+    getLanguageInfo: (lang) => window.globalI18nLoader.getLanguageInfo(lang)
 }; 
