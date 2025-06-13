@@ -70,6 +70,10 @@ const zhTw = {
     // 韌體下載
     flash_config: "韌體下載設定",
     target_device: "目標裝置:",
+    esp32_flash_address: "ESP32 燒錄地址:",
+    complete_firmware: "0x0000 (完整韌體包)",
+    custom_address: "自訂地址...",
+    custom_address_placeholder: "0x10000",
     select_file: "選擇韌體檔案",
     no_file_selected: "未選擇檔案",
     file_size: "檔案大小",

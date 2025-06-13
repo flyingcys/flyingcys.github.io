@@ -369,13 +369,13 @@
                                     <!-- <option value="LN882H">LN882H</option> -->
                                 </select>
                             </div>
-                            <div class="config-group" id="esp32AddressGroup" style="display: none;">
-                                <label for="esp32FlashAddress">ESP32下载地址:</label>
+                            <div class="config-group esp32-address-group" id="esp32AddressGroup">
+                                <label for="esp32FlashAddress" data-i18n="esp32_flash_address">ESP32 Flash 地址:</label>
                                 <select id="esp32FlashAddress">
-                                    <option value="0x0000" selected>0x0000 (完整固件包)</option>
-                                    <option value="custom">自定义地址...</option>
+                                    <option value="0x0000" selected data-i18n="complete_firmware">0x0000 (完整固件包)</option>
+                                    <option value="custom" data-i18n="custom_address">自定义地址...</option>
                                 </select>
-                                <input type="text" id="customAddressInput" placeholder="0x10000" maxlength="10" style="display: none; margin-top: 8px;">
+                                <input type="text" id="customAddressInput" class="custom-address-input" placeholder="0x10000" maxlength="10" data-i18n-placeholder="custom_address_placeholder">
                             </div>
                         </div>
                     </div>
@@ -1061,12 +1061,12 @@
                     esp32AddressSelect.addEventListener('change', (e) => {
                         if (e.target.value === 'custom') {
                             if (customAddressInput) {
-                                customAddressInput.style.display = 'block';
+                                customAddressInput.classList.add('show');
                                 customAddressInput.focus();
                             }
                         } else {
                             if (customAddressInput) {
-                                customAddressInput.style.display = 'none';
+                                customAddressInput.classList.remove('show');
                             }
                         }
                         this.logESP32(`ESP32下载地址已选择: ${this.getESP32FlashAddress()}`, 'info');
@@ -1083,9 +1083,15 @@
                             }
                             // 验证十六进制格式
                             if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
-                                e.target.style.borderColor = 'red';
+                                e.target.classList.add('error');
+                                e.target.classList.remove('valid');
                             } else {
-                                e.target.style.borderColor = '';
+                                e.target.classList.remove('error');
+                                if (value) {
+                                    e.target.classList.add('valid');
+                                } else {
+                                    e.target.classList.remove('valid');
+                                }
                             }
                         });
                     }
@@ -1105,7 +1111,14 @@
                 // 显示ESP32地址配置
                 const esp32AddressGroup = document.getElementById('esp32AddressGroup');
                 if (esp32AddressGroup) {
-                    esp32AddressGroup.style.display = 'block';
+                    esp32AddressGroup.classList.add('show');
+                    
+                    // 强制更新新显示元素的多语言文本
+                    setTimeout(() => {
+                        if (window.i18nLoader) {
+                            window.i18nLoader.updatePageText();
+                        }
+                    }, 50);
                 }
                 this.logESP32(`ESP32设备已选择，下载地址: ${this.getESP32FlashAddress()}`, 'info');
             }
@@ -1115,10 +1128,10 @@
                 const esp32AddressGroup = document.getElementById('esp32AddressGroup');
                 const customAddressInput = document.getElementById('customAddressInput');
                 if (esp32AddressGroup) {
-                    esp32AddressGroup.style.display = 'none';
+                    esp32AddressGroup.classList.remove('show');
                 }
                 if (customAddressInput) {
-                    customAddressInput.style.display = 'none';
+                    customAddressInput.classList.remove('show');
                 }
             }
             

@@ -70,6 +70,10 @@ const de = {
     // Firmware-Flash
     flash_config: "Firmware-Download-Konfiguration",
     target_device: "Zielgerät:",
+    esp32_flash_address: "ESP32 Flash Adresse:",
+    complete_firmware: "0x0000 (Vollständige Firmware)",
+    custom_address: "Benutzerdefinierte Adresse...",
+    custom_address_placeholder: "0x10000",
     select_file: "Firmware-Datei auswählen",
     no_file_selected: "Keine Datei ausgewählt",
     file_size: "Dateigröße",

@@ -71,6 +71,10 @@ const en = {
     // Firmware flash
     flash_config: "Firmware Flash Configuration",
     target_device: "Target Device:",
+    esp32_flash_address: "ESP32 Flash Address:",
+    complete_firmware: "0x0000 (Complete Firmware)",
+    custom_address: "Custom Address...",
+    custom_address_placeholder: "0x10000",
     select_file: "Select Firmware File",
     no_file_selected: "No file selected",
     file_size: "File Size",

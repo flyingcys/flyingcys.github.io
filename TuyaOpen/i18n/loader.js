@@ -270,11 +270,17 @@ class I18nLoader {
     }
 
     updateElements() {
-        // 更新所有带有 data-i18n 属性的元素
+        // 更新所有带有 data-i18n 属性的元素（包括隐藏的元素）
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
             const text = this.t(key);
-            element.textContent = text;
+            
+            // 对于option元素，需要特殊处理
+            if (element.tagName.toLowerCase() === 'option') {
+                element.textContent = text;
+            } else {
+                element.textContent = text;
+            }
         });
     }
 }

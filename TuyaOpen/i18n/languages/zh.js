@@ -71,6 +71,10 @@ const zh = {
     // 固件下载
     flash_config: "固件下载配置",
     target_device: "目标设备:",
+    esp32_flash_address: "ESP32 烧录地址:",
+    complete_firmware: "0x0000 (完整固件包)",
+    custom_address: "自定义地址...",
+    custom_address_placeholder: "0x10000",
     select_file: "选择固件文件",
     no_file_selected: "未选择文件",
     file_size: "文件大小",

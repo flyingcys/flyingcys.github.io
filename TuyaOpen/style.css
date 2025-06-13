@@ -751,6 +751,105 @@ header p {
     margin-bottom: 20px;
 }
 
+/* ESP32地址组样式优化 */
+.esp32-address-group {
+    display: none;
+    background: rgba(79, 70, 229, 0.05);
+    border: 2px solid rgba(79, 70, 229, 0.15);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.esp32-address-group.show {
+    display: flex;
+    animation: slideInDown 0.3s ease-out;
+}
+
+.esp32-address-group::before {
+    content: '🔧';
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    background: white;
+    padding: 0 6px;
+    font-size: 14px;
+    color: #4f46e5;
+}
+
+.esp32-address-group label {
+    color: #4f46e5;
+    font-weight: 600;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.esp32-address-group select {
+    border-color: rgba(79, 70, 229, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.esp32-address-group select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    background: white;
+}
+
+.custom-address-input {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 2px solid rgba(79, 70, 229, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    transition: all 0.3s ease;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+.custom-address-input.show {
+    display: block;
+    animation: slideInDown 0.3s ease-out;
+}
+
+.custom-address-input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    background: white;
+}
+
+.custom-address-input::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.custom-address-input.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.custom-address-input.valid {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .file-select-area {
     margin-bottom: 20px;
 }
@@ -1347,6 +1446,23 @@ header p {
         display: grid;
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+    
+    .esp32-address-group {
+        padding: 12px;
+        margin-top: 10px;
+    }
+    
+    .esp32-address-group::before {
+        top: -6px;
+        left: 8px;
+        font-size: 12px;
+    }
+    
+    .custom-address-input {
+        margin-top: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
     }
     
     .data-header,

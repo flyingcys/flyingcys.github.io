@@ -70,6 +70,10 @@ const pt = {
     // Flash de firmware
     flash_config: "Configuração de Download de Firmware",
     target_device: "Dispositivo Alvo:",
+    esp32_flash_address: "Endereço ESP32 Flash:",
+    complete_firmware: "0x0000 (Firmware completo)",
+    custom_address: "Endereço personalizado...",
+    custom_address_placeholder: "0x10000",
     select_file: "Selecionar Arquivo de Firmware",
     no_file_selected: "Nenhum arquivo selecionado",
     file_size: "Tamanho do Arquivo",
