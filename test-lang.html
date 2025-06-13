@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语言切换器测试</title>
+    <link rel="stylesheet" href="i18n/components/language-switcher.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .test-content {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-i18n="page_title">语言切换器测试</h1>
+        
+        <div class="test-content">
+            <h2>测试内容</h2>
+            
+            <div class="test-item">
+                <strong data-i18n="home_title">标题测试</strong>: 
+                <span data-i18n="home_description">这是描述文本</span>
+            </div>
+            
+            <div class="test-item">
+                <strong data-i18n="tools_title">工具列表</strong>: 
+                <span data-i18n="tool_json">JSON</span>, 
+                <span data-i18n="tool_xml">XML</span>, 
+                <span data-i18n="tool_mp3">MP3转换</span>
+            </div>
+            
+            <div class="test-item">
+                <strong>按钮测试</strong>: 
+                <button data-i18n="btn_open">打开</button>
+                <button data-i18n="btn_save">保存</button>
+                <button data-i18n="btn_clear">清空</button>
+            </div>
+            
+            <div class="test-item">
+                <strong>状态测试</strong>: 
+                <span data-i18n="status_loading">加载中...</span> | 
+                <span data-i18n="status_success">成功</span> | 
+                <span data-i18n="error_network">网络错误</span>
+            </div>
+        </div>
+        
+        <p>请点击右上角的语言切换器测试多语言功能！</p>
+    </div>
+
+    <script src="i18n/components/language-switcher.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化全局语言切换器
+            if (typeof GlobalLanguageSwitcher !== 'undefined') {
+                window.globalLanguageSwitcher = new GlobalLanguageSwitcher({
+                    position: 'top-right',
+                    onLanguageChange: function(langCode) {
+                        console.log('语言已切换到:', langCode);
+                    }
+                });
+            } else {
+                console.error('GlobalLanguageSwitcher 未加载');
+            }
+        });
+    </script>
+</body>
+</html> 

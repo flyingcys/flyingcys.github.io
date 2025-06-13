@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工具箱 - Tools</title>
+    <title data-i18n="page_title">工具箱 - Tools</title>
+    
+    <!-- 手动语言切换器样式 -->
+    <link rel="stylesheet" href="i18n/components/manual-language-switcher.css">
+    
     <style>
         * {
             margin: 0;
@@ -234,14 +238,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>工具箱</h1>
-        <p class="subtitle">实用工具集合 - 提升您的工作效率</p>
+        <h1 data-i18n="main_title">工具箱</h1>
+        <p class="subtitle" data-i18n="main_subtitle">实用工具集合 - 提升您的工作效率</p>
         
         <div class="tools-grid">
             <a href="TuyaOpen/index.html" class="tool-card">
                 <div class="tool-icon wrench-icon">🛠️</div>
-                <h2 class="tool-title">TuyaOpen</h2>
-                <p class="tool-description">
+                <h2 class="tool-title" data-i18n="tuya_tool_title">TuyaOpen</h2>
+                <p class="tool-description" data-i18n="tuya_tool_desc">
                     基于 Web Serial API 的串口通信工具，
                     支持设备调试、固件烧录等功能，无需安装额外软件。
                 </p>
@@ -249,8 +253,8 @@
             
             <a href="mp3_converter/index.html" class="tool-card">
                 <div class="tool-icon">🎵</div>
-                <h2 class="tool-title">MP3 转换工具</h2>
-                <p class="tool-description">
+                <h2 class="tool-title" data-i18n="mp3_tool_title">MP3 转换工具</h2>
+                <p class="tool-description" data-i18n="mp3_tool_desc">
                     将MP3文件转换为C语言数组，
                     方便嵌入式开发使用，支持在线转换，无需安装额外软件。
                 </p>
@@ -258,8 +262,8 @@
             
             <a href="json/index.html" class="tool-card">
                 <div class="tool-icon">🔍</div>
-                <h2 class="tool-title">JSON 可视化工具</h2>
-                <p class="tool-description">
+                <h2 class="tool-title" data-i18n="json_tool_title">JSON 可视化工具</h2>
+                <p class="tool-description" data-i18n="json_tool_desc">
                     功能强大的JSON可视化编辑器，支持树形结构显示、
                     节点折叠展开、增删改查操作，让JSON数据一目了然。
                 </p>
@@ -267,8 +271,8 @@
             
             <a href="xml/index.html" class="tool-card">
                 <div class="tool-icon">📄</div>
-                <h2 class="tool-title">XML 可视化工具</h2>
-                <p class="tool-description">
+                <h2 class="tool-title" data-i18n="xml_tool_title">XML 可视化工具</h2>
+                <p class="tool-description" data-i18n="xml_tool_desc">
                     专业的XML文档可视化编辑器，支持元素属性编辑、
                     CDATA处理、命名空间显示，完整的XML操作体验。
                 </p>
@@ -276,9 +280,16 @@
         </div>
         
         <div class="footer">
-            <p>选择上方工具开始使用 | 所有工具均可在浏览器中直接运行</p>
+            <p data-i18n="footer_text">选择上方工具开始使用 | 所有工具均可在浏览器中直接运行</p>
         </div>
     </div>
+
+    <!-- 国际化语言文件 -->
+    <script src="i18n/languages/zh.js"></script>
+    <script src="i18n/languages/en.js"></script>
+    
+    <!-- 手动语言切换器脚本 -->
+    <script src="i18n/components/manual-language-switcher.js"></script>
 
     <script>
         // 自动检测工具数量并应用相应的布局类
@@ -289,6 +300,24 @@
             if (toolCards.length >= 5) {
                 toolsGrid.classList.add('has-five-or-more');
             }
+            
+            // 创建语言切换器实例
+            window.manualLanguageSwitcher = new ManualLanguageSwitcher({
+                position: 'top-right',
+                onLanguageChange: (langCode) => {
+                    console.log('语言已切换到:', langCode);
+                    
+                    // 触发自定义事件
+                    window.dispatchEvent(new CustomEvent('languageChanged', {
+                        detail: { language: langCode }
+                    }));
+                }
+            });
+            
+            // 监听语言变化事件
+            window.addEventListener('languageChanged', (e) => {
+                console.log('检测到语言变化事件:', e.detail.language);
+            });
         });
     </script>
 </body>

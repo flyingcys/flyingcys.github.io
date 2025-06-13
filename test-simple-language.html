@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="test_title">语言切换测试页面</title>
+    
+    <!-- 手动语言切换器样式 -->
+    <link rel="stylesheet" href="i18n/components/manual-language-switcher.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #e0e6ff;
+        }
+        
+        .test-content {
+            color: #666;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .status-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-i18n="test_title">语言切换测试页面</h1>
+        
+        <div class="test-section">
+            <h2 data-i18n="debug_subtitle">用于测试和调试多语言功能</h2>
+            <p class="test-content" data-i18n="test_content">这是中文测试内容。语言切换器运行正常。</p>
+            
+            <button class="test-button" data-i18n="test_button">中文按钮</button>
+            <input type="text" class="test-input" data-i18n-placeholder="test_placeholder" placeholder="中文占位符">
+            
+            <div class="status-info">
+                <strong>当前状态:</strong>
+                <ul>
+                    <li>当前语言: <span id="current-lang">zh</span></li>
+                    <li>浏览器语言: <span id="browser-lang">-</span></li>
+                    <li>语言切换器: <span id="switcher-status">未初始化</span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-link" data-i18n="home_btn">返回首页</a>
+    </div>
+
+    <!-- 国际化语言文件 -->
+    <script src="i18n/languages/zh.js"></script>
+    <script src="i18n/languages/en.js"></script>
+    
+    <!-- 手动语言切换器脚本 -->
+    <script src="i18n/components/manual-language-switcher.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 显示浏览器语言
+            document.getElementById('browser-lang').textContent = navigator.language;
+            
+            // 创建语言切换器实例
+            window.manualLanguageSwitcher = new ManualLanguageSwitcher({
+                position: 'top-right',
+                onLanguageChange: (langCode) => {
+                    console.log('语言已切换到:', langCode);
+                    document.getElementById('current-lang').textContent = langCode;
+                    
+                    // 触发自定义事件
+                    window.dispatchEvent(new CustomEvent('languageChanged', {
+                        detail: { language: langCode }
+                    }));
+                }
+            });
+            
+            // 更新初始状态
+            document.getElementById('current-lang').textContent = window.manualLanguageSwitcher.getCurrentLanguage();
+            document.getElementById('switcher-status').textContent = '已初始化';
+            
+            // 监听语言变化事件
+            window.addEventListener('languageChanged', (e) => {
+                console.log('检测到语言变化事件:', e.detail.language);
+            });
+        });
+    </script>
+</body>
+</html> 

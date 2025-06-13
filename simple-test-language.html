@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="test_page_title">简化语言切换测试</title>
+    
+    <!-- 双模式语言选择器样式 -->
+    <link rel="stylesheet" href="i18n/components/dual-mode-language-switcher.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        .test-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .test-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+        .test-btn.primary:hover {
+            background: #5b6ee8;
+            transform: translateY(-1px);
+        }
+        .status-display {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #10b981;
+        }
+        .debug-info {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+        }
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-i18n="test_page_title">简化语言切换测试</h1>
+        
+        <div class="success-msg">
+            ✅ 这个页面直接加载语言文件，避免CORS问题。如果这个页面正常工作，说明语言切换功能本身没有问题。
+        </div>
+        
+        <!-- 基本测试 -->
+        <div class="test-section">
+            <h2>🧪 <span data-i18n="basic_function_test">基本功能测试</span></h2>
+            
+            <div class="status-display">
+                <strong data-i18n="current_language">当前语言</strong>: 
+                <span id="currentLang">zh</span>
+                <br>
+                <strong data-i18n="current_mode">当前模式</strong>: 
+                <span id="currentMode">auto</span>
+            </div>
+            
+            <div>
+                <button class="test-btn primary" onclick="switchLanguage('zh')">
+                    🇨🇳 <span data-i18n="test_switch_zh">切换到中文</span>
+                </button>
+                <button class="test-btn primary" onclick="switchLanguage('en')">
+                    🇺🇸 <span data-i18n="test_switch_en">切换到英文</span>
+                </button>
+                <button class="test-btn primary" onclick="switchLanguage('ja')">
+                    🇯🇵 <span data-i18n="test_switch_ja">切换到日文</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 测试元素 -->
+        <div class="test-section">
+            <h2>📝 <span data-i18n="test_elements">测试元素</span></h2>
+            
+            <div class="status-display">
+                <p><strong data-i18n="text_content">文本内容</strong>: <span data-i18n="sample_text">这是一段示例文本</span></p>
+                <p><strong data-i18n="button_text">按钮文本</strong>: <button data-i18n="sample_button">示例按钮</button></p>
+                <p><strong data-i18n="input_placeholder">输入框占位符</strong>: <input type="text" data-i18n-placeholder="sample_placeholder" placeholder="请输入内容"></p>
+            </div>
+        </div>
+        
+        <!-- 调试信息 -->
+        <div class="test-section">
+            <h2>🔧 <span data-i18n="debug_info">调试信息</span></h2>
+            <div class="debug-info" id="debugOutput">等待初始化...</div>
+        </div>
+    </div>
+
+    <!-- 直接加载语言文件 -->
+    <script src="i18n/languages/zh.js"></script>
+    <script src="i18n/languages/en.js"></script>
+    <script src="i18n/languages/ja.js"></script>
+    
+    <!-- 双模式语言选择器 -->
+    <script src="i18n/components/dual-mode-language-switcher.js"></script>
+    
+    <script>
+        let simpleSwitcher = null;
+        let debugLog = [];
+        
+        function addDebugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.push(`[${timestamp}] ${message}`);
+            updateDebugDisplay();
+        }
+        
+        function updateDebugDisplay() {
+            const debugEl = document.getElementById('debugOutput');
+            debugEl.textContent = debugLog.join('\n');
+        }
+        
+        function updateStatus() {
+            if (simpleSwitcher) {
+                document.getElementById('currentLang').textContent = simpleSwitcher.getCurrentLanguage();
+                document.getElementById('currentMode').textContent = simpleSwitcher.getCurrentMode();
+            }
+        }
+        
+        function switchLanguage(langCode) {
+            addDebugLog(`🔄 尝试切换语言到: ${langCode}`);
+            
+            if (simpleSwitcher) {
+                simpleSwitcher.setLanguage(langCode);
+                addDebugLog(`✅ 语言切换命令已发送: ${langCode}`);
+            } else {
+                addDebugLog(`❌ 语言选择器未初始化`);
+            }
+        }
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugLog('🚀 页面开始初始化');
+            
+            // 检查语言数据是否加载
+            if (window.i18nLanguages) {
+                addDebugLog(`✅ 语言数据已加载: ${Object.keys(window.i18nLanguages).join(', ')}`);
+            } else {
+                addDebugLog('❌ 语言数据未加载');
+            }
+            
+            // 检查类是否可用
+            if (typeof DualModeLanguageSwitcher !== 'undefined') {
+                addDebugLog('✅ DualModeLanguageSwitcher 类已加载');
+                
+                try {
+                    simpleSwitcher = new DualModeLanguageSwitcher({
+                        position: 'top-right',
+                        onLanguageChange: function(langCode) {
+                            addDebugLog(`🎯 语言切换回调触发: ${langCode}`);
+                            updateStatus();
+                        },
+                        onModeChange: function(mode) {
+                            addDebugLog(`🎯 模式切换回调触发: ${mode}`);
+                            updateStatus();
+                        }
+                    });
+                    
+                    addDebugLog('✅ 双模式语言选择器初始化成功');
+                    updateStatus();
+                    
+                    // 检查DOM元素
+                    setTimeout(() => {
+                        const domEl = document.querySelector('.dual-mode-language-switcher');
+                        if (domEl) {
+                            addDebugLog('✅ 语言选择器DOM元素已挂载');
+                        } else {
+                            addDebugLog('❌ 语言选择器DOM元素未找到');
+                        }
+                    }, 100);
+                    
+                } catch (error) {
+                    addDebugLog(`❌ 初始化失败: ${error.message}`);
+                    addDebugLog(`❌ 错误堆栈: ${error.stack}`);
+                }
+                
+            } else {
+                addDebugLog('❌ DualModeLanguageSwitcher 类未定义');
+            }
+        });
+        
+        // 监听语言切换事件
+        window.addEventListener('languageChanged', function(event) {
+            addDebugLog(`🎉 全局语言切换事件: ${event.detail.language}`);
+        });
+        
+        window.addEventListener('languageModeChanged', function(event) {
+            addDebugLog(`🎉 全局模式切换事件: ${event.detail.mode}`);
+        });
+    </script>
+</body>
+</html> 

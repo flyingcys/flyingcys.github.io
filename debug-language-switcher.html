@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双模式语言选择器调试页面</title>
+    
+    <!-- 双模式语言选择器样式 -->
+    <link rel="stylesheet" href="i18n/components/dual-mode-language-switcher.css">
+    
+    <!-- 备用CSS检查 -->
+    <script>
+    // CSS文件加载检查
+    function checkCSSLoaded() {
+        const link = document.querySelector('link[href*="dual-mode-language-switcher.css"]');
+        if (link) {
+            link.addEventListener('load', () => {
+                console.log('✅ CSS文件加载完成');
+            });
+            link.addEventListener('error', () => {
+                console.error('❌ CSS文件加载失败');
+                // 尝试使用fallback CSS
+                loadFallbackCSS();
+            });
+        }
+    }
+    
+    function loadFallbackCSS() {
+        console.log('🔄 加载备用CSS样式...');
+        const style = document.createElement('style');
+        style.textContent = `
+        .dual-mode-language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .lang-dropdown-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            min-width: 200px;
+            z-index: 10001;
+        }
+        .lang-dropdown.active .lang-dropdown-menu {
+            display: block;
+        }
+        .lang-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lang-option:hover {
+            background: #f5f5f5;
+        }
+        .lang-option.active {
+            background: #e3f2fd;
+        }
+        .mode-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        .mode-btn.active {
+            background: #2196f3;
+            color: white;
+        }
+        `;
+        document.head.appendChild(style);
+        console.log('✅ 备用CSS已加载');
+    }
+    
+    checkCSSLoaded();
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f5f7fa;
+            margin: 0;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border-left: 4px solid #4f46e5;
+            background: #f8f9ff;
+            border-radius: 5px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        .status-success { border-left: 4px solid #10b981; }
+        .status-error { border-left: 4px solid #ef4444; }
+        .status-warning { border-left: 4px solid #f59e0b; }
+        
+        .debug-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 500;
+        }
+        .debug-btn:hover {
+            background: #3730a3;
+        }
+        .debug-btn.success {
+            background: #10b981;
+        }
+        .debug-btn.warning {
+            background: #f59e0b;
+        }
+        .debug-btn.error {
+            background: #ef4444;
+        }
+        
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .console-log {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1 data-i18n="debug_page_title">🔧 双模式语言选择器调试页面</h1>
+        <p data-i18n="debug_page_desc">这个页面用于诊断双模式语言选择器的问题。请按顺序检查以下项目：</p>
+        
+        <!-- 测试翻译区域 -->
+        <div class="debug-section">
+            <h2>🌍 翻译测试区域</h2>
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <h3 data-i18n="test_title">测试标题</h3>
+                <p data-i18n="test_content">这是一段测试内容，用于验证语言切换是否正常工作。</p>
+                <button data-i18n="test_button">测试按钮</button>
+                <input type="text" data-i18n-placeholder="test_placeholder" placeholder="请输入测试内容">
+            </div>
+            <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                <strong>说明：</strong>如果语言切换正常，上方的文本应该会根据选择的语言改变内容。
+            </div>
+        </div>
+        
+        <!-- 文件加载检查 -->
+        <div class="debug-section">
+            <h2>📂 文件加载检查</h2>
+            <div id="fileChecks">
+                <div class="status-item" id="cssCheck">
+                    <span>CSS文件加载</span>
+                    <span id="cssStatus">检查中...</span>
+                </div>
+                <div class="status-item" id="jsCheck">
+                    <span>JavaScript文件加载</span>
+                    <span id="jsStatus">检查中...</span>
+                </div>
+                <div class="status-item" id="classCheck">
+                    <span>DualModeLanguageSwitcher类</span>
+                    <span id="classStatus">检查中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 实例化检查 -->
+        <div class="debug-section">
+            <h2>🎯 实例化检查</h2>
+            <div id="instanceChecks">
+                <div class="status-item" id="instanceCheck">
+                    <span>语言选择器实例</span>
+                    <span id="instanceStatus">检查中...</span>
+                </div>
+                <div class="status-item" id="domCheck">
+                    <span>DOM元素挂载</span>
+                    <span id="domStatus">检查中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 语言文件检查 -->
+        <div class="debug-section">
+            <h2>🌐 语言文件检查</h2>
+            <div id="languageChecks">
+                <div class="status-item" id="zhCheck">
+                    <span>中文语言文件 (zh.js)</span>
+                    <span id="zhStatus">检查中...</span>
+                </div>
+                <div class="status-item" id="enCheck">
+                    <span>英文语言文件 (en.js)</span>
+                    <span id="enStatus">检查中...</span>
+                </div>
+                <div class="status-item" id="jaCheck">
+                    <span>日文语言文件 (ja.js)</span>
+                    <span id="jaStatus">检查中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 功能测试 -->
+        <div class="debug-section">
+            <h2>🧪 功能测试</h2>
+            <div style="margin: 15px 0;">
+                <button class="debug-btn" onclick="testLanguageSwitch('zh')">测试中文切换</button>
+                <button class="debug-btn" onclick="testLanguageSwitch('en')">测试英文切换</button>
+                <button class="debug-btn" onclick="testLanguageSwitch('ja')">测试日文切换</button>
+                <button class="debug-btn warning" onclick="testModeSwitch('auto')">测试自动模式</button>
+                <button class="debug-btn warning" onclick="testModeSwitch('manual')">测试手动模式</button>
+            </div>
+            <div class="status-item" id="functionTest">
+                <span>功能测试结果</span>
+                <span id="functionStatus">等待测试...</span>
+            </div>
+        </div>
+        
+        <!-- 控制台输出 -->
+        <div class="debug-section">
+            <h2>📝 控制台输出</h2>
+            <div class="console-log" id="consoleOutput">
+                等待输出...
+            </div>
+            <button class="debug-btn" onclick="clearConsole()">清空日志</button>
+        </div>
+        
+        <!-- 解决方案 -->
+        <div class="debug-section">
+            <h2>💡 常见问题解决方案</h2>
+            <div>
+                <h3>如果语言切换不工作：</h3>
+                <div class="code-block">
+1. 确保通过HTTP服务器访问（不是file://协议）
+2. 检查浏览器控制台是否有错误信息
+3. 确认所有语言文件都已正确加载
+4. 检查网络连接和文件路径</div>
+                
+                <h3>推荐访问方式：</h3>
+                <div class="code-block">
+http://127.0.0.1:8000/test-dual-mode-language.html
+http://127.0.0.1:8000/debug-language-switcher.html</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 双模式语言选择器 -->
+    <script src="i18n/components/dual-mode-language-switcher.js"></script>
+    
+    <!-- 简化测试版本 -->
+    <script>
+    console.log('🧪 测试简化版本语言切换器');
+    
+    // 简化版语言切换器
+    class SimpleLanguageSwitcher {
+        constructor() {
+            console.log('✅ SimpleLanguageSwitcher 构造函数调用');
+            this.currentLanguage = 'zh';
+            this.element = null;
+            this.createSwitcher();
+        }
+        
+        createSwitcher() {
+            console.log('✅ SimpleLanguageSwitcher createSwitcher 调用');
+            this.element = document.createElement('div');
+            this.element.style.cssText = 'position:fixed;top:60px;right:20px;background:white;border:1px solid #ccc;padding:10px;border-radius:5px;z-index:9999;';
+            this.element.innerHTML = `
+                <div>简化测试切换器</div>
+                <button onclick="window.simpleSwitcher.test('zh')">中文</button>
+                <button onclick="window.simpleSwitcher.test('en')">英文</button>
+                <button onclick="window.simpleSwitcher.test('ja')">日文</button>
+            `;
+            document.body.appendChild(this.element);
+            console.log('✅ SimpleLanguageSwitcher DOM 已添加');
+        }
+        
+        test(lang) {
+            console.log('🧪 简化切换器测试:', lang);
+            this.currentLanguage = lang;
+            alert(`语言切换到: ${lang}`);
+        }
+        
+        setLanguage(lang) {
+            this.test(lang);
+        }
+    }
+    
+    // 暴露简化版本
+    window.SimpleLanguageSwitcher = SimpleLanguageSwitcher;
+    console.log('✅ SimpleLanguageSwitcher 已暴露到全局');
+    
+    // 立即创建简化版本实例
+    try {
+        window.simpleSwitcher = new SimpleLanguageSwitcher();
+        console.log('✅ 简化版本实例创建成功');
+    } catch (error) {
+        console.error('❌ 简化版本实例创建失败:', error);
+    }
+    </script>
+    
+    <script>
+        let debugSwitcher = null;
+        let consoleOutput = [];
+        
+        // 重写console.log以捕获输出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addConsoleOutput(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.push(`[${timestamp}] [${type.toUpperCase()}] ${message}`);
+            updateConsoleDisplay();
+            
+            // 调用原始console方法
+            if (type === 'error') originalError(message);
+            else if (type === 'warn') originalWarn(message);
+            else originalLog(message);
+        }
+        
+        console.log = (message) => addConsoleOutput(message, 'log');
+        console.error = (message) => addConsoleOutput(message, 'error');
+        console.warn = (message) => addConsoleOutput(message, 'warn');
+        
+        function updateConsoleDisplay() {
+            const outputEl = document.getElementById('consoleOutput');
+            outputEl.textContent = consoleOutput.slice(-10).join('\n');
+        }
+        
+        function clearConsole() {
+            consoleOutput = [];
+            updateConsoleDisplay();
+        }
+        
+        function setStatus(elementId, status, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                const statusEl = el.querySelector('span:last-child');
+                statusEl.textContent = message;
+                
+                el.className = 'status-item';
+                if (status === 'success') el.classList.add('status-success');
+                else if (status === 'error') el.classList.add('status-error');
+                else if (status === 'warning') el.classList.add('status-warning');
+            }
+        }
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 调试页面初始化开始');
+            
+            // 检查CSS文件加载
+            setTimeout(() => {
+                const cssRules = Array.from(document.styleSheets).some(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules || sheet.rules || []).some(rule => 
+                            rule.selectorText && rule.selectorText.includes('dual-mode-language-switcher')
+                        );
+                    } catch(e) {
+                        return false;
+                    }
+                });
+                
+                if (cssRules) {
+                    setStatus('cssCheck', 'success', '✅ 已加载');
+                    console.log('✅ CSS文件加载成功');
+                } else {
+                    setStatus('cssCheck', 'error', '❌ 未加载');
+                    console.error('❌ CSS文件加载失败');
+                }
+            }, 100);
+            
+            // 详细检查JavaScript执行状态
+            console.log('🔍 详细检查JavaScript执行状态:');
+            console.log('  - window对象存在:', typeof window !== 'undefined');
+            console.log('  - document对象存在:', typeof document !== 'undefined');
+            console.log('  - DualModeLanguageSwitcher类型:', typeof DualModeLanguageSwitcher);
+            console.log('  - window.DualModeLanguageSwitcher类型:', typeof window.DualModeLanguageSwitcher);
+            console.log('  - 脚本标签数量:', document.scripts.length);
+            console.log('  - 最后一个脚本src:', document.scripts[document.scripts.length-1]?.src);
+            
+            // 尝试手动执行检查
+            try {
+                console.log('  - 尝试访问DualModeLanguageSwitcher:', DualModeLanguageSwitcher);
+            } catch (refError) {
+                console.error('  - 访问DualModeLanguageSwitcher时出错:', refError);
+            }
+            
+            // 检查JavaScript类
+            if (typeof DualModeLanguageSwitcher !== 'undefined') {
+                setStatus('jsCheck', 'success', '✅ 已加载');
+                setStatus('classCheck', 'success', '✅ 已定义');
+                console.log('✅ JavaScript文件和类加载成功');
+                
+                // 延迟初始化，避免与自动初始化冲突
+                setTimeout(() => {
+                    try {
+                        // 先检查是否已有自动创建的实例
+                        if (window.dualModeLanguageSwitcher) {
+                            debugSwitcher = window.dualModeLanguageSwitcher;
+                            console.log('✅ 使用自动创建的语言选择器实例');
+                            setStatus('instanceCheck', 'success', '✅ 使用自动实例');
+                        } else {
+                            // 手动创建实例
+                            debugSwitcher = new DualModeLanguageSwitcher({
+                                onLanguageChange: function(langCode) {
+                                    console.log(`🔄 语言切换回调触发，参数:`, langCode);
+                                    console.log(`  - 参数类型:`, typeof langCode);
+                                    console.log(`  - 参数值:`, langCode);
+                                    setStatus('functionTest', 'success', `✅ 语言切换成功: ${langCode || '未知'}`);
+                                },
+                                onModeChange: function(mode) {
+                                    console.log(`🔄 模式切换回调触发，参数:`, mode);
+                                    console.log(`  - 参数类型:`, typeof mode);
+                                    console.log(`  - 参数值:`, mode);
+                                    setStatus('functionTest', 'success', `✅ 模式切换成功: ${mode || '未知'}`);
+                                }
+                            });
+                            console.log('✅ 手动创建语言选择器实例成功');
+                            setStatus('instanceCheck', 'success', '✅ 手动创建成功');
+                        }
+                        
+                        // 检查DOM挂载
+                        setTimeout(() => {
+                            const domEl = document.querySelector('.dual-mode-language-switcher');
+                            if (domEl) {
+                                setStatus('domCheck', 'success', '✅ 已挂载');
+                                console.log('✅ DOM元素挂载成功');
+                            } else {
+                                setStatus('domCheck', 'error', '❌ 未挂载');
+                                console.error('❌ DOM元素挂载失败');
+                            }
+                        }, 300);
+                        
+                    } catch (error) {
+                        setStatus('instanceCheck', 'error', '❌ 初始化失败');
+                        console.error('❌ 初始化失败:');
+                        console.error('  - 错误对象:', error);
+                        console.error('  - 错误类型:', typeof error);
+                        console.error('  - 错误消息:', error ? error.message : '无消息');
+                        console.error('  - 错误堆栈:', error ? error.stack : '无堆栈');
+                        console.error('  - 错误名称:', error ? error.name : '无名称');
+                        console.error('  - 错误toString:', error ? error.toString() : '无toString');
+                        
+                        // 检查构造函数是否存在
+                        console.error('  - DualModeLanguageSwitcher是否为函数:', typeof DualModeLanguageSwitcher === 'function');
+                        console.error('  - DualModeLanguageSwitcher.length:', DualModeLanguageSwitcher ? DualModeLanguageSwitcher.length : 'undefined');
+                        
+                        // 尝试使用全局实例作为备用
+                        if (window.dualModeLanguageSwitcher) {
+                            debugSwitcher = window.dualModeLanguageSwitcher;
+                            console.log('🔄 使用全局实例作为备用');
+                            setStatus('instanceCheck', 'warning', '⚠️ 使用备用实例');
+                        } else {
+                            // 尝试不带参数的构造
+                            console.log('🔄 尝试无参数构造...');
+                            try {
+                                debugSwitcher = new DualModeLanguageSwitcher();
+                                console.log('✅ 无参数构造成功');
+                                setStatus('instanceCheck', 'warning', '⚠️ 无参数构造成功');
+                            } catch (simpleError) {
+                                console.error('❌ 无参数构造也失败:', simpleError);
+                                console.error('❌ 无参数构造错误消息:', simpleError ? simpleError.message : '无消息');
+                            }
+                        }
+                    }
+                }, 200); // 延迟200ms以确保自动初始化完成
+                
+            } else {
+                setStatus('jsCheck', 'error', '❌ 未加载');
+                setStatus('classCheck', 'error', '❌ 未定义');
+                setStatus('instanceCheck', 'error', '❌ 无法初始化');
+                console.error('❌ DualModeLanguageSwitcher类未定义');
+            }
+            
+            // 检查语言文件
+            setTimeout(checkLanguageFiles, 500);
+        });
+        
+                 async function checkLanguageFiles() {
+             const languages = ['zh', 'en', 'ja'];
+             
+             for (const lang of languages) {
+                 try {
+                     const response = await fetch(`i18n/languages/${lang}.js`);
+                     if (response.ok) {
+                         setStatus(`${lang}Check`, 'success', '✅ 可访问');
+                         console.log(`✅ 语言文件 ${lang}.js 可访问`);
+                     } else {
+                         setStatus(`${lang}Check`, 'error', `❌ 无法访问 (${response.status})`);
+                         console.error(`❌ 语言文件 ${lang}.js 无法访问，状态码:`, response.status);
+                     }
+                 } catch (error) {
+                     setStatus(`${lang}Check`, 'error', '❌ 加载失败');
+                     console.error(`❌ 语言文件 ${lang}.js 加载失败:`, error);
+                     console.error('❌ 错误详情:', error.message);
+                     console.error('❌ 可能的原因: CORS策略、网络问题或文件不存在');
+                 }
+             }
+         }
+        
+        // 测试函数
+        function testLanguageSwitch(langCode) {
+            console.log(`🧪 测试语言切换到: ${langCode}`);
+            
+            // 多重检查和重试机制
+            let switcher = null;
+            
+            if (debugSwitcher) {
+                switcher = debugSwitcher;
+                console.log('✅ 使用debugSwitcher实例');
+            } else if (window.dualModeLanguageSwitcher) {
+                switcher = window.dualModeLanguageSwitcher;
+                console.log('✅ 使用全局dualModeLanguageSwitcher实例');
+            } else if (window.globalLanguageSwitcher) {
+                switcher = window.globalLanguageSwitcher;
+                console.log('✅ 使用全局globalLanguageSwitcher实例');
+            }
+            
+            if (switcher && typeof switcher.setLanguage === 'function') {
+                try {
+                    switcher.setLanguage(langCode);
+                    console.log(`✅ 语言切换命令已发送: ${langCode}`);
+                } catch (error) {
+                    console.error(`❌ 语言切换时出错:`, error);
+                    setStatus('functionTest', 'error', `❌ 切换失败: ${error.message}`);
+                }
+            } else {
+                // 尝试使用简化版本作为备用
+                if (window.simpleSwitcher && typeof window.simpleSwitcher.setLanguage === 'function') {
+                    console.log('🔄 使用简化版本切换器');
+                    window.simpleSwitcher.setLanguage(langCode);
+                    setStatus('functionTest', 'warning', `⚠️ 使用简化版本: ${langCode}`);
+                    return;
+                }
+                
+                // 详细的调试信息
+                console.error('❌ 语言选择器未初始化');
+                console.error('调试信息:');
+                console.error('- debugSwitcher:', debugSwitcher);
+                console.error('- window.dualModeLanguageSwitcher:', window.dualModeLanguageSwitcher);
+                console.error('- window.globalLanguageSwitcher:', window.globalLanguageSwitcher);
+                console.error('- window.simpleSwitcher:', window.simpleSwitcher);
+                console.error('- DualModeLanguageSwitcher类存在:', typeof DualModeLanguageSwitcher !== 'undefined');
+                console.error('- SimpleLanguageSwitcher类存在:', typeof SimpleLanguageSwitcher !== 'undefined');
+                
+                setStatus('functionTest', 'error', '❌ 语言选择器未初始化');
+                
+                // 尝试强制重新初始化
+                console.log('🔄 尝试强制重新初始化...');
+                setTimeout(() => {
+                    if (typeof DualModeLanguageSwitcher !== 'undefined') {
+                        try {
+                            debugSwitcher = new DualModeLanguageSwitcher();
+                            console.log('✅ 强制重新初始化成功');
+                            debugSwitcher.setLanguage(langCode);
+                        } catch (error) {
+                            console.error('❌ 强制重新初始化失败:', error);
+                        }
+                    } else if (typeof SimpleLanguageSwitcher !== 'undefined') {
+                        try {
+                            debugSwitcher = new SimpleLanguageSwitcher();
+                            console.log('✅ 使用简化版本重新初始化成功');
+                            debugSwitcher.setLanguage(langCode);
+                        } catch (error) {
+                            console.error('❌ 简化版本重新初始化失败:', error);
+                        }
+                    }
+                }, 100);
+            }
+        }
+        
+        function testModeSwitch(mode) {
+            console.log(`🧪 测试模式切换到: ${mode}`);
+            
+            let switcher = null;
+            
+            if (debugSwitcher) {
+                switcher = debugSwitcher;
+            } else if (window.dualModeLanguageSwitcher) {
+                switcher = window.dualModeLanguageSwitcher;
+            }
+            
+            if (switcher && typeof switcher.setDetectionMode === 'function') {
+                try {
+                    switcher.setDetectionMode(mode);
+                    console.log(`✅ 模式切换命令已发送: ${mode}`);
+                } catch (error) {
+                    console.error(`❌ 模式切换时出错:`, error);
+                    setStatus('functionTest', 'error', `❌ 模式切换失败: ${error.message}`);
+                }
+            } else {
+                setStatus('functionTest', 'error', '❌ 语言选择器未初始化');
+                console.error('❌ 语言选择器未初始化，无法切换模式');
+            }
+        }
+    </script>
+</body>
+</html> 

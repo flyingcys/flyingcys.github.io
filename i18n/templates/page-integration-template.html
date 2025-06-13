@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">页面标题</title>
+    
+    <!-- 原有页面样式 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- 双模式语言选择器样式 -->
+    <link rel="stylesheet" href="../i18n/components/dual-mode-language-switcher.css">
+    
+    <style>
+        /* 页面特定样式 */
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <!-- 页面内容 -->
+        <header>
+            <h1 data-i18n="page_title">页面标题</h1>
+            <p data-i18n="page_description">页面描述</p>
+        </header>
+        
+        <main>
+            <section>
+                <h2 data-i18n="section_title">章节标题</h2>
+                <p data-i18n="section_content">章节内容</p>
+                
+                <button data-i18n="btn_action">操作按钮</button>
+                <input type="text" data-i18n-placeholder="input_placeholder" placeholder="输入提示">
+            </section>
+        </main>
+        
+        <footer>
+            <p data-i18n="footer_text">页脚文本</p>
+        </footer>
+    </div>
+
+    <!-- 双模式语言选择器 -->
+    <script src="../i18n/components/dual-mode-language-switcher.js"></script>
+    
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化双模式语言选择器
+            if (typeof DualModeLanguageSwitcher !== 'undefined') {
+                window.dualModeLanguageSwitcher = new DualModeLanguageSwitcher({
+                    position: 'top-right',
+                    onLanguageChange: function(langCode) {
+                        console.log('页面语言已切换到:', langCode);
+                        
+                        // 页面特定的语言切换处理
+                        handleLanguageChange(langCode);
+                    },
+                    onModeChange: function(mode) {
+                        console.log('语言检测模式已切换到:', mode);
+                    }
+                });
+            } else {
+                console.error('DualModeLanguageSwitcher 未加载');
+            }
+            
+            // 其他页面初始化代码
+            initPageFeatures();
+        });
+        
+        // 处理语言切换
+        function handleLanguageChange(langCode) {
+            // 可以在这里添加页面特定的语言切换逻辑
+            // 例如：重新加载动态内容、更新图表标签等
+            
+            // 更新页面标题
+            updateDocumentTitle();
+            
+            // 如果有动态生成的内容，在这里重新生成
+            refreshDynamicContent();
+        }
+        
+        // 更新文档标题
+        function updateDocumentTitle() {
+            const titleElement = document.querySelector('[data-i18n="page_title"]');
+            if (titleElement) {
+                document.title = titleElement.textContent;
+            }
+        }
+        
+        // 刷新动态内容
+        function refreshDynamicContent() {
+            // 如果页面有动态生成的内容，在这里处理
+            // 例如：重新加载数据、更新图表等
+        }
+        
+        // 初始化页面功能
+        function initPageFeatures() {
+            // 在这里添加页面特定的初始化代码
+            console.log('页面功能初始化完成');
+        }
+    </script>
+</body>
+</html>
+
+<!-- 
+使用说明：
+
+1. 复制这个模板到您的页面
+2. 根据页面层级调整CSS和JS的相对路径：
+   - 根目录页面：     href="i18n/components/dual-mode-language-switcher.css"
+   - 一级子目录页面： href="../i18n/components/dual-mode-language-switcher.css"
+   - 二级子目录页面： href="../../i18n/components/dual-mode-language-switcher.css"
+
+3. 为需要翻译的元素添加 data-i18n 属性：
+   - 文本内容：     <span data-i18n="key">文本</span>
+   - 占位符：       <input data-i18n-placeholder="key" placeholder="占位符">
+   - 标题属性：     <div data-i18n-title="key" title="标题">内容</div>
+
+4. 在语言文件中添加对应的翻译键值：
+   {
+       "page_title": "页面标题",
+       "page_description": "页面描述",
+       "section_title": "章节标题",
+       "btn_action": "操作按钮",
+       ...
+   }
+
+5. 测试多语言功能：
+   - 检查自动检测是否正常
+   - 测试手动切换是否有效
+   - 验证设置是否持久化
+--> 
