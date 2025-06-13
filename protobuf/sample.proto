@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+// 用户信息消息
+message Person {
+  string name = 1;           // 姓名
+  int32 id = 2;             // 用户ID
+  string email = 3;         // 邮箱地址
+  repeated string phone = 4; // 电话号码列表
+  Address address = 5;      // 地址信息
+  
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+  
+  message PhoneNumber {
+    string number = 1;
+    PhoneType type = 2;
+  }
+  
+  repeated PhoneNumber phones = 6;
+  bool is_active = 7;       // 是否激活
+  double salary = 8;        // 薪资
+  int64 created_time = 9;   // 创建时间戳
+}
+
+// 地址信息
+message Address {
+  string street = 1;        // 街道
+  string city = 2;          // 城市
+  string state = 3;         // 省份
+  int32 zip_code = 4;       // 邮编
+  string country = 5;       // 国家
+  float latitude = 6;       // 纬度
+  float longitude = 7;      // 经度
+}
+
+// 公司信息
+message Company {
+  string name = 1;          // 公司名称
+  repeated Person employees = 2; // 员工列表
+  Address headquarters = 3;  // 总部地址
+  int64 founded_year = 4;   // 成立年份
+  repeated string departments = 5; // 部门列表
+  
+  enum CompanyType {
+    STARTUP = 0;
+    CORPORATION = 1;
+    NON_PROFIT = 2;
+    GOVERNMENT = 3;
+  }
+  
+  CompanyType type = 6;     // 公司类型
+}
+
+// 产品信息
+message Product {
+  string name = 1;          // 产品名称
+  string description = 2;   // 产品描述
+  double price = 3;         // 价格
+  int32 stock_quantity = 4; // 库存数量
+  repeated string tags = 5; // 标签
+  bool is_available = 6;    // 是否可用
+  
+  message Review {
+    string reviewer_name = 1;
+    int32 rating = 2;       // 评分 1-5
+    string comment = 3;
+    int64 review_date = 4;
+  }
+  
+  repeated Review reviews = 7; // 评论列表
+}
+
+// 订单信息
+message Order {
+  string order_id = 1;      // 订单ID
+  Person customer = 2;      // 客户信息
+  repeated OrderItem items = 3; // 订单项目
+  double total_amount = 4;  // 总金额
+  int64 order_date = 5;     // 订单日期
+  
+  enum OrderStatus {
+    PENDING = 0;
+    CONFIRMED = 1;
+    SHIPPED = 2;
+    DELIVERED = 3;
+    CANCELLED = 4;
+  }
+  
+  OrderStatus status = 6;   // 订单状态
+  Address shipping_address = 7; // 配送地址
+}
+
+// 订单项目
+message OrderItem {
+  Product product = 1;      // 产品信息
+  int32 quantity = 2;       // 数量
+  double unit_price = 3;    // 单价
+  double subtotal = 4;      // 小计
+}
+
+// 统计信息
+message Statistics {
+  int32 total_users = 1;    // 总用户数
+  int32 active_users = 2;   // 活跃用户数
+  double revenue = 3;       // 收入
+  repeated int32 daily_visits = 4; // 每日访问量
+  
+  message RegionStats {
+    string region = 1;
+    int32 user_count = 2;
+    double revenue = 3;
+  }
+  
+  repeated RegionStats region_stats = 5; // 地区统计
+}
+
+// API响应
+message ApiResponse {
+  int32 code = 1;           // 响应码
+  string message = 2;       // 响应消息
+  bool success = 3;         // 是否成功
+  
+  oneof data {
+    Person person_data = 4;
+    Company company_data = 5;
+    Product product_data = 6;
+    Order order_data = 7;
+    Statistics stats_data = 8;
+  }
+  
+  int64 timestamp = 9;      // 时间戳
+} 

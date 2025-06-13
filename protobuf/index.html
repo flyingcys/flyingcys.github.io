@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protobuf 可视化工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Protobuf 可视化工具</h1>
+            <div class="header-controls">
+                <button class="btn" onclick="loadSample()">📄 加载示例</button>
+                <button class="btn" onclick="importFile()">📁 导入文件</button>
+                <button class="btn" onclick="exportProto()">💾 导出.proto</button>
+                <button class="btn" onclick="exportBinary()">📦 导出二进制</button>
+                <button class="btn primary" onclick="clearAll()">🗑️ 清空</button>
+                <button id="resetPanelsBtn" class="btn" onclick="resetPanels()" style="display: none;">🔄 恢复面板</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 展开按钮 - 放在面板外部 -->
+            <div id="expandEditorBtn" class="expand-handle">&gt;&gt;</div>
+            <div id="expandViewerBtn" class="expand-handle">&lt;&lt;</div>
+
+            <!-- Schema编辑面板 -->
+            <div class="editor-panel" id="editorPanel">
+                <div class="panel-header">
+                    <span>📝 Proto Schema 定义</span>
+                    <div class="panel-controls">
+                        <button class="panel-btn" onclick="validateSchema()">✓ 验证</button>
+                        <button class="panel-btn" onclick="formatSchema()">🎨 格式化</button>
+                        <button class="collapse-btn" onclick="togglePanel('editor')" id="collapseEditorBtn">◄ 折叠</button>
+                    </div>
+                </div>
+                <textarea id="schemaEditor" class="code-editor" placeholder="在此输入 .proto 文件内容...
+
+示例:
+syntax = &quot;proto3&quot;;
+
+message Person {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+  repeated string phone = 4;
+}"></textarea>
+            </div>
+
+            <!-- 数据编辑和可视化面板 -->
+            <div class="viewer-panel" id="viewerPanel">
+                <div class="panel-header">
+                    <span>🔍 数据可视化</span>
+                    <div class="panel-controls">
+                        <select id="messageSelect" onchange="switchMessage()">
+                            <option value="">选择消息类型</option>
+                        </select>
+                        <button class="panel-btn" onclick="generateSample()">🎲 生成示例</button>
+                        <button class="collapse-btn" onclick="togglePanel('viewer')" id="collapseViewerBtn">折叠 ►</button>
+                    </div>
+                </div>
+                
+                <div class="viewer-content">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('visual')">可视化编辑</button>
+                        <button class="tab-btn" onclick="switchTab('json')">JSON 格式</button>
+                        <button class="tab-btn" onclick="switchTab('binary')">二进制查看</button>
+                    </div>
+
+                    <div id="visualTab" class="tab-content active">
+                        <div id="visualEditor" class="visual-editor">
+                            <div class="placeholder">
+                                请先定义 Proto Schema 并选择消息类型
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="jsonTab" class="tab-content">
+                        <textarea id="jsonEditor" class="code-editor" placeholder="JSON 格式数据将在此显示..."></textarea>
+                    </div>
+
+                    <div id="binaryTab" class="tab-content">
+                        <div id="binaryViewer" class="binary-viewer">
+                            <div class="binary-info">
+                                <span>大小: <span id="binarySize">0</span> 字节</span>
+                                <button class="btn" onclick="copyBinary()">📋 复制</button>
+                            </div>
+                            <div id="binaryContent" class="binary-content">
+                                二进制数据将在此显示...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">就绪</span>
+            <span id="schemaInfo">Schema: 未定义</span>
+        </div>
+    </div>
+
+    <!-- 文件输入 -->
+    <input type="file" id="fileInput" accept=".proto,.json" style="display: none;" onchange="handleFileImport(event)">
+
+    <!-- 通知容器 -->
+    <div id="notifications"></div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
