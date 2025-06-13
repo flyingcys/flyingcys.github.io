@@ -1,0 +1,257 @@
+/* JSON 可视化工具增强样式 */
+
+/* 自定义滚动条 */
+.json-viewer::-webkit-scrollbar,
+.code-editor::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.json-viewer::-webkit-scrollbar-track,
+.code-editor::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.json-viewer::-webkit-scrollbar-thumb,
+.code-editor::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.json-viewer::-webkit-scrollbar-thumb:hover,
+.code-editor::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+}
+
+/* 代码高亮增强 */
+.json-value.string::before,
+.json-value.string::after {
+    color: #22863a;
+    font-weight: normal;
+}
+
+.json-key {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* 动画效果 */
+.json-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.json-toggle {
+    transition: all 0.2s ease;
+}
+
+.json-toggle:active {
+    transform: scale(0.9);
+}
+
+/* 折叠动画 */
+.json-object,
+.json-array {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    overflow: hidden;
+}
+
+.json-collapsed {
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+/* 搜索高亮 */
+.search-highlight {
+    background: linear-gradient(90deg, rgba(255, 235, 59, 0.3), rgba(255, 193, 7, 0.2));
+    border-radius: 3px;
+    padding: 1px 2px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* 错误状态样式 */
+.json-error {
+    background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+    border-left: 4px solid #dc3545;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* 成功状态样式 */
+.json-success {
+    background: linear-gradient(45deg, #d4edda, #c3e6cb);
+    border-left: 4px solid #28a745;
+}
+
+/* 工具提示 */
+.tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+}
+
+.tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.tooltip:hover::after,
+.tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 响应式优化 */
+@media (max-width: 480px) {
+    .header-controls {
+        display: none;
+    }
+    
+    .header::after {
+        content: '👆 向上滑动查看更多功能';
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        opacity: 0.7;
+        white-space: nowrap;
+    }
+    
+    .json-controls {
+        position: static;
+        display: flex !important;
+        margin-top: 5px;
+        justify-content: flex-end;
+    }
+    
+    .json-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .header,
+    .status-bar,
+    .json-controls,
+    .modal {
+        display: none !important;
+    }
+    
+    .container {
+        box-shadow: none;
+        border-radius: 0;
+        height: auto;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .editor-panel,
+    .viewer-panel {
+        width: 100%;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .code-editor {
+        background: white;
+        font-size: 12px;
+    }
+}
+
+/* 无障碍支持 */
+.json-toggle:focus,
+.control-btn:focus,
+.btn:focus,
+.panel-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    .json-value.string { color: #000; }
+    .json-value.number { color: #000; }
+    .json-value.boolean { color: #000; }
+    .json-value.null { color: #000; }
+    .json-key { color: #000; }
+    .json-object, .json-array { border-left-color: #000; }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .container {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+    
+    .panel-header {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    .code-editor {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    .json-viewer {
+        background: #252525;
+    }
+    
+    .json-value.string { color: #9ccc65; }
+    .json-value.number { color: #42a5f5; }
+    .json-value.boolean { color: #ef5350; }
+    .json-value.null { color: #ab47bc; }
+    .json-key { color: #29b6f6; }
+    
+    .status-bar {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    .modal-content {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+} 

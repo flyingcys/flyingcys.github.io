@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 可视化工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+        }
+
+        .btn.primary:hover {
+            background: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .editor-panel, .viewer-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .editor-panel {
+            border-right: 1px solid #eee;
+        }
+
+        .panel-collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            border: none !important;
+            position: relative;
+            padding: 0 !important;
+            margin: 0 !important;
+            flex: 0 !important;
+        }
+
+        .panel-collapsed * {
+            visibility: hidden;
+        }
+
+        .panel-expanded {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            transition: all 0.3s ease;
+        }
+
+        /* 折叠面板的展开按钮 */
+        .expand-handle {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 60px;
+            background: rgba(102, 126, 234, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: monospace;
+            z-index: 9999;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            opacity: 0.9;
+        }
+
+        .expand-handle:hover {
+            width: 36px;
+            background: rgba(118, 75, 162, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        /* 确保展开按钮不受面板折叠的影响 */
+        #expandEditorBtn, #expandViewerBtn {
+            visibility: visible !important;
+        }
+
+        /* 编辑器展开按钮位置 */
+        #expandEditorBtn {
+            left: 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* 预览展开按钮位置 */
+        #expandViewerBtn {
+            right: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .panel-header {
+            background: #f8f9ff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .collapse-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .collapse-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .collapse-btn.expand {
+            background: #007bff;
+        }
+
+        .collapse-btn.expand:hover {
+            background: #0056b3;
+        }
+
+        .panel-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .panel-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .code-editor {
+            flex: 1;
+            margin: 0;
+            padding: 20px;
+            border: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background: #f8f9ff;
+        }
+
+        .json-viewer {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #fafbff;
+        }
+
+        .json-node {
+            margin-left: 20px;
+        }
+
+        .json-key {
+            color: #0066cc;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .json-value {
+            margin-left: 10px;
+        }
+
+        .json-value.string {
+            color: #22863a;
+        }
+
+        .json-value.number {
+            color: #005cc5;
+        }
+
+        .json-value.boolean {
+            color: #d73a49;
+        }
+
+        .json-value.null {
+            color: #6f42c1;
+        }
+
+        .json-object, .json-array {
+            border-left: 2px solid #e1e4e8;
+            margin-left: 10px;
+            padding-left: 15px;
+        }
+
+        .json-toggle {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 5px;
+            user-select: none;
+        }
+
+        .json-toggle:hover {
+            background: #764ba2;
+        }
+
+        .json-collapsed {
+            display: none;
+        }
+
+        .json-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 5px 0;
+            padding: 3px 0;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+
+        .json-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .json-controls {
+            display: none;
+            margin-left: auto;
+            gap: 5px;
+        }
+
+        .json-item:hover .json-controls {
+            display: flex;
+        }
+
+        .control-btn {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn.add {
+            background: #28a745;
+            color: white;
+        }
+
+        .control-btn.edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .control-btn.delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px 20px;
+            border-left: 4px solid #dc3545;
+            margin: 20px;
+            border-radius: 5px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .search-box {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .status-bar {
+            background: #f8f9ff;
+            padding: 8px 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 通知动画 */
+        @keyframes slideInNotification {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutNotification {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .editor-panel, .viewer-panel {
+                width: 100% !important;
+                height: 50vh;
+            }
+            
+            .editor-panel {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .panel-collapsed {
+                height: 0 !important;
+                min-height: 0 !important;
+            }
+            
+            .panel-expanded {
+                height: calc(100vh - 140px) !important;
+            }
+
+            /* 移动端展开按钮样式 */
+            .expand-handle {
+                width: 50px !important;
+                height: 32px !important;
+                font-size: 12px !important;
+                border-radius: 0 0 12px 12px !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                top: 0 !important;
+            }
+
+            .expand-handle:hover {
+                width: 55px !important;
+            }
+
+            .editor-panel.panel-collapsed .expand-handle {
+                top: 0 !important;
+                transform: translateX(-50%) !important;
+            }
+
+            .viewer-panel.panel-collapsed .expand-handle {
+                top: 0 !important;
+                transform: translateX(-50%) !important;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header-controls {
+                flex-wrap: wrap;
+            }
+            
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .search-box {
+                min-width: 120px;
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 JSON 可视化工具</h1>
+            <div class="header-controls">
+                <button class="btn" onclick="importFile()">📁 导入</button>
+                <button class="btn" onclick="exportFile()">💾 导出</button>
+                <button class="btn" onclick="formatJson()">✨ 格式化</button>
+                <button class="btn" onclick="compressJson()">🗜️ 压缩</button>
+                <button class="btn" onclick="resetPanels()" id="resetPanelsBtn" style="display: none;">🔄 恢复面板</button>
+                <button class="btn primary" onclick="validateJson()">✅ 验证</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <button class="expand-handle" id="expandEditorBtn" onclick="togglePanel('editor')" title="展开编辑器">
+                &gt;&gt;
+            </button>
+            <div class="editor-panel">
+                <div class="panel-header">
+                    📝 JSON 编辑器
+                    <div class="panel-controls">
+                        <button class="collapse-btn" id="collapseEditor" onclick="togglePanel('editor')" title="折叠编辑器">
+                            ◄ 折叠
+                        </button>
+                        <button class="panel-btn" onclick="clearEditor()">清空</button>
+                        <button class="panel-btn" onclick="loadSample()">示例</button>
+                    </div>
+                </div>
+                <textarea id="jsonEditor" class="code-editor" placeholder="在此输入或粘贴您的JSON数据...">{
+  "name": "示例数据",
+  "version": "1.0.0",
+  "users": [
+    {
+      "id": 1,
+      "name": "张三",
+      "email": "zhangsan@example.com",
+      "active": true,
+      "profile": {
+        "age": 25,
+        "city": "北京",
+        "hobbies": ["阅读", "游泳", "编程"]
+      }
+    },
+    {
+      "id": 2,
+      "name": "李四",
+      "email": "lisi@example.com",
+      "active": false,
+      "profile": {
+        "age": 30,
+        "city": "上海",
+        "hobbies": ["音乐", "旅行"]
+      }
+    }
+  ],
+  "settings": {
+    "theme": "dark",
+    "notifications": true,
+    "maxUsers": 100
+  }
+}</textarea>
+            </div>
+
+            <button class="expand-handle" id="expandViewerBtn" onclick="togglePanel('viewer')" title="展开预览">
+                &lt;&lt;
+            </button>
+            
+            <div class="viewer-panel">
+                <div class="panel-header">
+                    🌳 可视化视图
+                    <div class="toolbar">
+                        <input type="text" id="searchBox" class="search-box" placeholder="搜索..." onkeyup="searchJson(this.value)">
+                        <div class="panel-controls">
+                            <button class="collapse-btn" id="collapseViewer" onclick="togglePanel('viewer')" title="折叠预览">
+                                折叠 ►
+                            </button>
+                            <button class="panel-btn" onclick="expandAll()">展开全部</button>
+                            <button class="panel-btn" onclick="collapseAll()">折叠全部</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="jsonViewer" class="json-viewer">
+                    <!-- JSON视图将在这里渲染 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">就绪</span>
+            <span id="jsonStats">行数: 0 | 字符数: 0</span>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">编辑节点</div>
+            <div class="form-group">
+                <label>键名:</label>
+                <input type="text" id="editKey" placeholder="输入键名">
+            </div>
+            <div class="form-group">
+                <label>值类型:</label>
+                <select id="editType" onchange="updateValueInput()">
+                    <option value="string">字符串</option>
+                    <option value="number">数字</option>
+                    <option value="boolean">布尔值</option>
+                    <option value="null">空值</option>
+                    <option value="object">对象</option>
+                    <option value="array">数组</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>值:</label>
+                <input type="text" id="editValue" placeholder="输入值">
+                <textarea id="editValueText" style="display: none;" rows="4" placeholder="输入JSON对象或数组"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+    <script>
+        let jsonData = {};
+        let currentEditPath = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const editor = document.getElementById('jsonEditor');
+            editor.addEventListener('input', debounce(updateViewer, 300));
+            updateViewer();
+            
+            // 确保展开按钮初始状态正确
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            expandEditorBtn.style.display = 'none'; // 初始隐藏
+            expandViewerBtn.style.display = 'none'; // 初始隐藏
+            
+            // 添加键盘快捷键支持
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Tab 切换面板
+                if (e.ctrlKey && e.key === 'Tab') {
+                    e.preventDefault();
+                    const editorPanel = document.querySelector('.editor-panel');
+                    const viewerPanel = document.querySelector('.viewer-panel');
+                    
+                    if (editorPanel.classList.contains('panel-collapsed')) {
+                        togglePanel('editor'); // 展开编辑器
+                    } else if (viewerPanel.classList.contains('panel-collapsed')) {
+                        togglePanel('viewer'); // 展开预览
+                    } else {
+                        togglePanel('editor'); // 默认折叠编辑器
+                    }
+                }
+            });
+            
+            updatePanelButtonStates();
+        });
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 更新状态栏
+        function updateStats() {
+            const editor = document.getElementById('jsonEditor');
+            const text = editor.value;
+            const lines = text.split('\n').length;
+            const chars = text.length;
+            document.getElementById('jsonStats').textContent = `行数: ${lines} | 字符数: ${chars}`;
+        }
+
+        // 更新视图
+        function updateViewer() {
+            const editor = document.getElementById('jsonEditor');
+            const viewer = document.getElementById('jsonViewer');
+            const statusText = document.getElementById('statusText');
+            
+            updateStats();
+            
+            try {
+                jsonData = JSON.parse(editor.value);
+                viewer.innerHTML = renderJson(jsonData);
+                statusText.textContent = '✅ JSON 格式正确';
+                statusText.style.color = '#28a745';
+            } catch (error) {
+                viewer.innerHTML = `<div class="error-message">❌ JSON 格式错误: ${error.message}</div>`;
+                statusText.textContent = '❌ JSON 格式错误';
+                statusText.style.color = '#dc3545';
+            }
+        }
+
+        // 渲染JSON
+        function renderJson(data, path = '', level = 0) {
+            if (data === null) {
+                return `<span class="json-value null">null</span>`;
+            }
+            
+            if (typeof data === 'string') {
+                return `<span class="json-value string">"${escapeHtml(data)}"</span>`;
+            }
+            
+            if (typeof data === 'number') {
+                return `<span class="json-value number">${data}</span>`;
+            }
+            
+            if (typeof data === 'boolean') {
+                return `<span class="json-value boolean">${data}</span>`;
+            }
+            
+            if (Array.isArray(data)) {
+                if (data.length === 0) {
+                    return `<span class="json-value">[]</span>`;
+                }
+                
+                let html = `<div class="json-item">
+                    <span class="json-toggle" onclick="toggleCollapse(this)">-</span>
+                    <span class="json-key">[${data.length}]</span>
+                    <div class="json-controls">
+                        <button class="control-btn add" onclick="addItem('${path}', 'array')" title="添加项">+</button>
+                    </div>
+                </div>`;
+                html += `<div class="json-array">`;
+                
+                data.forEach((item, index) => {
+                    const itemPath = path ? `${path}[${index}]` : `[${index}]`;
+                    html += `<div class="json-item">
+                        <span class="json-key">${index}:</span>
+                        ${renderJson(item, itemPath, level + 1)}
+                        <div class="json-controls">
+                            <button class="control-btn edit" onclick="editItem('${itemPath}', ${index})" title="编辑">✎</button>
+                            <button class="control-btn delete" onclick="deleteItem('${itemPath}', ${index})" title="删除">×</button>
+                        </div>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+                return html;
+            }
+            
+            if (typeof data === 'object') {
+                const keys = Object.keys(data);
+                if (keys.length === 0) {
+                    return `<span class="json-value">{}</span>`;
+                }
+                
+                let html = `<div class="json-item">
+                    <span class="json-toggle" onclick="toggleCollapse(this)">-</span>
+                    <span class="json-key">{${keys.length}}</span>
+                    <div class="json-controls">
+                        <button class="control-btn add" onclick="addItem('${path}', 'object')" title="添加属性">+</button>
+                    </div>
+                </div>`;
+                html += `<div class="json-object">`;
+                
+                keys.forEach(key => {
+                    const itemPath = path ? `${path}.${key}` : key;
+                    html += `<div class="json-item">
+                        <span class="json-key">"${escapeHtml(key)}":</span>
+                        ${renderJson(data[key], itemPath, level + 1)}
+                        <div class="json-controls">
+                            <button class="control-btn edit" onclick="editItem('${itemPath}', '${key}')" title="编辑">✎</button>
+                            <button class="control-btn delete" onclick="deleteItem('${itemPath}', '${key}')" title="删除">×</button>
+                        </div>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+                return html;
+            }
+            
+            return `<span class="json-value">${String(data)}</span>`;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // 切换折叠状态
+        function toggleCollapse(element) {
+            const container = element.parentElement.nextElementSibling;
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                element.textContent = '-';
+            } else {
+                container.style.display = 'none';
+                element.textContent = '+';
+            }
+        }
+
+        // 展开全部
+        function expandAll() {
+            const toggles = document.querySelectorAll('.json-toggle');
+            toggles.forEach(toggle => {
+                const container = toggle.parentElement.nextElementSibling;
+                container.style.display = 'block';
+                toggle.textContent = '-';
+            });
+        }
+
+        // 折叠全部
+        function collapseAll() {
+            const toggles = document.querySelectorAll('.json-toggle');
+            toggles.forEach(toggle => {
+                const container = toggle.parentElement.nextElementSibling;
+                container.style.display = 'none';
+                toggle.textContent = '+';
+            });
+        }
+
+        // 搜索JSON
+        function searchJson(searchTerm) {
+            const items = document.querySelectorAll('.json-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    item.style.backgroundColor = searchTerm ? 'rgba(255, 235, 59, 0.3)' : '';
+                } else {
+                    item.style.backgroundColor = '';
+                }
+            });
+        }
+
+        // 导入文件
+        function importFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // 处理文件导入
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('jsonEditor').value = e.target.result;
+                    updateViewer();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // 导出文件
+        function exportFile() {
+            try {
+                const json = JSON.stringify(jsonData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('导出失败：JSON 格式不正确');
+            }
+        }
+
+        // 格式化JSON
+        function formatJson() {
+            try {
+                const formatted = JSON.stringify(JSON.parse(document.getElementById('jsonEditor').value), null, 2);
+                document.getElementById('jsonEditor').value = formatted;
+                updateViewer();
+            } catch (error) {
+                alert('格式化失败：JSON 格式不正确');
+            }
+        }
+
+        // 压缩JSON
+        function compressJson() {
+            try {
+                const compressed = JSON.stringify(JSON.parse(document.getElementById('jsonEditor').value));
+                document.getElementById('jsonEditor').value = compressed;
+                updateViewer();
+            } catch (error) {
+                alert('压缩失败：JSON 格式不正确');
+            }
+        }
+
+        // 验证JSON
+        function validateJson() {
+            try {
+                JSON.parse(document.getElementById('jsonEditor').value);
+                alert('✅ JSON 格式正确！');
+            } catch (error) {
+                alert(`❌ JSON 格式错误：${error.message}`);
+            }
+        }
+
+        // 清空编辑器
+        function clearEditor() {
+            if (confirm('确定要清空编辑器吗？')) {
+                document.getElementById('jsonEditor').value = '';
+                updateViewer();
+            }
+        }
+
+        // 加载示例
+        function loadSample() {
+            const sample = {
+                "name": "示例数据",
+                "version": "1.0.0",
+                "users": [
+                    {
+                        "id": 1,
+                        "name": "张三",
+                        "email": "zhangsan@example.com",
+                        "active": true,
+                        "profile": {
+                            "age": 25,
+                            "city": "北京",
+                            "hobbies": ["阅读", "游泳", "编程"]
+                        }
+                    }
+                ],
+                "settings": {
+                    "theme": "dark",
+                    "notifications": true,
+                    "maxUsers": 100
+                }
+            };
+            document.getElementById('jsonEditor').value = JSON.stringify(sample, null, 2);
+            updateViewer();
+        }
+
+        // 添加项目
+        function addItem(path, type) {
+            currentEditPath = path;
+            document.getElementById('editKey').value = '';
+            document.getElementById('editValue').value = '';
+            document.getElementById('editType').value = 'string';
+            updateValueInput();
+            
+            if (type === 'array') {
+                document.getElementById('editKey').parentElement.style.display = 'none';
+            } else {
+                document.getElementById('editKey').parentElement.style.display = 'block';
+            }
+            
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        // 编辑项目
+        function editItem(path, key) {
+            currentEditPath = path;
+            const value = getValueByPath(jsonData, path);
+            
+            document.getElementById('editKey').value = key;
+            document.getElementById('editKey').parentElement.style.display = 'block';
+            
+            if (typeof value === 'object' && value !== null) {
+                document.getElementById('editType').value = Array.isArray(value) ? 'array' : 'object';
+                document.getElementById('editValueText').value = JSON.stringify(value, null, 2);
+            } else {
+                document.getElementById('editType').value = value === null ? 'null' : typeof value;
+                document.getElementById('editValue').value = value === null ? '' : String(value);
+            }
+            
+            updateValueInput();
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        // 删除项目
+        function deleteItem(path, key) {
+            if (confirm('确定要删除此项目吗？')) {
+                deleteValueByPath(jsonData, path);
+                document.getElementById('jsonEditor').value = JSON.stringify(jsonData, null, 2);
+                updateViewer();
+            }
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        // 更新值输入框
+        function updateValueInput() {
+            const type = document.getElementById('editType').value;
+            const valueInput = document.getElementById('editValue');
+            const valueTextarea = document.getElementById('editValueText');
+            
+            if (type === 'object' || type === 'array') {
+                valueInput.style.display = 'none';
+                valueTextarea.style.display = 'block';
+            } else {
+                valueInput.style.display = 'block';
+                valueTextarea.style.display = 'none';
+            }
+        }
+
+        // 保存编辑
+        function saveEdit() {
+            const key = document.getElementById('editKey').value;
+            const type = document.getElementById('editType').value;
+            let value;
+            
+            try {
+                if (type === 'object' || type === 'array') {
+                    value = JSON.parse(document.getElementById('editValueText').value);
+                } else if (type === 'number') {
+                    value = Number(document.getElementById('editValue').value);
+                } else if (type === 'boolean') {
+                    value = document.getElementById('editValue').value.toLowerCase() === 'true';
+                } else if (type === 'null') {
+                    value = null;
+                } else {
+                    value = document.getElementById('editValue').value;
+                }
+                
+                setValueByPath(jsonData, currentEditPath, key, value);
+                document.getElementById('jsonEditor').value = JSON.stringify(jsonData, null, 2);
+                updateViewer();
+                closeModal();
+            } catch (error) {
+                alert('保存失败：' + error.message);
+            }
+        }
+
+        // 根据路径获取值
+        function getValueByPath(obj, path) {
+            if (!path) return obj;
+            const parts = path.split(/[\.\[\]]/).filter(p => p);
+            let current = obj;
+            for (const part of parts) {
+                current = current[part];
+            }
+            return current;
+        }
+
+        // 根据路径设置值
+        function setValueByPath(obj, path, key, value) {
+            if (!path) {
+                obj[key] = value;
+                return;
+            }
+            
+            const parts = path.split(/[\.\[\]]/).filter(p => p);
+            let current = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                current = current[parts[i]];
+            }
+            
+            const lastPart = parts[parts.length - 1];
+            if (Array.isArray(current[lastPart])) {
+                if (key === '') {
+                    current[lastPart].push(value);
+                } else {
+                    current[lastPart][key] = value;
+                }
+            } else {
+                current[lastPart][key] = value;
+            }
+        }
+
+        // 根据路径删除值
+        function deleteValueByPath(obj, path) {
+            const parts = path.split(/[\.\[\]]/).filter(p => p);
+            let current = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                current = current[parts[i]];
+            }
+            
+            const lastPart = parts[parts.length - 1];
+            if (Array.isArray(current)) {
+                current.splice(lastPart, 1);
+            } else {
+                delete current[lastPart];
+            }
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // 面板折叠功能
+        function togglePanel(panelType) {
+            console.log('togglePanel called with:', panelType);
+            const editorPanel = document.querySelector('.editor-panel');
+            const viewerPanel = document.querySelector('.viewer-panel');
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            const collapseEditorBtn = document.getElementById('collapseEditor');
+            const collapseViewerBtn = document.getElementById('collapseViewer');
+            const resetBtn = document.getElementById('resetPanelsBtn');
+
+            if (panelType === 'editor') {
+                // 如果预览已经折叠，不允许再折叠编辑器
+                if (!editorPanel.classList.contains('panel-collapsed') && viewerPanel.classList.contains('panel-collapsed')) {
+                    showNotification('不能同时折叠两个面板', 'warning');
+                    return;
+                }
+                
+                // 切换编辑器面板的折叠状态
+                editorPanel.classList.toggle('panel-collapsed');
+                
+                // 如果编辑器被折叠，显示展开按钮并扩展预览面板
+                if (editorPanel.classList.contains('panel-collapsed')) {
+                    expandEditorBtn.style.display = 'flex';
+                    collapseEditorBtn.innerHTML = '展开 ►';
+                    collapseEditorBtn.title = '展开编辑器';
+                    resetBtn.style.display = 'inline-block';
+                    
+                    // 扩展预览面板
+                    viewerPanel.classList.add('panel-expanded');
+                } else {
+                    expandEditorBtn.style.display = 'none';
+                    collapseEditorBtn.innerHTML = '◄ 折叠';
+                    collapseEditorBtn.title = '折叠编辑器';
+                    
+                    // 恢复预览面板
+                    viewerPanel.classList.remove('panel-expanded');
+                    
+                    if (!viewerPanel.classList.contains('panel-collapsed')) {
+                        resetBtn.style.display = 'none';
+                    }
+                }
+            } else if (panelType === 'viewer') {
+                // 如果编辑器已经折叠，不允许再折叠预览
+                if (!viewerPanel.classList.contains('panel-collapsed') && editorPanel.classList.contains('panel-collapsed')) {
+                    showNotification('不能同时折叠两个面板', 'warning');
+                    return;
+                }
+                
+                // 切换预览面板的折叠状态
+                viewerPanel.classList.toggle('panel-collapsed');
+                
+                // 如果预览被折叠，显示展开按钮并扩展编辑器面板
+                if (viewerPanel.classList.contains('panel-collapsed')) {
+                    expandViewerBtn.style.display = 'flex';
+                    collapseViewerBtn.innerHTML = '◄ 展开';
+                    collapseViewerBtn.title = '展开预览';
+                    resetBtn.style.display = 'inline-block';
+                    
+                    // 扩展编辑器面板
+                    editorPanel.classList.add('panel-expanded');
+                } else {
+                    expandViewerBtn.style.display = 'none';
+                    collapseViewerBtn.innerHTML = '折叠 ►';
+                    collapseViewerBtn.title = '折叠预览';
+                    
+                    // 恢复编辑器面板
+                    editorPanel.classList.remove('panel-expanded');
+                    
+                    if (!editorPanel.classList.contains('panel-collapsed')) {
+                        resetBtn.style.display = 'none';
+                    }
+                }
+            }
+            
+            console.log('Panel states after toggle:', {
+                editorCollapsed: editorPanel.classList.contains('panel-collapsed'),
+                viewerCollapsed: viewerPanel.classList.contains('panel-collapsed'),
+                editorExpanded: editorPanel.classList.contains('panel-expanded'),
+                viewerExpanded: viewerPanel.classList.contains('panel-expanded'),
+                expandEditorBtnDisplay: expandEditorBtn.style.display,
+                expandViewerBtnDisplay: expandViewerBtn.style.display
+            });
+            
+            // 更新按钮状态
+            updatePanelButtonStates();
+        }
+
+        function updateExpandButtonVisibility() {
+            console.log('updateExpandButtonVisibility called');
+            const editorPanel = document.querySelector('.editor-panel');
+            const viewerPanel = document.querySelector('.viewer-panel');
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            const resetBtn = document.getElementById('resetPanelsBtn');
+
+            // 根据面板状态显示/隐藏展开按钮
+            expandEditorBtn.style.display = editorPanel.classList.contains('panel-collapsed') ? 'flex' : 'none';
+            expandViewerBtn.style.display = viewerPanel.classList.contains('panel-collapsed') ? 'flex' : 'none';
+            
+            // 如果任一面板折叠，显示恢复按钮
+            resetBtn.style.display = (editorPanel.classList.contains('panel-collapsed') || 
+                                     viewerPanel.classList.contains('panel-collapsed')) ? 
+                                     'inline-block' : 'none';
+                                     
+            console.log('Button visibility updated:', {
+                editorCollapsed: editorPanel.classList.contains('panel-collapsed'),
+                viewerCollapsed: viewerPanel.classList.contains('panel-collapsed'),
+                expandEditorBtnDisplay: expandEditorBtn.style.display,
+                expandViewerBtnDisplay: expandViewerBtn.style.display,
+                resetBtnDisplay: resetBtn.style.display
+            });
+        }
+
+        // 更新折叠/展开按钮的状态和文本
+        function updatePanelButtonStates() {
+            const editorPanel = document.querySelector('.editor-panel');
+            const viewerPanel = document.querySelector('.viewer-panel');
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            const resetBtn = document.getElementById('resetPanelsBtn');
+
+            const editorCollapsed = editorPanel.classList.contains('panel-collapsed');
+            const viewerCollapsed = viewerPanel.classList.contains('panel-collapsed');
+
+            // 显示或隐藏恢复按钮
+            resetBtn.style.display = editorCollapsed || viewerCollapsed ? 'inline-block' : 'none';
+
+            // 更新编辑器按钮
+            if (editorCollapsed) {
+                expandEditorBtn.disabled = viewerCollapsed; // 如果另一个已折叠，则禁用此按钮
+                expandEditorBtn.title = viewerCollapsed ? '不能同时折叠两个面板' : '折叠编辑器';
+                expandEditorBtn.innerHTML = '展开 ►';
+            } else {
+                expandEditorBtn.disabled = viewerCollapsed; // 如果另一个已折叠，则禁用此按钮
+                expandEditorBtn.title = viewerCollapsed ? '不能同时折叠两个面板' : '折叠编辑器';
+                expandEditorBtn.innerHTML = '◄ 折叠';
+            }
+
+            // 更新预览器按钮
+            if (viewerCollapsed) {
+                expandViewerBtn.classList.add('expand');
+                expandViewerBtn.title = '展开预览';
+                expandViewerBtn.innerHTML = '◄ 展开';
+            } else {
+                expandViewerBtn.disabled = editorCollapsed; // 如果另一个已折叠，则禁用此按钮
+                expandViewerBtn.title = editorCollapsed ? '不能同时折叠两个面板' : '折叠预览';
+                expandViewerBtn.innerHTML = '折叠 ►';
+            }
+        }
+
+        // 重置面板布局
+        function resetPanels() {
+            const editorPanel = document.querySelector('.editor-panel');
+            const viewerPanel = document.querySelector('.viewer-panel');
+            const expandEditorBtn = document.getElementById('expandEditorBtn');
+            const expandViewerBtn = document.getElementById('expandViewerBtn');
+            const collapseEditorBtn = document.getElementById('collapseEditor');
+            const collapseViewerBtn = document.getElementById('collapseViewer');
+            const resetBtn = document.getElementById('resetPanelsBtn');
+
+            // 移除所有折叠和展开类
+            editorPanel.classList.remove('panel-collapsed', 'panel-expanded');
+            viewerPanel.classList.remove('panel-collapsed', 'panel-expanded');
+
+            // 隐藏展开按钮
+            expandEditorBtn.style.display = 'none';
+            expandViewerBtn.style.display = 'none';
+
+            // 重置按钮状态
+            collapseEditorBtn.innerHTML = '◄ 折叠';
+            collapseEditorBtn.classList.remove('expand');
+            collapseEditorBtn.title = '折叠编辑器';
+            collapseEditorBtn.disabled = false;
+
+            collapseViewerBtn.innerHTML = '折叠 ►';
+            collapseViewerBtn.classList.remove('expand');
+            collapseViewerBtn.title = '折叠预览';
+            collapseViewerBtn.disabled = false;
+
+            // 隐藏恢复按钮
+            resetBtn.style.display = 'none';
+
+            // 显示通知
+            showNotification('面板布局已重置', 'success');
+        }
+
+        // 显示通知消息
+        function showNotification(message, type = 'info') {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span style="margin-right: 10px;">${type === 'warning' ? '⚠️' : type === 'error' ? '❌' : 'ℹ️'}</span>
+                ${message}
+            `;
+            
+            // 设置样式
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'warning' ? '#fff3cd' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+                color: ${type === 'warning' ? '#856404' : type === 'error' ? '#721c24' : '#0c5460'};
+                border: 1px solid ${type === 'warning' ? '#ffeaa7' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                z-index: 10000;
+                animation: slideInNotification 0.3s ease;
+                max-width: 320px;
+                font-size: 14px;
+                line-height: 1.4;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOutNotification 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
