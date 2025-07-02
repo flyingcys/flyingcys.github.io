@@ -744,11 +744,48 @@ header p {
 }
 
 .flash-controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    align-items: start;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    column-gap: 5px !important;
+    align-items: start !important;
     margin-bottom: 20px;
+}
+
+/* 确保flash-controls中的config-group标签顶部对齐 */
+.flash-controls .config-group {
+    align-items: flex-start;
+    align-self: start;
+}
+
+.flash-controls .config-group label {
+    margin-bottom: 8px;
+    line-height: 1.2;
+    display: block;
+    height: auto;
+}
+
+/* 目标设备区域添加上边距，与ESP32地址组的标签对齐 */
+.flash-controls > .config-group:first-child {
+    padding-top: 16px;
+    margin-right: -15px !important;
+}
+
+/* 进一步缩小间距 */
+.flash-header .flash-controls {
+    gap: 5px !important;
+    grid-column-gap: 5px !important;
+}
+
+/* 特别处理ESP32地址组，确保标签对齐并缩小间距 */
+.flash-controls .esp32-address-group {
+    align-self: start;
+    margin-left: -10px !important;
+}
+
+.flash-controls .esp32-address-group label {
+    margin-top: 0;
+    margin-bottom: 8px;
 }
 
 /* 目标设备下拉列表样式优化 */
@@ -756,6 +793,30 @@ header p {
     max-width: 140px !important;
     width: 140px !important;
     min-width: 100px !important;
+}
+
+/* 直接设置两个区域的间距 - 调整到合适大小 */
+#esp32AddressGroup {
+    margin-left: -8px !important;
+    padding-left: 8px !important;
+}
+
+/* 设置合适的flash-controls间距 */
+div.flash-controls {
+    gap: 8px !important;
+    column-gap: 8px !important;
+}
+
+.flash-panel .flash-header .flash-controls {
+    gap: 8px !important;
+    column-gap: 8px !important;
+    grid-template-columns: 1fr 1fr !important;
+    display: grid !important;
+}
+
+/* 移除过度的transform */
+.config-group:nth-child(2) {
+    transform: none !important;
 }
 
 /* ESP32地址组样式优化 */
@@ -767,11 +828,14 @@ header p {
     padding: 16px;
     transition: all 0.3s ease;
     position: relative;
+    margin-top: 0;
 }
 
 .esp32-address-group.show {
     display: flex;
+    flex-direction: column;
     animation: slideInDown 0.3s ease-out;
+    margin-top: 0;
 }
 
 /* 已移除扳手图标 - 根据用户要求
