@@ -767,6 +767,7 @@ header p {
     animation: slideInDown 0.3s ease-out;
 }
 
+/* 已移除扳手图标 - 根据用户要求
 .esp32-address-group::before {
     content: '🔧';
     position: absolute;
@@ -777,6 +778,7 @@ header p {
     font-size: 14px;
     color: #4f46e5;
 }
+*/
 
 .esp32-address-group label {
     color: #4f46e5;
@@ -1453,11 +1455,13 @@ header p {
         margin-top: 10px;
     }
     
+    /* 已移除扳手图标 - 根据用户要求
     .esp32-address-group::before {
         top: -6px;
         left: 8px;
         font-size: 12px;
     }
+    */
     
     .custom-address-input {
         margin-top: 8px;
