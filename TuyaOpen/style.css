@@ -751,6 +751,13 @@ header p {
     margin-bottom: 20px;
 }
 
+/* 目标设备下拉列表样式优化 */
+#deviceSelect {
+    max-width: 140px !important;
+    width: 140px !important;
+    min-width: 100px !important;
+}
+
 /* ESP32地址组样式优化 */
 .esp32-address-group {
     display: none;
