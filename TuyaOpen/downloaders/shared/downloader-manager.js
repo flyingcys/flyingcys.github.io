@@ -8,10 +8,10 @@ class DownloaderManager {
         this.supportedChips = {
             T5AI: { 
                 displayName: 'T5AI',
-                downloader: 'T5Downloader',
+                downloader: 'T5DownloaderV2',
                 order: 1,
                 scriptPath: './downloaders/t5/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader',
+                downloaderClass: 'T5DownloaderV2',
                 dependencies: [
                     './downloaders/shared/protocols/base-protocol.js',
                     './downloaders/t5/protocols/t5-protocols.js',
@@ -21,15 +21,18 @@ class DownloaderManager {
                     './downloaders/shared/core/erase-strategy.js',
                     './downloaders/shared/core/write-strategy.js',
                     './downloaders/shared/utils/retry-utils.js',
-                    './downloaders/shared/utils/data-utils.js'
+                    './downloaders/shared/utils/data-utils.js',
+                    './downloaders/t5/core/t5-serial-handler.js',
+                    './downloaders/t5/core/t5-connection-manager.js',
+                    './downloaders/t5/core/t5-flash-operations.js'
                 ]
             },
             T3: { 
                 displayName: 'T3',
-                downloader: 'T5Downloader',
+                downloader: 'T5DownloaderV2',
                 order: 2,
                 scriptPath: './downloaders/t5/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader',
+                downloaderClass: 'T5DownloaderV2',
                 dependencies: [
                     './downloaders/shared/protocols/base-protocol.js',
                     './downloaders/t5/protocols/t5-protocols.js',
@@ -39,15 +42,18 @@ class DownloaderManager {
                     './downloaders/shared/core/erase-strategy.js',
                     './downloaders/shared/core/write-strategy.js',
                     './downloaders/shared/utils/retry-utils.js',
-                    './downloaders/shared/utils/data-utils.js'
+                    './downloaders/shared/utils/data-utils.js',
+                    './downloaders/t5/core/t5-serial-handler.js',
+                    './downloaders/t5/core/t5-connection-manager.js',
+                    './downloaders/t5/core/t5-flash-operations.js'
                 ]
             },
             T2: { 
                 displayName: 'T2',
-                downloader: 'T5Downloader',
+                downloader: 'T5DownloaderV2',
                 order: 3,
                 scriptPath: './downloaders/t5/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader',
+                downloaderClass: 'T5DownloaderV2',
                 dependencies: [
                     './downloaders/shared/protocols/base-protocol.js',
                     './downloaders/t5/protocols/t5-protocols.js',
@@ -57,7 +63,10 @@ class DownloaderManager {
                     './downloaders/shared/core/erase-strategy.js',
                     './downloaders/shared/core/write-strategy.js',
                     './downloaders/shared/utils/retry-utils.js',
-                    './downloaders/shared/utils/data-utils.js'
+                    './downloaders/shared/utils/data-utils.js',
+                    './downloaders/t5/core/t5-serial-handler.js',
+                    './downloaders/t5/core/t5-connection-manager.js',
+                    './downloaders/t5/core/t5-flash-operations.js'
                 ]
             },
             BK7231N: { 
@@ -75,10 +84,18 @@ class DownloaderManager {
             },
             LN882H: { 
                 displayName: 'LN882H',
-                downloader: 'LN882HDownloader',
+                downloader: 'LN882HDownloaderV2',
                 order: 5,
-                scriptPath: './downloaders/ln882h/ln882h-downloader.js',
-                downloaderClass: 'LN882HDownloader'
+                scriptPath: './downloaders/ln882h/ln882h-downloader-v2.js',
+                downloaderClass: 'LN882HDownloaderV2',
+                dependencies: [
+                    './downloaders/shared/protocols/base-protocol.js',
+                    './downloaders/ln882h/protocols/ln-protocols.js',
+                    './downloaders/shared/configs/flash-config-base.js',
+                    './downloaders/ln882h/configs/ln-flash-config.js',
+                    './downloaders/ln882h/core/xmodem-sender.js',
+                    './downloaders/ln882h/core/ram-loader.js'
+                ]
             },
             'ESP32-Series': { 
                 displayName: 'ESP32-Series',
@@ -94,7 +111,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'BK7231N', 'ESP32-Series'];
+        this.visibleChips = ['T5AI', 'T3', 'BK7231N', 'LN882H', 'ESP32-Series'];
     }
 
     /**

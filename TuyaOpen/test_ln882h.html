@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LN882H重构测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .log-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        .log-debug { color: #6c757d; }
+        .log-info { color: #17a2b8; }
+        .log-warning { color: #ffc107; }
+        .log-error { color: #dc3545; }
+        .log-success { color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LN882H 重构实现测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. 文件加载测试</div>
+            <button onclick="testFileLoading()">测试文件加载</button>
+            <div id="fileLoadingResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">2. 类实例化测试</div>
+            <button onclick="testClassInstantiation()">测试类实例化</button>
+            <div id="classInstantiationResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">3. 配置管理测试</div>
+            <button onclick="testConfigManager()">测试配置管理</button>
+            <div id="configManagerResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">4. 协议层测试</div>
+            <button onclick="testProtocolLayer()">测试协议层</button>
+            <div id="protocolLayerResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">5. 下载器管理器测试</div>
+            <button onclick="testDownloaderManager()">测试下载器管理器</button>
+            <div id="downloaderManagerResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">6. 完整下载器测试</div>
+            <button onclick="testFullDownloader()">测试完整下载器</button>
+            <div id="fullDownloaderResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">测试日志</div>
+            <button onclick="clearLog()">清空日志</button>
+            <div id="logContainer" class="log-container"></div>
+        </div>
+    </div>
+
+    <!-- 基础依赖 -->
+    <script src="./downloaders/shared/protocols/base-protocol.js"></script>
+    <script src="./downloaders/shared/configs/flash-config-base.js"></script>
+    <script src="./downloaders/shared/base-downloader.js"></script>
+    
+    <!-- LN882H特定文件 -->
+    <script src="./downloaders/ln882h/protocols/ln-protocols.js"></script>
+    <script src="./downloaders/ln882h/configs/ln-flash-config.js"></script>
+    <script src="./downloaders/ln882h/core/xmodem-sender.js"></script>
+    <script src="./downloaders/ln882h/core/ram-loader.js"></script>
+    <script src="./downloaders/ln882h/ln882h-downloader-v2.js"></script>
+    
+    <!-- 下载器管理器 -->
+    <script src="./downloaders/shared/downloader-manager.js"></script>
+
+    <script>
+        // 日志系统
+        function log(level, message, data = null) {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${level}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+            if (data) {
+                entry.innerHTML += `<br>&nbsp;&nbsp;&nbsp;&nbsp;${JSON.stringify(data, null, 2)}`;
+            }
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+        
+        function showResult(containerId, success, message, details = null) {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${success ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `<strong>${success ? '✅' : '❌'}</strong> ${message}`;
+            if (details) {
+                resultDiv.innerHTML += `<br><small>${details}</small>`;
+            }
+            container.appendChild(resultDiv);
+        }
+        
+        // 测试1: 文件加载测试
+        function testFileLoading() {
+            log('info', '开始文件加载测试');
+            const containerId = 'fileLoadingResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            const expectedClasses = [
+                'BaseProtocol',
+                'FlashConfigBase', 
+                'BaseDownloader',
+                'BaseLNProtocol',
+                'LNProtocolFactory',
+                'LNFlashConfig',
+                'XModemSender',
+                'RamLoader',
+                'LN882HDownloaderV2',
+                'DownloaderManager'
+            ];
+            
+            let loadedCount = 0;
+            let missingClasses = [];
+            
+            expectedClasses.forEach(className => {
+                if (window[className]) {
+                    loadedCount++;
+                    log('success', `类 ${className} 已加载`);
+                } else {
+                    missingClasses.push(className);
+                    log('error', `类 ${className} 未找到`);
+                }
+            });
+            
+            if (missingClasses.length === 0) {
+                showResult(containerId, true, `所有文件加载成功 (${loadedCount}/${expectedClasses.length})`);
+            } else {
+                showResult(containerId, false, `文件加载失败，缺少 ${missingClasses.length} 个类`, 
+                    `缺少: ${missingClasses.join(', ')}`);
+            }
+        }
+        
+        // 测试2: 类实例化测试
+        function testClassInstantiation() {
+            log('info', '开始类实例化测试');
+            const containerId = 'classInstantiationResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            try {
+                // 测试基础类
+                const baseProtocol = new BaseProtocol();
+                log('success', '基础协议类实例化成功');
+                
+                const flashConfig = new FlashConfigBase();
+                log('success', '基础Flash配置类实例化成功');
+                
+                // 测试LN882H特定类
+                const lnConfig = new LNFlashConfig();
+                log('success', 'LN882H配置类实例化成功');
+                
+                const protocolFactory = LNProtocolFactory;
+                const versionProtocol = protocolFactory.create('VersionCheck');
+                log('success', '协议工厂和版本检查协议实例化成功');
+                
+                const ramLoader = new RamLoader(lnConfig);
+                log('success', 'RAM加载器实例化成功');
+                
+                // 模拟串口处理器
+                const mockSerialHandler = {
+                    sendData: async (data) => {},
+                    readData: async (length, timeout) => new Uint8Array(length),
+                    resetBuffers: async () => {}
+                };
+                
+                const xmodemSender = new XModemSender(mockSerialHandler, protocolFactory, lnConfig);
+                log('success', 'XModem发送器实例化成功');
+                
+                // 测试下载器（需要模拟串口）
+                const mockSerialPort = {
+                    readable: { getReader: () => ({}) },
+                    writable: { getWriter: () => ({}) },
+                    close: async () => {},
+                    open: async () => {}
+                };
+                
+                const downloader = new LN882HDownloaderV2(mockSerialPort, log);
+                log('success', 'LN882H下载器实例化成功');
+                
+                const downloaderManager = new DownloaderManager();
+                log('success', '下载器管理器实例化成功');
+                
+                showResult(containerId, true, '所有类实例化成功');
+                
+            } catch (error) {
+                log('error', '类实例化失败', error);
+                showResult(containerId, false, '类实例化失败', error.message);
+            }
+        }
+        
+        // 测试3: 配置管理测试
+        function testConfigManager() {
+            log('info', '开始配置管理测试');
+            const containerId = 'configManagerResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            try {
+                const config = new LNFlashConfig();
+                
+                // 测试基本配置获取
+                const chipInfo = config.getChipInfo();
+                log('info', '芯片信息获取成功', chipInfo);
+                
+                const baudrateConfig = config.getBaudrateConfig();
+                log('info', '波特率配置获取成功', baudrateConfig);
+                
+                const flashConfig = config.getFlashConfig();
+                log('info', 'Flash配置获取成功', flashConfig);
+                
+                const xmodemConfig = config.getXModemConfig();
+                log('info', 'XModem配置获取成功', xmodemConfig);
+                
+                // 测试配置验证
+                const validation = config.validateConfig();
+                log('info', '配置验证结果', validation);
+                
+                // 测试配置完整性
+                const fullConfig = config.getFullConfig();
+                log('info', '完整配置获取成功', fullConfig);
+                
+                // 测试调试信息
+                const debugInfo = config.getDebugInfo();
+                log('info', '调试信息获取成功', debugInfo);
+                
+                showResult(containerId, true, '配置管理测试成功');
+                
+            } catch (error) {
+                log('error', '配置管理测试失败', error);
+                showResult(containerId, false, '配置管理测试失败', error.message);
+            }
+        }
+        
+        // 测试4: 协议层测试
+        function testProtocolLayer() {
+            log('info', '开始协议层测试');
+            const containerId = 'protocolLayerResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            try {
+                const factory = LNProtocolFactory;
+                
+                // 测试所有支持的协议
+                const supportedProtocols = factory.getSupportedProtocols();
+                log('info', '支持的协议列表', supportedProtocols);
+                
+                // 测试创建各种协议
+                const protocols = {};
+                
+                protocols.version = factory.create('VersionCheck');
+                log('success', '版本检查协议创建成功');
+                
+                protocols.ramMode = factory.create('RamModeCheck');
+                log('success', 'RAM模式检查协议创建成功');
+                
+                protocols.baudrate = factory.create('BaudrateSet', 115200);
+                log('success', '波特率设置协议创建成功');
+                
+                protocols.flashErase = factory.create('FlashErase');
+                log('success', 'Flash擦除协议创建成功');
+                
+                protocols.xmodem = factory.create('XModemSend');
+                log('success', 'XModem发送协议创建成功');
+                
+                // 测试协议命令生成
+                const versionCmd = protocols.version.cmd();
+                log('info', '版本检查命令生成成功', Array.from(versionCmd));
+                
+                const baudrateCmd = protocols.baudrate.cmd();
+                log('info', '波特率设置命令生成成功', Array.from(baudrateCmd));
+                
+                // 测试CRC计算
+                const testData = new Uint8Array([0x48, 0x65, 0x6C, 0x6C, 0x6F]); // "Hello"
+                const crc = protocols.xmodem.calcCrc(testData);
+                log('info', 'CRC计算测试成功', { data: Array.from(testData), crc: crc.toString(16) });
+                
+                showResult(containerId, true, '协议层测试成功');
+                
+            } catch (error) {
+                log('error', '协议层测试失败', error);
+                showResult(containerId, false, '协议层测试失败', error.message);
+            }
+        }
+        
+        // 测试5: 下载器管理器测试
+        function testDownloaderManager() {
+            log('info', '开始下载器管理器测试');
+            const containerId = 'downloaderManagerResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            try {
+                const manager = new DownloaderManager();
+                
+                // 测试支持的芯片列表
+                const supportedChips = manager.getSupportedChips();
+                log('info', '支持的芯片列表', supportedChips);
+                
+                // 测试芯片支持检查
+                const isLN882HSupported = manager.isChipSupported('LN882H');
+                log('info', 'LN882H支持检查', isLN882HSupported);
+                
+                // 测试芯片信息获取
+                const chipInfo = manager.getChipInfo('LN882H');
+                log('info', 'LN882H芯片信息', chipInfo);
+                
+                // 测试已加载的下载器
+                const loadedDownloaders = manager.getLoadedDownloaders();
+                log('info', '已加载的下载器', loadedDownloaders);
+                
+                showResult(containerId, true, '下载器管理器测试成功');
+                
+            } catch (error) {
+                log('error', '下载器管理器测试失败', error);
+                showResult(containerId, false, '下载器管理器测试失败', error.message);
+            }
+        }
+        
+        // 测试6: 完整下载器测试
+        async function testFullDownloader() {
+            log('info', '开始完整下载器测试');
+            const containerId = 'fullDownloaderResult';
+            document.getElementById(containerId).innerHTML = '';
+            
+            try {
+                // 创建模拟串口
+                const mockSerialPort = {
+                    readable: { 
+                        getReader: () => ({
+                            read: () => Promise.resolve({ value: new Uint8Array([0x43]), done: false }),
+                            releaseLock: () => {}
+                        })
+                    },
+                    writable: { 
+                        getWriter: () => ({
+                            write: (data) => Promise.resolve(),
+                            releaseLock: () => {}
+                        })
+                    },
+                    close: async () => {},
+                    open: async (options) => {}
+                };
+                
+                // 创建下载器实例
+                const downloader = new LN882HDownloaderV2(mockSerialPort, log);
+                log('success', '下载器创建成功');
+                
+                // 测试初始化
+                await downloader.initialize();
+                log('success', '下载器初始化成功');
+                
+                // 测试状态获取
+                const status = downloader.getDeviceStatus();
+                log('info', '设备状态', status);
+                
+                // 测试配置获取
+                const config = downloader.getConfig();
+                log('info', '下载器配置', config);
+                
+                // 测试连接
+                const connectResult = await downloader.connect();
+                log('info', '连接结果', connectResult);
+                
+                // 测试RAM Binary加载
+                const ramBinaryLoaded = await downloader.loadRamBinary(new Uint8Array(1024));
+                log('info', 'RAM Binary加载结果', ramBinaryLoaded);
+                
+                // 测试断开连接
+                await downloader.disconnect();
+                log('success', '断开连接成功');
+                
+                showResult(containerId, true, '完整下载器测试成功');
+                
+            } catch (error) {
+                log('error', '完整下载器测试失败', error);
+                showResult(containerId, false, '完整下载器测试失败', error.message);
+            }
+        }
+        
+        // 页面加载时自动运行基础测试
+        window.onload = function() {
+            log('info', '页面加载完成，开始基础测试');
+            setTimeout(() => {
+                testFileLoading();
+            }, 100);
+        };
+    </script>
+</body>
+</html>
