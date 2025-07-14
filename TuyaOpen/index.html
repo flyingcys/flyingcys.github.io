@@ -798,28 +798,30 @@
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
     <script src="third_party/esptool-js-umd.bundle.js"></script>
     
-    <!-- T5重构协议层和配置系统 -->
-    <script src="downloaders/protocols/base-protocol.js"></script>
-    <script src="downloaders/protocols/t5-protocols.js"></script>
-    <script src="downloaders/configs/flash-config-base.js"></script>
-    <script src="downloaders/configs/t5-flash-config.js"></script>
-    <script src="downloaders/configs/chip-database.js"></script>
+    <!-- 共享基础组件 -->
+    <script src="downloaders/shared/protocols/base-protocol.js"></script>
+    <script src="downloaders/shared/configs/flash-config-base.js"></script>
+    <script src="downloaders/shared/configs/chip-database.js"></script>
     
-    <!-- T5重构核心功能模块 -->
-    <script src="downloaders/core/crc-checker.js"></script>
-    <script src="downloaders/core/erase-strategy.js"></script>
-    <script src="downloaders/core/write-strategy.js"></script>
+    <!-- 共享核心功能模块 -->
+    <script src="downloaders/shared/core/crc-checker.js"></script>
+    <script src="downloaders/shared/core/erase-strategy.js"></script>
+    <script src="downloaders/shared/core/write-strategy.js"></script>
     
-    <!-- T5重构工具类 -->
-    <script src="downloaders/utils/retry-utils.js"></script>
-    <script src="downloaders/utils/data-utils.js"></script>
+    <!-- 共享工具类 -->
+    <script src="downloaders/shared/utils/retry-utils.js"></script>
+    <script src="downloaders/shared/utils/data-utils.js"></script>
+    
+    <!-- T5芯片组件 -->
+    <script src="downloaders/t5/protocols/t5-protocols.js"></script>
+    <script src="downloaders/t5/configs/t5-flash-config.js"></script>
 
     <!-- 下载器脚本 -->
     <script src="flash-downloader.js"></script>
-    <script src="downloaders/base-downloader.js"></script>
-    <script src="downloaders/t5ai-downloader.js"></script>
-    <script src="downloaders/esp32-esptool-js-wrapper.js"></script>
-    <script src="downloaders/downloader-manager.js"></script>
+    <script src="downloaders/shared/base-downloader.js"></script>
+    <script src="downloaders/t5/t5ai-downloader.js"></script>
+    <script src="downloaders/esp32/esp32-esptool-js-wrapper.js"></script>
+    <script src="downloaders/shared/downloader-manager.js"></script>
     
     <!-- 初始化多语言系统和事件处理 -->
     <script>

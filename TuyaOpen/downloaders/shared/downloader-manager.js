@@ -10,35 +10,74 @@ class DownloaderManager {
                 displayName: 'T5AI',
                 downloader: 'T5Downloader',
                 order: 1,
-                scriptPath: './downloaders/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader'
+                scriptPath: './downloaders/t5/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader',
+                dependencies: [
+                    './downloaders/shared/protocols/base-protocol.js',
+                    './downloaders/t5/protocols/t5-protocols.js',
+                    './downloaders/shared/configs/flash-config-base.js',
+                    './downloaders/t5/configs/t5-flash-config.js',
+                    './downloaders/shared/core/crc-checker.js',
+                    './downloaders/shared/core/erase-strategy.js',
+                    './downloaders/shared/core/write-strategy.js',
+                    './downloaders/shared/utils/retry-utils.js',
+                    './downloaders/shared/utils/data-utils.js'
+                ]
             },
             T3: { 
                 displayName: 'T3',
                 downloader: 'T5Downloader',
                 order: 2,
-                scriptPath: './downloaders/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader'
+                scriptPath: './downloaders/t5/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader',
+                dependencies: [
+                    './downloaders/shared/protocols/base-protocol.js',
+                    './downloaders/t5/protocols/t5-protocols.js',
+                    './downloaders/shared/configs/flash-config-base.js',
+                    './downloaders/t5/configs/t5-flash-config.js',
+                    './downloaders/shared/core/crc-checker.js',
+                    './downloaders/shared/core/erase-strategy.js',
+                    './downloaders/shared/core/write-strategy.js',
+                    './downloaders/shared/utils/retry-utils.js',
+                    './downloaders/shared/utils/data-utils.js'
+                ]
             },
             T2: { 
                 displayName: 'T2',
                 downloader: 'T5Downloader',
                 order: 3,
-                scriptPath: './downloaders/t5ai-downloader.js',
-                downloaderClass: 'T5Downloader'
+                scriptPath: './downloaders/t5/t5ai-downloader.js',
+                downloaderClass: 'T5Downloader',
+                dependencies: [
+                    './downloaders/shared/protocols/base-protocol.js',
+                    './downloaders/t5/protocols/t5-protocols.js',
+                    './downloaders/shared/configs/flash-config-base.js',
+                    './downloaders/t5/configs/t5-flash-config.js',
+                    './downloaders/shared/core/crc-checker.js',
+                    './downloaders/shared/core/erase-strategy.js',
+                    './downloaders/shared/core/write-strategy.js',
+                    './downloaders/shared/utils/retry-utils.js',
+                    './downloaders/shared/utils/data-utils.js'
+                ]
             },
             BK7231N: { 
                 displayName: 'BK7231N',
-                downloader: 'BK7231NDownloader',
+                downloader: 'BK7231NDownloaderV2',
                 order: 4,
-                scriptPath: './downloaders/bk7231n-downloader.js',
-                downloaderClass: 'BK7231NDownloader'
+                scriptPath: './downloaders/bk7231n/bk7231n-downloader-v2.js',
+                downloaderClass: 'BK7231NDownloaderV2',
+                dependencies: [
+                    './downloaders/shared/protocols/base-protocol.js',
+                    './downloaders/bk7231n/protocols/bk-protocols.js',
+                    './downloaders/shared/configs/flash-config-base.js',
+                    './downloaders/bk7231n/configs/bk-flash-config.js'
+                ]
             },
             LN882H: { 
                 displayName: 'LN882H',
                 downloader: 'LN882HDownloader',
                 order: 5,
-                scriptPath: './downloaders/ln882h-downloader.js',
+                scriptPath: './downloaders/ln882h/ln882h-downloader.js',
                 downloaderClass: 'LN882HDownloader'
             },
             'ESP32-Series': { 
@@ -46,7 +85,7 @@ class DownloaderManager {
                 downloader: 'ESP32EsptoolJSWrapper',
                 order: 6,
                 description: '100%使用esptool-js原生功能，支持ESP32全系列芯片自动检测',
-                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                scriptPath: './downloaders/esp32/esp32-esptool-js-wrapper.js',
                 downloaderClass: 'ESP32EsptoolJSWrapper'
             }
         };
@@ -55,7 +94,7 @@ class DownloaderManager {
         this.loadedDownloaders = {};
         
         // 当前可见的芯片列表（统一管理）
-        this.visibleChips = ['T5AI', 'T3', 'ESP32-Series'];
+        this.visibleChips = ['T5AI', 'T3', 'BK7231N', 'ESP32-Series'];
     }
 
     /**
@@ -101,6 +140,37 @@ class DownloaderManager {
     }
 
     /**
+     * 动态加载脚本文件
+     */
+    async loadScript(scriptPath) {
+        return new Promise((resolve, reject) => {
+            // 检查脚本是否已经加载
+            const existingScript = document.querySelector(`script[src="${scriptPath}"]`);
+            if (existingScript) {
+                console.log(`📋 脚本已加载: ${scriptPath}`);
+                resolve();
+                return;
+            }
+            
+            console.log(`📥 动态加载脚本: ${scriptPath}`);
+            const script = document.createElement('script');
+            script.src = scriptPath;
+            
+            script.onload = () => {
+                console.log(`✅ 脚本加载成功: ${scriptPath}`);
+                resolve();
+            };
+            
+            script.onerror = () => {
+                console.error(`❌ 脚本加载失败: ${scriptPath}`);
+                reject(new Error(`加载脚本失败: ${scriptPath}`));
+            };
+            
+            document.head.appendChild(script);
+        });
+    }
+
+    /**
      * 动态加载下载器脚本
      */
     async loadDownloaderScript(chipName) {
@@ -130,30 +200,27 @@ class DownloaderManager {
         }
 
         try {
-            // 动态加载脚本
-            console.log(`📥 动态加载下载器脚本: ${chipConfig.scriptPath}`);
-            const script = document.createElement('script');
-            script.src = chipConfig.scriptPath;
+            // 先加载依赖文件
+            if (chipConfig.dependencies && Array.isArray(chipConfig.dependencies)) {
+                console.log(`📦 加载依赖文件: ${chipConfig.dependencies.length} 个`);
+                for (const depPath of chipConfig.dependencies) {
+                    await this.loadScript(depPath);
+                }
+                console.log(`✅ 所有依赖文件加载完成`);
+            }
             
-            return new Promise((resolve, reject) => {
-                script.onload = () => {
-                    // 检查下载器类是否已加载
-                    const LoadedClass = window[chipConfig.downloaderClass];
-                    if (LoadedClass) {
-                        console.log(`✅ 下载器类 ${chipConfig.downloaderClass} 动态加载成功`);
-                        this.loadedDownloaders[chipName] = LoadedClass;
-                        resolve(LoadedClass);
-                    } else {
-                        reject(new Error(`下载器类 ${chipConfig.downloaderClass} 未找到`));
-                    }
-                };
-                
-                script.onerror = () => {
-                    reject(new Error(`加载下载器脚本失败: ${chipConfig.scriptPath}`));
-                };
-                
-                document.head.appendChild(script);
-            });
+            // 加载主下载器脚本
+            await this.loadScript(chipConfig.scriptPath);
+            
+            // 检查下载器类是否已加载
+            const LoadedClass = window[chipConfig.downloaderClass];
+            if (LoadedClass) {
+                console.log(`✅ 下载器类 ${chipConfig.downloaderClass} 动态加载成功`);
+                this.loadedDownloaders[chipName] = LoadedClass;
+                return LoadedClass;
+            } else {
+                throw new Error(`下载器类 ${chipConfig.downloaderClass} 未找到`);
+            }
         } catch (error) {
             throw new Error(`加载下载器失败: ${error.message}`);
         }

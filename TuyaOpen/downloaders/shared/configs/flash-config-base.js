@@ -369,7 +369,9 @@ class FlashConfigBase {
 
 // 导出类
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = FlashConfigBase;
+    module.exports = {
+        FlashConfigBase
+    };
 } else if (typeof window !== 'undefined') {
     window.FlashConfigBase = FlashConfigBase;
 }
