@@ -1,14 +1,66 @@
 /**
- * T5AI芯片下载器 - 基于成功测试的逻辑实现
- * 完全按照t5-flash-test.html中调试成功的协议逻辑
+ * T5AI芯片下载器 - 第3周重构版本
+ * 使用智能擦除策略、扇区级写入校验和CRC校验功能
+ * 基于 third_party/tyutool/tyutool/flash/t5/ 的完整实现
  */
+
+// 导入核心功能模块
+if (typeof window !== 'undefined') {
+    // 浏览器环境
+    var T5EraseStrategy = window.T5EraseStrategy;
+    var T5WriteStrategy = window.T5WriteStrategy;
+    var T5CRCChecker = window.T5CRCChecker;
+    var RetryUtils = window.RetryUtils;
+    var DataUtils = window.DataUtils;
+} else {
+    // Node.js环境
+    var T5EraseStrategy = require('./core/erase-strategy.js');
+    var T5WriteStrategy = require('./core/write-strategy.js');
+    var T5CRCChecker = require('./core/crc-checker.js');
+    var RetryUtils = require('./utils/retry-utils.js');
+    var DataUtils = require('./utils/data-utils.js');
+}
 
 class T5Downloader extends BaseDownloader {
     constructor(serialPort, debugCallback) {
         super(serialPort, debugCallback);
         this.chipName = 'T5AI';
         
-        // Flash芯片数据库 - 完全按照测试版本的数据
+        // 初始化协议实例 - 使用新的协议层
+        this.protocols = {
+            linkCheck: new LinkCheckProtocol(),
+            getChipId: new GetChipIdProtocol(),
+            getFlashMid: new GetFlashMidProtocol(),
+            setBaudrate: new SetBaudrateProtocol(),
+            flashReadSR: new FlashReadSRProtocol(),
+            flashWriteSR: new FlashWriteSRProtocol(),
+            flashErase4k: new FlashErase4kProtocol(),
+            flashErase4kExt: new FlashErase4kExtProtocol(),
+            flashCustomErase: new FlashCustomEraseProtocol(),
+            flashRead4k: new FlashRead4kProtocol(),
+            flashRead4kExt: new FlashRead4kExtProtocol(),
+            flashWrite4k: new FlashWrite4kProtocol(),
+            flashWrite4kExt: new FlashWrite4kExtProtocol(),
+            checkCrc: new CheckCrcProtocol(),
+            checkCrcExt: new CheckCrcExtProtocol(),
+            reboot: new RebootProtocol(),
+            stayRom: new StayRomProtocol(),
+            flashEraseAll: new FlashEraseAllProtocol(),
+            getBootVersion: new GetBootVersionProtocol(),
+            reset: new ResetProtocol(),
+            writeReg: new WriteRegProtocol()
+        };
+        
+        // 启用协议调试模式
+        Object.values(this.protocols).forEach(protocol => {
+            protocol.setDebugMode(true);
+        });
+
+        // 初始化Flash配置系统 - 使用新的配置管理
+        this.flashConfig = new T5FlashConfig();
+        this.flashConfig.setDebugMode(true);
+        
+        // 保留旧的简化数据库用于向后兼容
         this.flashDatabase = {
             // 完全按照Python flash_info.py的数据
             0x00134051: { name: 'MD25D40D', manufacturer: 'GD', size: 4 * 1024 * 1024 },
@@ -54,7 +106,6 @@ class T5Downloader extends BaseDownloader {
         // 设备信息
         this.chipId = null;
         this.flashId = null;
-        this.flashConfig = null;
     }
 
     /**
@@ -170,6 +221,63 @@ class T5Downloader extends BaseDownloader {
     }
 
     /**
+     * 执行协议命令 - 使用新的协议层框架
+     * @param {BaseProtocol} protocol 协议实例
+     * @param {Array} cmdArgs 命令参数
+     * @param {number} expectedLength 期望响应长度
+     * @param {number} timeout 超时时间(毫秒)
+     * @param {Array} checkArgs 响应检查参数
+     * @returns {Uint8Array} 响应内容
+     */
+    async executeProtocol(protocol, cmdArgs = [], expectedLength = null, timeout = 100, checkArgs = []) {
+        try {
+            // 生成协议命令
+            const command = protocol.cmd(...cmdArgs);
+            const protocolName = protocol.getName();
+            
+            this.commLog(`执行协议: ${protocolName}`);
+            protocol.trace(`生成命令: [${command.map(x => '0x' + x.toString(16).padStart(2, '0')).join(', ')}]`);
+            
+            // 发送命令
+            await this.sendCommand(command, protocolName);
+            
+            // 接收响应
+            const response = await this.receiveResponse(expectedLength, timeout);
+            protocol.trace(`收到响应: ${response.length} 字节`);
+            
+            // 检查响应
+            const isValid = protocol.responseCheck(response, ...checkArgs);
+            if (!isValid) {
+                throw new Error(`${protocolName} 响应检查失败`);
+            }
+            
+            protocol.trace(`${protocolName} 执行成功`);
+            return response;
+            
+        } catch (error) {
+            protocol.trace(`${protocol.getName()} 执行失败: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * 简化的协议执行方法 - 用于不需要复杂参数的协议
+     * @param {string} protocolName 协议名称
+     * @param {Array} cmdArgs 命令参数  
+     * @param {number} expectedLength 期望响应长度
+     * @param {number} timeout 超时时间
+     * @returns {Uint8Array} 响应内容
+     */
+    async executeSimpleProtocol(protocolName, cmdArgs = [], expectedLength = null, timeout = 100) {
+        const protocol = this.protocols[protocolName];
+        if (!protocol) {
+            throw new Error(`协议不存在: ${protocolName}`);
+        }
+        
+        return await this.executeProtocol(protocol, cmdArgs, expectedLength, timeout, cmdArgs);
+    }
+
+    /**
      * 接收响应 - 完全按照Python的wait_for_cmd_response机制实现
      * Python逻辑：
      * def wait_for_cmd_response(self, expect_length, timeout_sec=0.1):
@@ -277,148 +385,132 @@ class T5Downloader extends BaseDownloader {
     }
 
     /**
-     * do_link_check_ex - 完全按照Python版本实现
+     * do_link_check_ex - 重构版本，使用新的协议层
      * Python: max_try_count=60, timeout_sec=0.001
      */
     async doLinkCheckEx(maxTryCount = 60) {
         for (let cnt = 0; cnt < maxTryCount && !this.stopFlag; cnt++) {
+            try {
                 await this.clearBuffer();
-                await this.sendCommand([0x01, 0xE0, 0xFC, 0x01, 0x00], 'LinkCheck');
                 
-            // Python使用0.001秒超时，即1毫秒
-            const response = await this.receiveResponse(8, 1);
-                if (response.length >= 8) {
-                    const r = response.slice(0, 8);
-                    if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0x05 && 
-                        r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && 
-                        r[6] === 0x01 && r[7] === 0x00) {
-                        return true;
-                    }
+                // 使用新的协议层执行LinkCheck
+                const response = await this.executeProtocol(
+                    this.protocols.linkCheck,  // 协议实例
+                    [],                        // 命令参数（LinkCheck无参数）
+                    8,                         // 期望响应长度
+                    1,                         // 超时1毫秒（与Python一致）
+                    []                         // 检查参数（LinkCheck无检查参数）
+                );
+                
+                // 如果执行成功且响应检查通过，返回true
+                if (response && response.length >= 8) {
+                    this.protocols.linkCheck.trace('LinkCheck成功');
+                    return true;
                 }
+            } catch (error) {
+                // LinkCheck失败，继续下一次尝试
+                this.protocols.linkCheck.trace(`LinkCheck尝试${cnt + 1}失败: ${error.message}`);
             }
+        }
         return false;
     }
 
     /**
-     * 步骤2：获取芯片ID - 完全按照测试版本的逻辑
+     * 步骤2：获取芯片ID - 重构版本，使用新的协议层
      */
     async getChipId() {
         this.mainLog('=== 步骤2: 获取芯片ID ===');
         this.commLog('正在获取芯片ID...');
         
-        const command = [0x01, 0xE0, 0xFC, 0x05, 0x03, 0x04, 0x00, 0x01, 0x44];
-        
-        await this.clearBuffer();
-        await this.sendCommand(command, 'GetChipId');
-        
-        const response = await this.receiveResponse(15, 500); // Python使用0.5秒超时
-        if (response.length >= 15) {
-            const r = response.slice(0, 15);
-            this.debugLog(`完整响应: ${r.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
+        try {
+            await this.clearBuffer();
             
-            if (r[0] === 0x04 && r[1] === 0x0E && r[3] === 0x01 && 
-                r[4] === 0xE0 && r[5] === 0xFC && r[6] === 0x03) {
-                
-                const chipIdBytes = r.slice(-4);
-                const chipId = chipIdBytes[0] | (chipIdBytes[1] << 8) | (chipIdBytes[2] << 16) | (chipIdBytes[3] << 24);
-                
-                this.mainLog(`✅ 芯片ID: 0x${chipId.toString(16).toUpperCase().padStart(8, '0')}`);
-                this.chipId = chipId;
-                return chipId;
+            // 使用新的协议层执行GetChipId
+            const response = await this.executeProtocol(
+                this.protocols.getChipId,  // 协议实例
+                [],                        // 命令参数（GetChipId无参数）
+                15,                        // 期望响应长度
+                500,                       // 超时500毫秒（与Python一致）
+                []                         // 检查参数（GetChipId无检查参数）
+            );
+            
+            // 使用协议类的方法解析芯片ID
+            const chipId = this.protocols.getChipId.getChipId(response);
+            if (chipId === null) {
+                throw new Error('芯片ID解析失败');
             }
+            
+            this.mainLog(`✅ 芯片ID: 0x${chipId.toString(16).toUpperCase().padStart(8, '0')}`);
+            this.chipId = chipId;
+            return chipId;
+            
+        } catch (error) {
+            this.protocols.getChipId.trace(`获取芯片ID失败: ${error.message}`);
+            throw new Error(`获取芯片ID失败: ${error.message}`);
         }
-        
-        throw new Error('获取芯片ID失败');
     }
 
     /**
-     * 步骤3：获取Flash ID - 完全按照测试版本的逻辑
+     * 步骤3：获取Flash ID - 重构版本，使用新的协议层
      */
     async getFlashId() {
         this.mainLog('=== 步骤3: 获取Flash ID ===');
         this.commLog('正在获取Flash ID...');
         
-        // 使用正确的Flash协议格式：[0x01, 0xE0, 0xFC, 0xFF, 0xF4, payload_length_low, payload_length_high, cmd, reg_addr, 0, 0, 0]
-        // 其中: payload_length = 5 (cmd + 4字节地址), cmd = 0x0e, reg_addr = 0x9f
-        const command = [0x01, 0xE0, 0xFC, 0xFF, 0xF4, 0x05, 0x00, 0x0e, 0x9f, 0x00, 0x00, 0x00];
-        
-        await this.clearBuffer();
-        await this.sendCommand(command, 'FlashGetMID');
-        
-        // 期望响应格式：[0x04, 0x0e, 0xff, 0x01, 0xe0, 0xfc, 0xf4, len_low, len_high, cmd, status, flash_id_bytes...]
-        // 最少响应长度：11字节（基础头部） + 4字节（Flash ID数据）= 15字节
-        const response = await this.receiveResponse(15); // 使用默认超时时间100ms
-        if (response.length >= 11) {
-            const r = response;
-            this.debug('debug', `完整响应: ${r.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
+        try {
+            await this.clearBuffer();
             
-            // 检查基本Flash协议格式：04 0E FF 01 E0 FC F4
-            if (r[0] === 0x04 && r[1] === 0x0E && r[2] === 0xFF && 
-                r[3] === 0x01 && r[4] === 0xE0 && r[5] === 0xFC && r[6] === 0xF4) {
-                
-                // 检查命令响应 (位置9应该是0x0e)
-                if (r[9] === 0x0e) {
-                    // 检查状态码 (位置10)
-                    const status = r[10];
-                    this.debug('debug', `状态码: 0x${status.toString(16).padStart(2, '0').toUpperCase()}`);
-                    
-                    if (status === 0x00) {
-                        // 状态正常，提取Flash ID - 完全按照Python逻辑
-                        if (response.length >= 15) {
-                            // Python代码: struct.unpack("<I", response_content[11:])[0] >> 8
-                            // 从位置11开始取4字节，小端序解析为32位整数，然后右移8位
-                            const flashIdData = response.slice(11, 15);
-                            this.debug('debug', `Flash ID原始数据: ${flashIdData.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
-                            
-                            // 小端序解析为32位整数
-                            const flashId32 = flashIdData[0] | (flashIdData[1] << 8) | (flashIdData[2] << 16) | (flashIdData[3] << 24);
-                            this.debug('debug', `32位整数 (小端序): 0x${flashId32.toString(16).toUpperCase().padStart(8, '0')}`);
-                            
-                            // 右移8位得到最终Flash ID
-                            const flashId = flashId32 >>> 8;
-                            this.debug('debug', `Flash ID (右移8位): 0x${flashId.toString(16).toUpperCase().padStart(6, '0')}`);
-                            
-                            // 查找数据库中的配置
-                            const config = this.flashDatabase[flashId];
-                            
-                            this.flashId = flashId;
-                            this.flashConfig = config;
-                            
-                            if (config) {
-                                this.debug('info', `✅ 识别Flash: ${config.manufacturer} ${config.name} (${config.size / 1048576}MB)`);
-                                return { flashId, config };
-                            } else {
-                                this.warningLog(`⚠️ 未知Flash ID: 0x${flashId.toString(16).toUpperCase().padStart(6, '0')}`);
-                                return { flashId, config: null };
-                            }
-                        } else {
-                            throw new Error(`响应长度不足，期望15字节，实际${response.length}字节`);
-                        }
-                    } else {
-                        // 状态码错误，查找错误信息
-                        const statusInfo = [
-                            { code: 0x0, desc: 'normal' },
-                            { code: 0x1, desc: 'FLASH_STATUS_BUSY' },
-                            { code: 0x2, desc: 'spi timeout' },
-                            { code: 0x3, desc: 'flash operate timeout' },
-                            { code: 0x4, desc: 'package payload length error' },
-                            { code: 0x5, desc: 'package length error' },
-                            { code: 0x6, desc: 'flash operate PARAM_ERROR' },
-                            { code: 0x7, desc: 'unknown cmd' },
-                        ];
-                        
-                        const errorInfo = statusInfo.find(info => info.code === status);
-                        const errorDesc = errorInfo ? errorInfo.desc : `未知错误码 0x${status.toString(16)}`;
-                        throw new Error(`Flash操作失败: ${errorDesc} (状态码: 0x${status.toString(16).padStart(2, '0').toUpperCase()})`);
-                    }
-                } else {
-                    throw new Error(`命令响应码错误，期望0x0e，实际0x${r[9].toString(16).padStart(2, '0').toUpperCase()}`);
-                }
-            } else {
-                throw new Error(`Flash协议头部格式错误`);
+            // 使用新的协议层执行GetFlashMid
+            const response = await this.executeProtocol(
+                this.protocols.getFlashMid,  // 协议实例
+                [],                          // 命令参数（GetFlashMid无参数）
+                15,                          // 期望响应长度
+                100,                         // 超时100毫秒
+                [0x9f]                       // 检查参数（Flash地址0x9f）
+            );
+            
+            // 使用协议类的方法解析Flash MID
+            const flashId = this.protocols.getFlashMid.getMid(response);
+            if (flashId === null) {
+                throw new Error('Flash ID解析失败');
             }
-        } else {
-            throw new Error(`响应长度不足，期望至少11字节，实际${response.length}字节`);
+            
+            // 使用新的Flash配置系统解析Flash信息
+            this.flashId = flashId;
+            
+            try {
+                // 尝试使用新的T5FlashConfig解析Flash信息
+                this.flashConfig.parseFlashInfo(flashId);
+                const flashSummary = this.flashConfig.getFlashConfigSummary();
+                
+                this.debug('info', `✅ 识别Flash: ${flashSummary.manufacturer} ${flashSummary.name} (${flashSummary.size / 1048576}MB)`);
+                
+                // 为了向后兼容，提供简化的配置信息
+                const legacyConfig = {
+                    name: flashSummary.name,
+                    manufacturer: flashSummary.manufacturer,
+                    size: flashSummary.size
+                };
+                
+                return { flashId, config: legacyConfig, flashSummary };
+                
+            } catch (error) {
+                this.flashConfig.trace(`新配置系统解析失败: ${error.message}`);
+                
+                // 回退到旧数据库查找
+                const config = this.flashDatabase[flashId];
+                if (config) {
+                    this.debug('info', `✅ 识别Flash (回退模式): ${config.manufacturer} ${config.name} (${config.size / 1048576}MB)`);
+                    return { flashId, config };
+                } else {
+                    this.warningLog(`⚠️ 未知Flash ID: 0x${flashId.toString(16).toUpperCase().padStart(6, '0')}`);
+                    return { flashId, config: null };
+                }
+            }
+            
+        } catch (error) {
+            this.protocols.getFlashMid.trace(`获取Flash ID失败: ${error.message}`);
+            throw new Error(`获取Flash ID失败: ${error.message}`);
         }
     }
 
@@ -440,17 +532,27 @@ class T5Downloader extends BaseDownloader {
             this.infoLog('✅ T5AI设备连接和初始化流程完成！');
             this.infoLog(`芯片ID: 0x${this.chipId.toString(16).toUpperCase().padStart(8, '0')}`);
             this.infoLog(`Flash ID: 0x${this.flashId.toString(16).toUpperCase().padStart(6, '0')}`);
-            if (this.flashConfig) {
-                this.infoLog(`Flash型号: ${this.flashConfig.manufacturer} ${this.flashConfig.name} (${this.flashConfig.size / 1048576}MB)`);
+            
+            // 显示Flash配置信息
+            if (this.flashConfig && this.flashConfig.isInitialized()) {
+                const summary = this.flashConfig.getFlashConfigSummary();
+                this.infoLog(`Flash型号: ${summary.manufacturer} ${summary.name} (${summary.size / 1048576}MB)`);
+            } else if (flashResult.config) {
+                this.infoLog(`Flash型号: ${flashResult.config.manufacturer} ${flashResult.config.name} (${flashResult.config.size / 1048576}MB)`);
             }
             
             if (this.onProgress) {
+                // 提供兼容的进度信息
+                const progressFlashConfig = this.flashConfig.isInitialized() ? 
+                    this.flashConfig.getFlashConfigSummary() : 
+                    flashResult.config;
+                    
                 this.onProgress({
                     stage: 'connected',
                     message: 'T5AI设备连接成功',
                     chipId: this.chipId,
                     flashId: this.flashId,
-                    flashConfig: this.flashConfig
+                    flashConfig: progressFlashConfig
                 });
             }
             
@@ -468,7 +570,7 @@ class T5Downloader extends BaseDownloader {
     }
 
     /**
-     * 下载固件 - 逐步实现完整功能
+     * 下载固件 - 第3周重构版本，使用智能擦除策略、扇区级写入校验和CRC校验
      */
     async downloadFirmware(fileData, startAddr = 0x00) {
         if (!this.chipId || !this.flashId) {
@@ -476,10 +578,22 @@ class T5Downloader extends BaseDownloader {
         }
         
         try {
-            this.infoLog(i18n.t('starting_firmware_download_process'));
+            this.infoLog('🚀 开始T5固件下载流程（第3周重构版本）');
             this.infoLog(`文件大小: ${fileData.length} 字节`);
             this.infoLog(`起始地址: 0x${startAddr.toString(16).padStart(8, '0')}`);
-            this.infoLog(`目标Flash: ${this.flashConfig ? this.flashConfig.manufacturer + ' ' + this.flashConfig.name : '未知型号'}`);
+            
+            // 显示目标Flash信息
+            let flashDisplayName = '未知型号';
+            if (this.flashConfig && this.flashConfig.isInitialized()) {
+                const summary = this.flashConfig.getFlashConfigSummary();
+                flashDisplayName = `${summary.manufacturer} ${summary.name}`;
+            }
+            this.infoLog(`目标Flash: ${flashDisplayName}`);
+            
+            // 初始化核心功能模块
+            const eraseStrategy = new T5EraseStrategy(this, this.flashConfig, this.debugMode);
+            const writeStrategy = new T5WriteStrategy(this, this.flashConfig, this.debugMode);
+            const crcChecker = new T5CRCChecker(this, this.flashConfig, this.debugMode);
             
             if (this.onProgress) {
                 this.onProgress({ 
@@ -490,13 +604,13 @@ class T5Downloader extends BaseDownloader {
                 });
             }
             
-            // 步骤1: 设置高速波特率 - 从用户串口配置获取波特率
+            // 步骤1: 设置高速波特率
             this.mainLog('=== 步骤1: 设置高速波特率 ===');
             if (this.onProgress) {
                 this.onProgress({ 
                     stage: 'downloading', 
                     message: '设置高速波特率...',
-                    progress: Math.round(fileData.length * 0.1),
+                    progress: Math.round(fileData.length * 0.05),
                     total: fileData.length
                 });
             }
@@ -508,269 +622,108 @@ class T5Downloader extends BaseDownloader {
             await this.setBaudrate(userBaudrate);
             this.infoLog(`✅ 高速波特率设置完成: ${userBaudrate} bps`);
             
-            // 步骤2: 擦除Flash - 完全按照Python erase()方法实现
-            this.mainLog('=== 步骤2: 擦除Flash ===');
-            if (this.onProgress) {
-                this.onProgress({ 
-                    stage: 'downloading', 
-                    message: '擦除Flash...',
-                    progress: Math.round(fileData.length * 0.2),
-                    total: fileData.length
-                });
-            }
-            
-            // Python: erase()方法开始 - 先调用unprotect_flash()
+            // 步骤2: Flash解保护
+            this.mainLog('=== 步骤2: Flash解保护 ===');
             if (this.onProgress) {
                 this.onProgress({ 
                     stage: 'downloading', 
                     message: 'Flash解保护...',
-                    progress: Math.round(fileData.length * 0.25),
+                    progress: Math.round(fileData.length * 0.1),
                     total: fileData.length
                 });
             }
             
-            await this.unprotectFlash();
+            await this.flashConfig.unprotectFlash(this);
             this.infoLog('✅ Flash解保护完成');
             
-            // 解保护后验证通信状态
-            this.debugLog('验证Flash解保护后通信状态...');
-            if (await this.doLinkCheck()) {
-                this.infoLog('✅ Flash解保护后通信正常');
-            } else {
-                throw new Error('Flash解保护后通信异常');
-            }
-            
-            if (this.onProgress) {
-                this.onProgress({ 
-                    stage: 'downloading', 
-                    message: '开始擦除...',
-                    progress: Math.round(fileData.length * 0.3),
-                    total: fileData.length
-                });
-            }
-            
-            const eraseStartAddr = startAddr; // Python: start_addr = self.start_addr
-            const eraseEndAddr = eraseStartAddr + fileData.length; // Python: end_addr = start_addr + self.binfil['len']
-            this.infoLog(`擦除起始地址: 0x${eraseStartAddr.toString(16).padStart(8, '0')}`);
-            this.infoLog(`擦除结束地址: 0x${eraseEndAddr.toString(16).padStart(8, '0')}`);
-            
-            // Python逻辑: 地址按4K对齐
-            // Python: if start_addr & 0xfff: start_addr = int((start_addr+0x1000)/0x1000)*0x1000  # 向上对齐
-            let alignedStartAddr = eraseStartAddr;
-            if (eraseStartAddr & 0xfff) {
-                alignedStartAddr = Math.floor((eraseStartAddr + 0x1000) / 0x1000) * 0x1000; // 向上对齐
-            }
-            
-            // Python: if end_addr & 0xfff: end_addr = int(end_addr/0x1000)*0x1000  # 向下对齐
-            let alignedEndAddr = eraseEndAddr;
-            if (eraseEndAddr & 0xfff) {
-                alignedEndAddr = Math.floor(eraseEndAddr / 0x1000) * 0x1000; // 向下对齐
-            }
-            
-            const eraseSize = alignedEndAddr - alignedStartAddr;
-            this.infoLog(`实际擦除大小: 0x${eraseSize.toString(16)} 字节`);
-            
-            // Python擦除逻辑: 优先使用64K块擦除，剩余部分使用4K扇区擦除，带重试机制
-            const retry = 5; // Python: self.retry = 5
-            let eraseI = 0;
-            while (eraseI < eraseSize) {
-                if (this.stopFlag) break;
-                
-                const currentAddr = alignedStartAddr + eraseI;
-                const remaining = eraseSize - eraseI;
-                this.debug('debug', `擦除地址: 0x${currentAddr.toString(16).padStart(8, '0')}`);
-                
-                // Python: if erase_size-i > 0x10000:  (注意是大于号，不是大于等于)
-                if (remaining > 0x10000) {
-                    // 64K块擦除 - Python: erase_custom_size(start_addr+i, 0xd8 or 0xdc)
-                    const eraseCmd = this.flashConfig && this.flashConfig.size >= 256 * 1024 * 1024 ? 0xdc : 0xd8;
-                    
-                    // Python重试逻辑
-                    let cnt = retry;
-                    let ret = false;
-                    while (cnt > 0 && !ret) {
-                        try {
-                            await this.eraseCustomSize(currentAddr, eraseCmd);
-                            ret = true;
-                        } catch (error) {
-                            this.warningLog(`擦除失败，剩余重试次数: ${cnt-1}, 错误: ${error.message}`);
-                            cnt--;
-                            if (cnt === 0) {
-                                throw new Error(`擦除64K块失败: 0x${currentAddr.toString(16).padStart(8, '0')}`);
-                            }
-                        }
-                    }
-                    eraseI += 0x10000;
-                } else {
-                    // 4K扇区擦除 - Python: erase_custom_size(start_addr+i, 0x20 or 0x21)
-                    const eraseCmd = this.flashConfig && this.flashConfig.size >= 256 * 1024 * 1024 ? 0x21 : 0x20;
-                    
-                    // Python重试逻辑
-                    let cnt = retry;
-                    let ret = false;
-                    while (cnt > 0 && !ret) {
-                        try {
-                            await this.eraseCustomSize(currentAddr, eraseCmd);
-                            ret = true;
-                        } catch (error) {
-                            this.warningLog(`擦除失败，剩余重试次数: ${cnt-1}, 错误: ${error.message}`);
-                            cnt--;
-                            if (cnt === 0) {
-                                throw new Error(`擦除4K扇区失败: 0x${currentAddr.toString(16).padStart(8, '0')}`);
-                            }
-                        }
-                    }
-                    eraseI += 0x1000;
-                }
-                
-                // 更新进度
-                const eraseProgress = (eraseI / eraseSize) * 0.4; // 擦除占40%进度
+            // 步骤3: 智能擦除策略
+            this.mainLog('=== 步骤3: 智能擦除策略 ===');
+            const eraseProgressCallback = (info) => {
                 if (this.onProgress) {
-                    this.onProgress({ 
-                        stage: 'downloading', 
-                        message: `擦除Flash... ${Math.round(eraseProgress * 100)}%`,
-                        progress: Math.round(fileData.length * (0.3 + eraseProgress)),
+                    this.onProgress({
+                        stage: 'downloading',
+                        message: info.message,
+                        progress: Math.round(fileData.length * (0.15 + (info.progress / info.total) * 0.3)),
                         total: fileData.length
                     });
                 }
+            };
+            
+            const stopCheck = () => this.stopFlag;
+            const eraseSuccess = await eraseStrategy.executeIntelligentErase(
+                startAddr, 
+                fileData.length, 
+                eraseProgressCallback, 
+                stopCheck
+            );
+            
+            if (!eraseSuccess) {
+                throw new Error('智能擦除策略执行失败');
+            }
+            this.infoLog('✅ 智能擦除完成');
+            
+            // 步骤4: 扇区级写入和校验
+            this.mainLog('=== 步骤4: 扇区级写入和校验 ===');
+            
+            // 数据256字节对齐（按照Python版本逻辑）
+            let paddedData = new Uint8Array(fileData);
+            if (fileData.length % 0x100) {
+                const paddingSize = 0x100 - (fileData.length % 0x100);
+                paddedData = new Uint8Array(fileData.length + paddingSize);
+                paddedData.set(fileData);
+                paddedData.fill(0xff, fileData.length);
+                this.debugLog(`数据256字节对齐: ${fileData.length} -> ${paddedData.length}`);
             }
             
-            this.infoLog('✅ Flash擦除完成');
-            
-            // 步骤3: 写入固件 - 完全按照Python write()方法实现
-            this.mainLog('=== 步骤3: 写入固件 ===');
-            if (this.onProgress) {
-                this.onProgress({ 
-                    stage: 'downloading', 
-                    message: '写入固件...',
-                    progress: Math.round(fileData.length * 0.7),
-                    total: fileData.length
-                });
-            }
-            
-            // Python: start_addr = self.start_addr
-            let writeStartAddr = startAddr;
-            
-            // Python: wbuf = self.binfil['bin']
-            // Python: file_len = self.binfil['len']
-            let wbuf = new Uint8Array(fileData);
-            let file_len = wbuf.length;
-            
-            // Python: align 0x100 bytes
-            // Python: if file_len % 0x100: wbuf += b'\xff' * (0x100 - file_len % 0x100); file_len = len(wbuf)
-            if (file_len % 0x100) {
-                const paddingSize = 0x100 - (file_len % 0x100);
-                const paddedBuffer = new Uint8Array(file_len + paddingSize);
-                paddedBuffer.set(wbuf);
-                paddedBuffer.fill(0xff, file_len);
-                wbuf = paddedBuffer;
-                file_len = wbuf.length;
-                this.debugLog(`数据256字节对齐: ${fileData.length} -> ${file_len}`);
-            }
-            
-            // Python: end_addr = start_addr + file_len
-            const end_addr = writeStartAddr + file_len;
-            // Python: flash_size = self._flash_cfg.flash_size
-            const flash_size = this.flashConfig ? this.flashConfig.size : 4 * 1024 * 1024;
-            
-            this.debugLog(`write flash ${writeStartAddr.toString(16).padStart(8, '0')}(${file_len})`);
-            
-            // Python 关键逻辑1: 起始地址对齐检查和处理
-            // Python: if start_addr & 0xfff:
-            if (writeStartAddr & 0xfff) {
-                this.debugLog("write align start ...");
-                // Python: if not self.ser_handle.align_sector_address_for_write(start_addr, True, wbuf, flash_size):
-                if (!await this.alignSectorAddressForWrite(writeStartAddr, true, wbuf, flash_size)) {
-                    throw new Error(`Align start address ${writeStartAddr.toString(16).padStart(8, '0')} fail.`);
-                }
-                // Python: wbuf = wbuf[(0x1000-start_addr & 0xfff):]
-                const skipBytes = (0x1000 - writeStartAddr & 0xfff);
-                wbuf = wbuf.slice(skipBytes);
-                // Python: start_addr = int((start_addr+0x1000)/0x1000)*0x1000
-                writeStartAddr = Math.floor((writeStartAddr + 0x1000) / 0x1000) * 0x1000;
-                // Python: file_len = len(wbuf)
-                file_len = wbuf.length;
-            }
-            
-            // Python 关键逻辑2: 结束地址对齐检查和处理
-            // Python: if end_addr & 0xfff:
-            if (end_addr & 0xfff) {
-                this.debugLog("write align end ...");
-                // Python: if not self.ser_handle.align_sector_address_for_write(end_addr, False, wbuf, flash_size):
-                if (!await this.alignSectorAddressForWrite(end_addr, false, wbuf, flash_size)) {
-                    throw new Error(`Align end address ${end_addr.toString(16).padStart(8, '0')} fail.`);
-                }
-                // Python: wbuf = wbuf[:len(wbuf)-(end_addr & 0xfff)]
-                const trimBytes = end_addr & 0xfff;
-                wbuf = wbuf.slice(0, wbuf.length - trimBytes);
-                // Python: end_addr = int(end_addr/0x1000)*0x1000
-                const new_end_addr = Math.floor(end_addr / 0x1000) * 0x1000;
-                // Python: file_len = len(wbuf)
-                file_len = wbuf.length;
-            }
-            
-            this.infoLog(`最终写入起始地址: 0x${writeStartAddr.toString(16).padStart(8, '0')}`);
-            this.infoLog(`最终写入数据长度: ${file_len} 字节`);
-            
-            // Python: 写入主循环
-            // Python: i = 0; while i < file_len:
-            let writeI = 0;
-            while (writeI < file_len) {
-                if (this.stopFlag) break;
-                
-                // Python: self.logger.debug(f"write at {(i+start_addr):08x} ...")
-                const currentAddr = writeI + writeStartAddr;
-                this.debug('debug', `write at ${currentAddr.toString(16).padStart(8, '0')} ...`);
-                
-                // Python: if not is_buf_all_0xff(wbuf[i:i+0x1000]):
-                const sectorData = wbuf.slice(writeI, writeI + 0x1000);
-                if (!this.isBufferAllFF(sectorData)) {
-                    // Python: if not self.ser_handle.write_and_check_sector(wbuf[i:i+0x1000], i+start_addr, flash_size):
-                    if (!await this.writeAndCheckSector(sectorData, currentAddr, flash_size)) {
-                        // Python: self.logger.warning(f"Retry write at {(i+start_addr):08x}")
-                        this.warningLog(`Retry write at ${currentAddr.toString(16).padStart(8, '0')}`);
-                        
-                        // Python: if not self.ser_handle.retry_write_sector(i+start_addr, wbuf[i:i+0x1000], flash_size, self.retry, self.check_stop):
-                        if (!await this.retryWriteSector(currentAddr, sectorData, flashSize, 5)) {
-                            // Python: self.logger.error(f"Error write at {(i+start_addr):08x}"); return False
-                            throw new Error(`Error write at ${currentAddr.toString(16).padStart(8, '0')}`);
-                        }
-                    }
-                }
-                
-                // Python: i += 0x1000
-                writeI += 0x1000;
-                
-                // 更新进度
-                const writeProgress = (writeI / file_len) * 0.2; // 写入占20%进度
+            const writeProgressCallback = (info) => {
                 if (this.onProgress) {
-                    this.onProgress({ 
-                        stage: 'downloading', 
-                        message: `写入固件... ${Math.round(writeProgress * 100)}%`,
-                        progress: Math.round(fileData.length * (0.7 + writeProgress)),
+                    this.onProgress({
+                        stage: 'downloading',
+                        message: info.message,
+                        progress: Math.round(fileData.length * (0.45 + (info.progress / info.total) * 0.4)),
                         total: fileData.length
                     });
                 }
+            };
+            
+            const writeSuccess = await writeStrategy.executeWrite(
+                startAddr,
+                paddedData,
+                writeProgressCallback,
+                stopCheck
+            );
+            
+            if (!writeSuccess) {
+                throw new Error('扇区级写入策略执行失败');
             }
+            this.infoLog('✅ 扇区级写入和校验完成');
             
-            this.infoLog('✅ 固件写入完成');
+            // 步骤5: CRC校验
+            this.mainLog('=== 步骤5: CRC校验 ===');
+            const crcProgressCallback = (info) => {
+                if (this.onProgress) {
+                    this.onProgress({
+                        stage: 'downloading',
+                        message: info.message,
+                        progress: Math.round(fileData.length * (0.85 + (info.progress / info.total) * 0.1)),
+                        total: fileData.length
+                    });
+                }
+            };
             
-            // 步骤4: Flash保护 - 完全按照Python逻辑实现
-            this.mainLog('=== 步骤4: Flash保护 ===');
-            if (this.onProgress) {
-                this.onProgress({ 
-                    stage: 'downloading', 
-                    message: 'Flash保护...',
-                    progress: Math.round(fileData.length * 0.95),
-                    total: fileData.length
-                });
+            const crcSuccess = await crcChecker.checkFirmwareCRC(
+                paddedData,
+                startAddr,
+                crcProgressCallback
+            );
+            
+            if (!crcSuccess) {
+                throw new Error('CRC校验失败');
             }
+            this.infoLog('✅ CRC校验通过');
             
-            await this.protectFlash();
-            this.infoLog('✅ Flash保护完成');
-            
-            // 步骤5: 自动重启设备 - 与Python版本保持一致
-            this.mainLog('=== 步骤5: 重启设备 ===');
+            // 步骤6: 重启设备
+            this.mainLog('=== 步骤6: 重启设备 ===');
             if (this.onProgress) {
                 this.onProgress({ 
                     stage: 'downloading', 
@@ -780,11 +733,10 @@ class T5Downloader extends BaseDownloader {
                 });
             }
             
-            // Python版本在下载完成后会自动调用reboot()
             await this.reboot();
             this.infoLog('✅ 设备重启完成');
             
-            this.infoLog('✅ T5AI固件下载完成');
+            this.infoLog('🎉 T5固件下载完成（第3周重构版本）');
             if (this.onProgress) {
                 this.onProgress({ 
                     stage: 'completed', 

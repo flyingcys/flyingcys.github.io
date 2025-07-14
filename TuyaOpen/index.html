@@ -798,9 +798,26 @@
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
     <script src="third_party/esptool-js-umd.bundle.js"></script>
     
+    <!-- T5重构协议层和配置系统 -->
+    <script src="downloaders/protocols/base-protocol.js"></script>
+    <script src="downloaders/protocols/t5-protocols.js"></script>
+    <script src="downloaders/configs/flash-config-base.js"></script>
+    <script src="downloaders/configs/t5-flash-config.js"></script>
+    <script src="downloaders/configs/chip-database.js"></script>
+    
+    <!-- T5重构核心功能模块 -->
+    <script src="downloaders/core/crc-checker.js"></script>
+    <script src="downloaders/core/erase-strategy.js"></script>
+    <script src="downloaders/core/write-strategy.js"></script>
+    
+    <!-- T5重构工具类 -->
+    <script src="downloaders/utils/retry-utils.js"></script>
+    <script src="downloaders/utils/data-utils.js"></script>
+
     <!-- 下载器脚本 -->
     <script src="flash-downloader.js"></script>
     <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/t5ai-downloader.js"></script>
     <script src="downloaders/esp32-esptool-js-wrapper.js"></script>
     <script src="downloaders/downloader-manager.js"></script>
     
