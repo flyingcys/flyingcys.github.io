@@ -83,7 +83,7 @@ global.XModemSender = XModemSender;
 global.RamLoader = RamLoader;
 
 // 8. 加载主下载器 (直接导出类)
-const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader-v2.js');
+const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader.js');
 
 // 9. 加载下载器管理器 (直接导出类)
 const DownloaderManager = require('./downloaders/shared/downloader-manager.js');

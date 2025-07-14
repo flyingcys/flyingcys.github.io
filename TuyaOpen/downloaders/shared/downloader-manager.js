@@ -73,7 +73,7 @@ class DownloaderManager {
                 displayName: 'BK7231N',
                 downloader: 'BK7231NDownloaderV2',
                 order: 4,
-                scriptPath: './downloaders/bk7231n/bk7231n-downloader-v2.js',
+                scriptPath: './downloaders/bk7231n/bk7231n-downloader.js',
                 downloaderClass: 'BK7231NDownloaderV2',
                 dependencies: [
                     './downloaders/shared/protocols/base-protocol.js',
@@ -86,7 +86,7 @@ class DownloaderManager {
                 displayName: 'LN882H',
                 downloader: 'LN882HDownloaderV2',
                 order: 5,
-                scriptPath: './downloaders/ln882h/ln882h-downloader-v2.js',
+                scriptPath: './downloaders/ln882h/ln882h-downloader.js',
                 downloaderClass: 'LN882HDownloaderV2',
                 dependencies: [
                     './downloaders/shared/protocols/base-protocol.js',

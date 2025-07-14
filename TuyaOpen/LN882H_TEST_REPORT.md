@@ -17,7 +17,7 @@ downloaders/ln882h/
 ├── core/
 │   ├── xmodem-sender.js         # XModem发送器
 │   └── ram-loader.js            # RAM加载器
-└── ln882h-downloader-v2.js      # 重构版下载器
+└── ln882h-downloader.js      # 重构版下载器
 ```
 
 ## ✅ 测试结果

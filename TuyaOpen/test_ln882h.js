@@ -71,7 +71,7 @@ test('文件存在性检查', () => {
         'downloaders/ln882h/configs/ln-flash-config.js',
         'downloaders/ln882h/core/xmodem-sender.js',
         'downloaders/ln882h/core/ram-loader.js',
-        'downloaders/ln882h/ln882h-downloader-v2.js',
+        'downloaders/ln882h/ln882h-downloader.js',
         'downloaders/shared/downloader-manager.js'
     ];
     
@@ -176,7 +176,7 @@ test('主下载器加载', () => {
     global.RamLoader = RamLoader;
     
     // 加载主下载器
-    const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader-v2.js');
+    const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader.js');
     
     assertTrue(typeof LN882HDownloaderV2 === 'function', 'LN882HDownloaderV2应该是一个函数');
     
@@ -205,7 +205,7 @@ test('类实例化测试', () => {
     global.XModemSender = XModemSender;
     global.RamLoader = RamLoader;
     
-    const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader-v2.js');
+    const LN882HDownloaderV2 = require('./downloaders/ln882h/ln882h-downloader.js');
     
     // 测试配置类实例化
     const config = new LNFlashConfig();
