@@ -18,15 +18,15 @@ const es = {
     
     // Etiquetas de pestañas
     tab_serial: "Debug Serial",
-    tab_flash: "Descarga de Firmware",
+    tab_flash: "Grabación de Firmware",
     
     // Panel de control
     control_title: "Control de Conexión Serial",
-    flash_connection_control: "Conexión Serial de Descarga de Firmware",
+    flash_connection_control: "Conexión Serial para Grabación de Firmware",
     connect: "Conectar Serial",
-    connect_flash: "Conectar Serial de Descarga de Firmware",
+    connect_flash: "Conectar Serial para Grabación de Firmware",
     disconnect: "Desconectar",
-    disconnect_flash: "Desconectar Descarga de Firmware",
+    disconnect_flash: "Desconectar Grabación de Firmware",
     status_disconnected: "Desconectado",
     status_connected: "Conectado",
     serial_target_device: "Dispositivo objetivo:",
@@ -77,11 +77,11 @@ const es = {
     select_file: "Seleccionar Archivo de Firmware",
     no_file_selected: "No se ha seleccionado archivo",
     file_size: "Tamaño del Archivo",
-    start_download: "Iniciar Descarga",
-    stop_download: "Detener Descarga",
+    start_download: "Iniciar Grabación",
+    stop_download: "Detener Grabación",
     preparing: "Preparando...",
-    downloaded: "Descargado",
-    download_log: "Registro de Descarga",
+    downloaded: "Grabado",
+    download_log: "Registro de Grabación",
     clear_log: "Limpiar Registro",
     waiting_download: "Esperando operación de descarga...",
     

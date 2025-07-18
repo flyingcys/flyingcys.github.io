@@ -18,15 +18,15 @@ const de = {
     
     // Tab-Labels
     tab_serial: "Serial Debug",
-    tab_flash: "Firmware-Download",
+    tab_flash: "Firmware-Flash",
     
     // Bedienfeld
     control_title: "Serial-Verbindungssteuerung",
-    flash_connection_control: "Firmware-Download Serial-Verbindung",
+    flash_connection_control: "Firmware-Flash Serial-Verbindung",
     connect: "Serial verbinden",
-    connect_flash: "Firmware-Download Serial verbinden",
+    connect_flash: "Firmware-Flash Serial verbinden",
     disconnect: "Trennen",
-    disconnect_flash: "Firmware-Download trennen",
+    disconnect_flash: "Firmware-Flash trennen",
     status_disconnected: "Getrennt",
     status_connected: "Verbunden",
     serial_target_device: "Zielgerät:",
@@ -77,11 +77,11 @@ const de = {
     select_file: "Firmware-Datei auswählen",
     no_file_selected: "Keine Datei ausgewählt",
     file_size: "Dateigröße",
-    start_download: "Download starten",
-    stop_download: "Download stoppen",
+    start_download: "Flash Starten",
+    stop_download: "Flash Stoppen",
     preparing: "Vorbereitung...",
-    downloaded: "Heruntergeladen",
-    download_log: "Download-Log",
+    downloaded: "Geflasht",
+    download_log: "Flash-Protokoll",
     clear_log: "Log löschen",
     waiting_download: "Warten auf Download-Operation...",
     

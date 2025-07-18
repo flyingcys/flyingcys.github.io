@@ -3,19 +3,28 @@
  * 包含所有21个T5协议类，确保与Python版本100%一致
  */
 
-// 导入基础协议类
-if (typeof window !== 'undefined') {
-    // 浏览器环境
-    var { BaseProtocol, BaseBootRomProtocol, BaseBootRomFlashProtocol } = window;
-} else {
-    // Node.js环境
-    var { BaseProtocol, BaseBootRomProtocol, BaseBootRomFlashProtocol } = require('./base-protocol.js');
+// 基础协议类引用 - 修复脚本加载时序问题
+// 不使用解构赋值，直接使用window上的类引用
+
+/**
+ * 获取基础协议类 - 解决脚本加载时序问题
+ */
+function getBaseClasses() {
+    if (typeof window !== 'undefined') {
+        return {
+            BaseProtocol: window.BaseProtocol,
+            BaseBootRomProtocol: window.BaseBootRomProtocol,
+            BaseBootRomFlashProtocol: window.BaseBootRomFlashProtocol
+        };
+    } else {
+        return require('./base-protocol.js');
+    }
 }
 
 /**
  * 1. 链路检查协议 - 对应Python LinkCheckProtocol
  */
-class LinkCheckProtocol extends BaseBootRomProtocol {
+class LinkCheckProtocol extends (getBaseClasses().BaseBootRomProtocol) {
     constructor() {
         super();
         this.name = 'LinkCheckProtocol';
@@ -902,8 +911,10 @@ if (typeof module !== 'undefined' && module.exports) {
         // 工厂类
         T5ProtocolFactory
     };
-} else if (typeof window !== 'undefined') {
-    // 浏览器环境，挂载到window对象
+}
+
+// 浏览器环境，挂载到window对象
+if (typeof window !== 'undefined') {
     const protocols = {
         LinkCheckProtocol,
         GetChipIdProtocol,

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>T5AI下载器测试套件</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #log-output {
+            background-color: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>T5AI 下载器测试套件</h1>
+    
+    <div class="test-section">
+        <h2>测试控制面板</h2>
+        <button onclick="runAllTests()">运行所有测试</button>
+        <button onclick="clearResults()">清除结果</button>
+        <button onclick="testFileLoading()">测试文件加载</button>
+        <button onclick="testClassDefinitions()">测试类定义</button>
+        <button onclick="testDependencies()">测试依赖关系</button>
+        <button onclick="testT5Downloader()">测试T5下载器初始化</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试结果</h2>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>实时日志输出</h2>
+        <div id="log-output"></div>
+    </div>
+
+    <!-- 加载T5AI下载器所需的所有文件 -->
+    
+    <!-- 共享基础组件 -->
+    <script src="downloaders/shared/protocols/base-protocol.js"></script>
+    <script src="downloaders/shared/configs/flash-config-base.js"></script>
+    <script src="downloaders/shared/configs/chip-database.js"></script>
+    
+    <!-- 共享协议 -->
+    <script src="downloaders/shared/protocols/bootrom-protocols.js"></script>
+    <script src="downloaders/shared/protocols/communication-protocols.js"></script>
+    <script src="downloaders/shared/protocols/flash-protocols.js"></script>
+    
+    <!-- T5芯片组件 -->
+    <script src="downloaders/t5/protocols/t5-protocols.js"></script>
+    <script src="downloaders/t5/configs/t5-flash-config.js"></script>
+    <script src="downloaders/t5/core/t5-serial-handler.js"></script>
+    <script src="downloaders/t5/core/t5-connection-manager.js"></script>
+    <script src="downloaders/t5/core/t5-flash-operations.js"></script>
+    
+    <!-- 下载器基类和T5实现 -->
+    <script src="downloaders/shared/base-downloader.js"></script>
+    <script src="downloaders/t5/t5ai-downloader.js"></script>
+
+    <script>
+        // 测试结果容器
+        const resultsDiv = document.getElementById('test-results');
+        const logDiv = document.getElementById('log-output');
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logEntry.style.color = {
+                'info': '#0f0',
+                'error': '#f00',
+                'warning': '#ff0',
+                'success': '#0ff'
+            }[type] || '#0f0';
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // 添加测试结果
+        function addResult(testName, passed, details = '') {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            resultDiv.innerHTML = `
+                <strong>${testName}:</strong> ${passed ? '✅ 通过' : '❌ 失败'}
+                ${details ? `<br><small>${details}</small>` : ''}
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        // 清除结果
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+            logDiv.innerHTML = '';
+            log('测试结果已清除', 'info');
+        }
+        
+        // 测试1: 文件加载测试
+        function testFileLoading() {
+            log('开始文件加载测试...', 'info');
+            
+            const files = [
+                'downloaders/shared/protocols/base-protocol.js',
+                'downloaders/shared/configs/flash-config-base.js',
+                'downloaders/t5/protocols/t5-protocols.js',
+                'downloaders/t5/configs/t5-flash-config.js',
+                'downloaders/t5/core/t5-serial-handler.js',
+                'downloaders/t5/core/t5-connection-manager.js',
+                'downloaders/t5/core/t5-flash-operations.js',
+                'downloaders/t5/t5ai-downloader.js'
+            ];
+            
+            files.forEach(file => {
+                // 检查对应的类或对象是否存在
+                const fileName = file.split('/').pop().replace('.js', '');
+                const loaded = checkFileLoaded(fileName);
+                addResult(`文件加载: ${file}`, loaded, loaded ? '文件已成功加载' : '文件未加载或加载失败');
+                log(`${file}: ${loaded ? '已加载' : '未加载'}`, loaded ? 'success' : 'error');
+            });
+        }
+        
+        // 辅助函数：检查文件是否加载
+        function checkFileLoaded(fileName) {
+            const classMap = {
+                'base-protocol': 'BaseProtocol',
+                'flash-config-base': 'FlashConfigBase',
+                't5-protocols': ['LinkCheckProtocol', 'GetChipIdProtocol'],
+                't5-flash-config': 'T5FlashConfig',
+                't5-serial-handler': 'T5SerialHandler',
+                't5-connection-manager': 'T5ConnectionManager',
+                't5-flash-operations': 'T5FlashOperations',
+                't5ai-downloader': 'T5DownloaderV2'
+            };
+            
+            const expectedClass = classMap[fileName];
+            if (Array.isArray(expectedClass)) {
+                return expectedClass.every(cls => typeof window[cls] === 'function');
+            }
+            return typeof window[expectedClass] === 'function';
+        }
+        
+        // 测试2: 类定义测试
+        function testClassDefinitions() {
+            log('开始类定义测试...', 'info');
+            
+            const classes = [
+                'BaseProtocol',
+                'BaseBootRomProtocol',
+                'BaseBootRomFlashProtocol',
+                'FlashConfigBase',
+                'LinkCheckProtocol',
+                'GetChipIdProtocol',
+                'T5FlashConfig',
+                'T5SerialHandler',
+                'T5ConnectionManager',
+                'T5FlashOperations',
+                'T5DownloaderV2'
+            ];
+            
+            const results = {};
+            classes.forEach(className => {
+                const exists = typeof window[className] === 'function';
+                results[className] = exists;
+                addResult(
+                    `类定义: ${className}`,
+                    exists,
+                    exists ? `类型: ${typeof window[className]}` : '类未定义'
+                );
+                log(`${className}: ${exists ? '✅' : '❌'}`, exists ? 'success' : 'error');
+            });
+            
+            // 特别检查T5FlashConfig
+            if (!results['T5FlashConfig']) {
+                log('T5FlashConfig 未定义，尝试手动创建...', 'warning');
+                try {
+                    // 检查FlashConfigBase是否存在
+                    if (typeof window.FlashConfigBase === 'function') {
+                        log('FlashConfigBase 存在，可能是T5FlashConfig加载时序问题', 'warning');
+                        // 尝试重新加载T5FlashConfig
+                        const script = document.createElement('script');
+                        script.src = 'downloaders/t5/configs/t5-flash-config.js';
+                        script.onload = () => {
+                            log('重新加载T5FlashConfig完成', 'success');
+                            if (typeof window.T5FlashConfig === 'function') {
+                                addResult('T5FlashConfig 重新加载', true, '成功重新加载');
+                            }
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        log('FlashConfigBase 不存在，基础依赖未加载', 'error');
+                    }
+                } catch (e) {
+                    log(`创建T5FlashConfig失败: ${e.message}`, 'error');
+                }
+            }
+        }
+        
+        // 测试3: 依赖关系测试
+        function testDependencies() {
+            log('开始依赖关系测试...', 'info');
+            
+            // 测试继承关系
+            const inheritanceTests = [
+                { child: 'T5FlashConfig', parent: 'FlashConfigBase' },
+                { child: 'LinkCheckProtocol', parent: 'BaseProtocol' },
+                { child: 'GetChipIdProtocol', parent: 'BaseProtocol' },
+                { child: 'T5DownloaderV2', parent: 'BaseDownloader' }
+            ];
+            
+            inheritanceTests.forEach(test => {
+                if (typeof window[test.child] === 'function' && typeof window[test.parent] === 'function') {
+                    const isInherited = window[test.child].prototype instanceof window[test.parent];
+                    addResult(
+                        `继承关系: ${test.child} extends ${test.parent}`,
+                        isInherited,
+                        isInherited ? '继承关系正确' : '继承关系错误'
+                    );
+                    log(`${test.child} extends ${test.parent}: ${isInherited ? '✅' : '❌'}`, isInherited ? 'success' : 'error');
+                } else {
+                    addResult(
+                        `继承关系: ${test.child} extends ${test.parent}`,
+                        false,
+                        '类未定义'
+                    );
+                    log(`${test.child} extends ${test.parent}: 类未定义`, 'error');
+                }
+            });
+        }
+        
+        // 测试4: T5下载器初始化测试
+        function testT5Downloader() {
+            log('开始T5下载器初始化测试...', 'info');
+            
+            try {
+                // 先检查T5DownloaderV2是否存在
+                if (typeof window.T5DownloaderV2 !== 'function') {
+                    throw new Error('T5DownloaderV2 类未定义');
+                }
+                
+                // 创建下载器实例
+                const downloader = new T5DownloaderV2();
+                addResult('T5下载器实例化', true, '成功创建下载器实例');
+                log('成功创建T5下载器实例', 'success');
+                
+                // 测试getFlashConfig方法
+                try {
+                    const flashConfig = downloader.getFlashConfig();
+                    addResult('Flash配置获取', true, `Flash配置类型: ${flashConfig.constructor.name}`);
+                    log(`Flash配置创建成功: ${flashConfig.constructor.name}`, 'success');
+                } catch (e) {
+                    addResult('Flash配置获取', false, e.message);
+                    log(`Flash配置创建失败: ${e.message}`, 'error');
+                }
+                
+                // 测试基本属性
+                const properties = ['name', 'supportedChips'];
+                properties.forEach(prop => {
+                    const hasProperty = prop in downloader;
+                    addResult(
+                        `属性检查: ${prop}`,
+                        hasProperty,
+                        hasProperty ? `值: ${JSON.stringify(downloader[prop])}` : '属性不存在'
+                    );
+                });
+                
+            } catch (e) {
+                addResult('T5下载器初始化', false, e.message);
+                log(`T5下载器初始化失败: ${e.message}`, 'error');
+                
+                // 详细诊断
+                log('=== T5下载器调试信息 ===', 'warning');
+                const debugClasses = [
+                    'BaseProtocol',
+                    'BaseBootRomProtocol',
+                    'BaseBootRomFlashProtocol',
+                    'FlashConfigBase',
+                    'LinkCheckProtocol',
+                    'GetChipIdProtocol',
+                    'T5FlashConfig',
+                    'T5SerialHandler',
+                    'T5ConnectionManager',
+                    'T5FlashOperations'
+                ];
+                
+                debugClasses.forEach(cls => {
+                    log(`${cls}: ${typeof window[cls]} ${typeof window[cls] === 'function' ? '✅' : '❌'}`, 
+                        typeof window[cls] === 'function' ? 'info' : 'error');
+                });
+            }
+        }
+        
+        // 运行所有测试
+        function runAllTests() {
+            clearResults();
+            log('开始运行所有测试...', 'info');
+            
+            setTimeout(() => testFileLoading(), 100);
+            setTimeout(() => testClassDefinitions(), 500);
+            setTimeout(() => testDependencies(), 1000);
+            setTimeout(() => testT5Downloader(), 1500);
+            
+            setTimeout(() => {
+                log('所有测试完成！', 'success');
+                
+                // 提供修复建议
+                if (typeof window.T5FlashConfig !== 'function') {
+                    log('=== 修复建议 ===', 'warning');
+                    log('1. T5FlashConfig未加载，建议检查t5-flash-config.js文件', 'warning');
+                    log('2. 确保FlashConfigBase在T5FlashConfig之前加载', 'warning');
+                    log('3. 检查浏览器控制台是否有JavaScript错误', 'warning');
+                    log('4. 尝试使用t5-flash-config-fixed.js替代版本', 'warning');
+                }
+            }, 2000);
+        }
+        
+        // 页面加载完成后自动运行测试
+        window.addEventListener('load', () => {
+            log('测试页面加载完成', 'info');
+            log('点击"运行所有测试"开始测试', 'info');
+        });
+    </script>
+</body>
+</html>

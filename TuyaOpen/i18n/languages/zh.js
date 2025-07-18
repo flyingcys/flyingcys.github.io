@@ -18,16 +18,16 @@ const zh = {
     
     // Tab标签
     tab_serial: "串口调试",
-    tab_flash: "固件下载",
+    tab_flash: "固件烧录",
     tab_tuya_auth: "TuyaOpen授权",
     
     // 控制面板
     control_title: "串口连接控制",
-    flash_connection_control: "固件下载串口连接",
+    flash_connection_control: "固件烧录串口连接",
     connect: "连接串口",
-    connect_flash: "连接固件下载串口",
+    connect_flash: "连接固件烧录串口",
     disconnect: "断开连接",
-    disconnect_flash: "断开固件下载连接",
+    disconnect_flash: "断开固件烧录连接",
     status_disconnected: "未连接",
     status_connected: "已连接",
     serial_target_device: "目标设备:",
@@ -69,7 +69,7 @@ const zh = {
     no_quick_commands: "暂无快捷命令。点击\"管理命令\"按钮可添加常用AT指令、调试命令等，提高调试效率",
     
     // 固件下载
-    flash_config: "固件下载配置",
+    flash_config: "固件烧录配置",
     target_device: "目标设备:",
     esp32_flash_address: "ESP32 烧录地址:",
     complete_firmware: "0x0000 (完整固件包)",
@@ -78,13 +78,13 @@ const zh = {
     select_file: "选择固件文件",
     no_file_selected: "未选择文件",
     file_size: "文件大小",
-    start_download: "开始下载",
-    stop_download: "停止下载",
+    start_download: "开始烧录",
+    stop_download: "停止烧录",
     preparing: "准备中...",
-    downloaded: "已下载",
-    download_log: "下载日志",
+    downloaded: "已烧录",
+    download_log: "烧录日志",
     clear_log: "清空日志",
-    waiting_download: "等待下载操作...",
+    waiting_download: "等待烧录操作...",
     
     // 快捷命令管理
     quick_send_management: "快捷发送管理",
@@ -105,11 +105,11 @@ const zh = {
     // 系统消息
     serial_connected: "串口连接成功！",
     serial_disconnected: "串口已断开连接。",
-    flash_serial_connected: "固件下载串口连接成功！",
-    flash_serial_disconnected: "固件下载串口已断开连接。",
+    flash_serial_connected: "固件烧录串口连接成功！",
+    flash_serial_disconnected: "固件烧录串口已断开连接。",
     switch_to_tab: "切换到{0}功能，串口连接已断开",
     tab_serial_name: "串口调试",
-    tab_flash_name: "固件下载",
+    tab_flash_name: "固件烧录",
     
     // 确认对话框
     switch_tab_confirm: "⚠️ 串口互斥提醒\n\n当前{0}功能正在使用串口连接。\n{0}和{1}功能不能同时使用串口。\n\n切换到{1}功能将：\n• 自动断开当前串口连接\n• 停止正在进行的操作\n\n确定要切换吗？",
@@ -123,8 +123,8 @@ const zh = {
     no_log_to_save: "没有日志可保存",
     please_select_file: "请先选择固件文件",
     please_connect_serial: "请先连接串口",
-    please_connect_flash_serial: "请先连接固件下载串口",
-    flash_serial_not_connected: "固件下载串口未连接",
+    please_connect_flash_serial: "请先连接固件烧录串口",
+    flash_serial_not_connected: "固件烧录串口未连接",
     
     // Web Serial API 相关
     browser_not_supported: "您的浏览器不支持Web Serial API。请使用Chrome 89+或Edge 89+浏览器。",
@@ -134,19 +134,19 @@ const zh = {
     send_error: "发送数据错误: {0}",
     hex_length_error: "HEX字符串长度必须是偶数",
     serial_not_connected: "串口未连接",
-    download_failed: "下载失败: {0}",
+    download_failed: "烧录失败: {0}",
     
     // 文件操作
     file_selected: "选择文件: {0} ({1} 字节)",
-    start_download_to: "开始下载固件到 {0}...",
-    download_complete: "固件下载完成！",
-    user_cancelled: "用户取消下载",
+    start_download_to: "开始烧录固件到 {0}...",
+    download_complete: "固件烧录完成！",
+    user_cancelled: "用户取消烧录",
     
     // 固件下载进度消息
     flash_handshaking: "正在握手连接...",
     flash_handshake_success: "握手成功",
     flash_handshake_failed: "握手失败，请检查设备连接",
-    flash_download_cancelled: "下载已取消",
+    flash_download_cancelled: "烧录已取消",
     waiting_reset: "等待设备重启...",
     flash_setting_baudrate: "设置波特率到 {0}...",
     flash_baudrate_set: "波特率设置完成",
@@ -217,17 +217,17 @@ const zh = {
     unsupported_device_type: "不支持的设备类型: {0}",
     unsupported_chip_type: "不支持的芯片类型: {0}",
     
-    // 新增：固件下载流程相关
-    starting_firmware_download_process: "开始固件下载流程...",
-    starting_device_download: "开始{0}固件下载，文件大小: {1} 字节",
-    firmware_download_completed_time: "固件下载完成，总耗时: {0} 秒",
-    device_firmware_download_completed: "{0}固件下载完成",
-    initializing_downloader: "正在初始化{0}下载器...",
+    // 新增：固件烧录流程相关
+    starting_firmware_download_process: "开始固件烧录流程...",
+    starting_device_download: "开始{0}固件烧录，文件大小: {1} 字节",
+    firmware_download_completed_time: "固件烧录完成，总耗时: {0} 秒",
+    device_firmware_download_completed: "{0}固件烧录完成",
+    initializing_downloader: "正在初始化{0}烧录器...",
     connecting_device: "正在连接{0}设备...",
     cannot_connect_device: "无法连接到{0}设备",
-    downloading_firmware_to_device: "开始下载固件到{0}设备...",
-    t5ai_firmware_download_completed: "✅ T5AI固件下载完成",
-    firmware_download_completed_device_restarted: "固件下载完成，设备已重启",
+    downloading_firmware_to_device: "开始烧录固件到{0}设备...",
+    t5ai_firmware_download_completed: "✅ T5AI固件烧录完成",
+    firmware_download_completed_device_restarted: "固件烧录完成，设备已重启",
     
     // 新增：串口连接相关
     serial_not_connected_connect_first: "串口未连接，请先连接串口设备",

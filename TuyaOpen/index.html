@@ -401,11 +401,11 @@
                     <div class="download-area">
                         <button id="downloadBtn" class="btn btn-download" disabled>
                             <span class="icon">⬇️</span>
-                            <span data-i18n="start_download">开始下载</span>
+                            <span data-i18n="start_download">开始烧录</span>
                         </button>
                         <button id="stopDownloadBtn" class="btn btn-secondary" disabled>
                             <span class="icon">⏹️</span>
-                            <span data-i18n="stop_download">停止下载</span>
+                            <span data-i18n="stop_download">停止烧录</span>
                         </button>
                     </div>
 
@@ -427,7 +427,7 @@
                 <!-- 下载日志显示区域 -->
                 <div class="flash-log-panel">
                     <div class="data-header">
-                        <h3 data-i18n="download_log">📋 下载日志</h3>
+                        <h3 data-i18n="download_log">📋 烧录日志</h3>
                         <div class="data-controls">
                             <!-- 调试控制区域 -->
                             <div class="debug-controls-inline">
@@ -814,14 +814,22 @@
     
     <!-- T5芯片组件 -->
     <script src="downloaders/t5/protocols/t5-protocols.js"></script>
-    <script src="downloaders/t5/configs/t5-flash-config.js"></script>
+    <script src="downloaders/t5/configs/t5-flash-config-safe.js"></script>
+    <script src="downloaders/t5/core/t5-serial-handler.js"></script>
+    <script src="downloaders/t5/core/t5-connection-manager.js"></script>
+    <script src="downloaders/t5/core/t5-flash-operations.js"></script>
 
     <!-- LN882H芯片组件 -->
     <script src="downloaders/ln882h/protocols/ln-protocols.js"></script>
     <script src="downloaders/ln882h/configs/ln-flash-config.js"></script>
     <script src="downloaders/ln882h/core/xmodem-sender.js"></script>
     <script src="downloaders/ln882h/core/ram-loader.js"></script>
-    <script src="downloaders/ln882h/ln882h-downloader.js"></script>
+    <script src="downloaders/ln882h/ln882h-downloader-v2.js"></script>
+
+    <!-- BK7231N芯片组件 -->
+    <script src="downloaders/bk7231n/protocols/bk-protocols.js"></script>
+    <script src="downloaders/bk7231n/configs/bk-flash-config.js"></script>
+    <script src="downloaders/bk7231n/bk7231n-downloader-v2.js"></script>
 
     <!-- 下载器脚本 -->
     <script src="flash-downloader.js"></script>

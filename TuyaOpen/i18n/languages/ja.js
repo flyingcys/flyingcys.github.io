@@ -18,15 +18,15 @@ const ja = {
     
     // タブラベル
     tab_serial: "シリアルデバッグ",
-    tab_flash: "ファームウェアダウンロード",
+    tab_flash: "ファームウェア書き込み",
     
     // コントロールパネル
     control_title: "シリアル接続制御",
-    flash_connection_control: "ファームウェアダウンロード用シリアル接続",
+    flash_connection_control: "ファームウェア書き込み用シリアル接続",
     connect: "シリアル接続",
-    connect_flash: "ファームウェアダウンロード用シリアル接続",
+    connect_flash: "ファームウェア書き込み用シリアル接続",
     disconnect: "切断",
-    disconnect_flash: "ファームウェアダウンロード接続を切断",
+    disconnect_flash: "ファームウェア書き込み接続を切断",
     status_disconnected: "未接続",
     status_connected: "接続済み",
     serial_target_device: "ターゲットデバイス:",
@@ -77,11 +77,11 @@ const ja = {
     select_file: "ファームウェアファイル選択",
     no_file_selected: "ファイル未選択",
     file_size: "ファイルサイズ",
-    start_download: "ダウンロード開始",
-    stop_download: "ダウンロード停止",
+    start_download: "書き込み開始",
+    stop_download: "書き込み停止",
     preparing: "準備中...",
-    downloaded: "ダウンロード済み",
-    download_log: "ダウンロードログ",
+    downloaded: "書き込み済み",
+    download_log: "書き込みログ",
     clear_log: "ログクリア",
     waiting_download: "ダウンロード操作を待機中...",
     
@@ -162,10 +162,10 @@ const ja = {
     flash_crc_failed_mismatch: "CRC検証失敗: ローカル={0}, デバイス={1}",
     flash_crc_failed: "CRC検証失敗: {0}",
     flash_rebooting: "デバイス再起動中...",
-    flash_download_complete: "ダウンロード完了",
-    flash_download_success: "ダウンロード成功完了！",
-    flash_download_failed: "ダウンロード失敗: {0}",
-    flash_downloading: "ダウンロード進行中、完了をお待ちください",
+    flash_download_complete: "書き込み完了",
+    flash_download_success: "書き込み成功完了！",
+    flash_download_failed: "書き込み失敗: {0}",
+    flash_downloading: "書き込み進行中、完了をお待ちください",
     flash_user_cancelled: "ユーザーが操作をキャンセル",
     
     // ログファイル名

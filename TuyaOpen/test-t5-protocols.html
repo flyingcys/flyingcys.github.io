@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试T5协议类</title>
+</head>
+<body>
+    <h1>测试T5协议类加载</h1>
+    <div id="result"></div>
+
+    <!-- 按顺序加载脚本 -->
+    <script src="downloaders/shared/protocols/base-protocol.js"></script>
+    <script src="downloaders/t5/protocols/t5-protocols.js"></script>
+
+    <script>
+        function testT5Protocols() {
+            const result = document.getElementById('result');
+            let output = '';
+
+            // 测试基础类
+            output += `<h3>基础类检查</h3>`;
+            output += `BaseProtocol: ${typeof window.BaseProtocol}<br>`;
+            output += `BaseBootRomProtocol: ${typeof window.BaseBootRomProtocol}<br>`;
+            output += `BaseBootRomFlashProtocol: ${typeof window.BaseBootRomFlashProtocol}<br><br>`;
+
+            // 测试T5协议类
+            output += `<h3>T5协议类检查</h3>`;
+            const t5Classes = [
+                'LinkCheckProtocol', 'GetChipIdProtocol', 'GetFlashMidProtocol',
+                'SetBaudrateProtocol', 'FlashReadSRProtocol', 'FlashWriteSRProtocol',
+                'FlashErase4kProtocol', 'RebootProtocol', 'T5ProtocolFactory'
+            ];
+
+            t5Classes.forEach(className => {
+                const classType = typeof window[className];
+                const status = classType === 'function' ? '✅' : '❌';
+                output += `${className}: ${classType} ${status}<br>`;
+            });
+
+            // 测试实例化
+            output += `<h3>实例化测试</h3>`;
+            try {
+                if (window.LinkCheckProtocol) {
+                    const linkCheck = new window.LinkCheckProtocol();
+                    output += `LinkCheckProtocol实例化: ✅<br>`;
+                    output += `协议名称: ${linkCheck.name || 'N/A'}<br>`;
+                } else {
+                    output += `LinkCheckProtocol不存在: ❌<br>`;
+                }
+            } catch (e) {
+                output += `LinkCheckProtocol实例化失败: ❌ ${e.message}<br>`;
+            }
+
+            result.innerHTML = output;
+        }
+
+        // 页面加载完成后测试
+        window.addEventListener('load', function() {
+            setTimeout(testT5Protocols, 100); // 稍微延迟确保脚本完全加载
+        });
+    </script>
+</body>
+</html>

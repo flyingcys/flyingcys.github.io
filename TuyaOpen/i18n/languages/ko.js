@@ -18,15 +18,15 @@ const ko = {
     
     // 탭 라벨
     tab_serial: "시리얼 디버그",
-    tab_flash: "펌웨어 다운로드",
+    tab_flash: "펌웨어 플래싱",
     
     // 제어판
     control_title: "시리얼 연결 제어",
-    flash_connection_control: "펌웨어 다운로드 시리얼 연결",
+    flash_connection_control: "펌웨어 플래싱 시리얼 연결",
     connect: "시리얼 연결",
-    connect_flash: "펌웨어 다운로드 시리얼 연결",
+    connect_flash: "펌웨어 플래싱 시리얼 연결",
     disconnect: "연결 해제",
-    disconnect_flash: "펌웨어 다운로드 연결 해제",
+    disconnect_flash: "펌웨어 플래싱 연결 해제",
     status_disconnected: "연결 해제됨",
     status_connected: "연결됨",
     serial_target_device: "대상 장치:",
@@ -70,11 +70,11 @@ const ko = {
     select_file: "펌웨어 파일 선택",
     no_file_selected: "파일 선택되지 않음",
     file_size: "파일 크기",
-    start_download: "다운로드 시작",
-    stop_download: "다운로드 중지",
+    start_download: "플래싱 시작",
+    stop_download: "플래싱 중지",
     preparing: "준비 중...",
-    downloaded: "다운로드됨",
-    download_log: "다운로드 로그",
+    downloaded: "플래싱됨",
+    download_log: "플래싱 로그",
     clear_log: "로그 지우기",
     waiting_download: "다운로드 작업 대기 중...",
     

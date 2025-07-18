@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T5AI下载器完整测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 T5AI下载器完整测试</h1>
+        <p>此页面用于测试T5AI下载器的所有功能，深度诊断并修复问题。</p>
+
+        <!-- 类加载测试 -->
+        <div class="test-section">
+            <h3>1. 类加载测试</h3>
+            <button onclick="testClassLoading()">测试类加载</button>
+            <div id="classLoadingStatus" class="status info">等待测试...</div>
+            <div id="classLoadingLog" class="log"></div>
+        </div>
+
+        <!-- 协议测试 -->
+        <div class="test-section">
+            <h3>2. 协议功能测试</h3>
+            <button onclick="testProtocols()">测试协议</button>
+            <div id="protocolStatus" class="status info">等待测试...</div>
+            <div id="protocolLog" class="log"></div>
+        </div>
+
+        <!-- 串口连接测试 -->
+        <div class="test-section">
+            <h3>3. 串口连接测试</h3>
+            <button onclick="testSerialConnection()">连接串口</button>
+            <button onclick="disconnectSerial()">断开连接</button>
+            <div id="serialStatus" class="status info">等待连接...</div>
+            <div id="serialLog" class="log"></div>
+        </div>
+
+        <!-- T5AI设备测试 -->
+        <div class="test-section">
+            <h3>4. T5AI设备测试</h3>
+            <button onclick="testT5AIDevice()">测试T5AI设备</button>
+            <div id="deviceStatus" class="status info">等待测试...</div>
+            <div id="deviceLog" class="log"></div>
+        </div>
+
+        <!-- 固件上传测试 -->
+        <div class="test-section">
+            <h3>5. 固件下载测试</h3>
+            <input type="file" id="firmwareFile" accept=".bin,.hex,.uf2">
+            <button onclick="testFirmwareDownload()">开始下载</button>
+            <button onclick="stopDownload()">停止下载</button>
+            <div id="downloadStatus" class="status info">等待固件选择...</div>
+            <div class="progress">
+                <div id="downloadProgress" class="progress-bar"></div>
+            </div>
+            <div id="downloadLog" class="log"></div>
+        </div>
+
+        <!-- 完整流程测试 -->
+        <div class="test-section">
+            <h3>6. 完整流程测试</h3>
+            <button onclick="testCompleteFlow()">运行完整流程</button>
+            <div id="completeStatus" class="status info">等待执行...</div>
+            <div id="completeLog" class="log"></div>
+        </div>
+    </div>
+
+    <!-- 导入所有必需的JavaScript文件 -->
+    <!-- 基础文件 -->
+    <script src="third_party/js/crc32.js"></script>
+    
+    <!-- 共享基础类 -->
+    <script src="downloaders/shared/protocols/base-protocol.js"></script>
+    <script src="downloaders/shared/configs/flash-config-base.js"></script>
+    <script src="downloaders/shared/base-downloader.js"></script>
+    
+    <!-- T5专用文件 -->
+    <script src="downloaders/t5/protocols/t5-protocols.js"></script>
+    <script src="downloaders/t5/configs/t5-flash-config.js"></script>
+    <script src="downloaders/t5/core/t5-serial-handler.js"></script>
+    <script src="downloaders/t5/core/t5-connection-manager.js"></script>
+    <script src="downloaders/t5/core/t5-flash-operations.js"></script>
+    <script src="downloaders/t5/t5ai-downloader.js"></script>
+    <script src="downloaders/t5/t5ai-downloader-debug.js"></script>
+    <script src="downloaders/t5/t5ai-downloader-fixed.js"></script>
+
+    <!-- 下载器管理器 -->
+    <script src="downloaders/downloader-manager.js"></script>
+
+    <script>
+        // 全局变量
+        let serialPort = null;
+        let t5aiDownloader = null;
+        let currentTest = null;
+
+        // 调试输出函数
+        function debug(level, message, logElementId = 'completeLog') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+            console.log(logMessage);
+            
+            const logElement = document.getElementById(logElementId);
+            if (logElement) {
+                logElement.textContent += logMessage + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        function setStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status ${type}`;
+                element.textContent = message;
+            }
+        }
+
+        // 1. 测试类加载
+        async function testClassLoading() {
+            debug('INFO', '开始类加载测试...', 'classLoadingLog');
+            
+            const requiredClasses = [
+                'BaseProtocol',
+                'BaseBootRomProtocol', 
+                'BaseBootRomFlashProtocol',
+                'FlashConfigBase',
+                'LinkCheckProtocol',
+                'GetChipIdProtocol',
+                'T5FlashConfig',
+                'T5SerialHandler',
+                'T5ConnectionManager',
+                'T5FlashOperations',
+                'T5AIDownloader',
+                'T5DownloaderDebug'
+            ];
+
+            let allLoaded = true;
+            
+            for (const className of requiredClasses) {
+                const classRef = window[className];
+                const status = classRef ? '✅' : '❌';
+                const type = typeof classRef;
+                debug('DEBUG', `${className}: ${type} ${status}`, 'classLoadingLog');
+                
+                if (!classRef) {
+                    allLoaded = false;
+                }
+            }
+
+            if (allLoaded) {
+                setStatus('classLoadingStatus', 'success', '✅ 所有类加载成功');
+                debug('SUCCESS', '所有必需的类都已正确加载', 'classLoadingLog');
+                
+                // 测试类实例化
+                try {
+                    debug('INFO', '测试类实例化...', 'classLoadingLog');
+                    const linkCheck = new LinkCheckProtocol();
+                    const getChipId = new GetChipIdProtocol();
+                    const flashConfig = new T5FlashConfig();
+                    debug('SUCCESS', '✅ 协议类实例化成功', 'classLoadingLog');
+                } catch (error) {
+                    debug('ERROR', `❌ 类实例化失败: ${error.message}`, 'classLoadingLog');
+                    setStatus('classLoadingStatus', 'error', '❌ 类实例化失败');
+                    allLoaded = false;
+                }
+            } else {
+                setStatus('classLoadingStatus', 'error', '❌ 部分类加载失败');
+                debug('ERROR', '部分必需的类未正确加载', 'classLoadingLog');
+            }
+
+            return allLoaded;
+        }
+
+        // 2. 测试协议功能
+        async function testProtocols() {
+            debug('INFO', '开始协议功能测试...', 'protocolLog');
+            
+            try {
+                // 测试LinkCheckProtocol
+                debug('INFO', '测试LinkCheckProtocol...', 'protocolLog');
+                const linkCheck = new LinkCheckProtocol();
+                const linkCmd = linkCheck.cmd();
+                debug('DEBUG', `LinkCheck命令: [${linkCmd.map(b => '0x' + b.toString(16)).join(', ')}]`, 'protocolLog');
+                
+                // 测试GetChipIdProtocol
+                debug('INFO', '测试GetChipIdProtocol...', 'protocolLog');
+                const getChipId = new GetChipIdProtocol();
+                const chipIdCmd = getChipId.cmd();
+                debug('DEBUG', `GetChipId命令: [${chipIdCmd.map(b => '0x' + b.toString(16)).join(', ')}]`, 'protocolLog');
+                
+                // 测试Flash配置
+                debug('INFO', '测试T5FlashConfig...', 'protocolLog');
+                const flashConfig = new T5FlashConfig();
+                const supportedFlash = flashConfig.getSupportedFlashList();
+                debug('DEBUG', `支持的Flash型号数量: ${supportedFlash.length}`, 'protocolLog');
+                
+                // 显示前5个Flash型号
+                supportedFlash.slice(0, 5).forEach((flash, index) => {
+                    debug('DEBUG', `Flash${index + 1}: ${flash.name} (${flash.manufacturer}, ${flash.size})`, 'protocolLog');
+                });
+                
+                setStatus('protocolStatus', 'success', '✅ 协议功能测试通过');
+                debug('SUCCESS', '所有协议功能测试通过', 'protocolLog');
+                return true;
+                
+            } catch (error) {
+                debug('ERROR', `❌ 协议测试失败: ${error.message}`, 'protocolLog');
+                setStatus('protocolStatus', 'error', '❌ 协议测试失败');
+                return false;
+            }
+        }
+
+        // 3. 测试串口连接
+        async function testSerialConnection() {
+            debug('INFO', '开始串口连接测试...', 'serialLog');
+            
+            try {
+                if (!navigator.serial) {
+                    throw new Error('浏览器不支持Web Serial API');
+                }
+                
+                // 请求串口权限
+                const ports = await navigator.serial.getPorts();
+                if (ports.length === 0) {
+                    debug('INFO', '请求用户选择串口...', 'serialLog');
+                    serialPort = await navigator.serial.requestPort();
+                } else {
+                    serialPort = ports[0];
+                    debug('INFO', '使用已授权的串口', 'serialLog');
+                }
+                
+                // 打开串口
+                await serialPort.open({
+                    baudRate: 921600,
+                    dataBits: 8,
+                    stopBits: 1,
+                    parity: 'none'
+                });
+                
+                debug('SUCCESS', '✅ 串口连接成功', 'serialLog');
+                setStatus('serialStatus', 'success', '✅ 串口已连接');
+                return true;
+                
+            } catch (error) {
+                debug('ERROR', `❌ 串口连接失败: ${error.message}`, 'serialLog');
+                setStatus('serialStatus', 'error', '❌ 串口连接失败');
+                return false;
+            }
+        }
+
+        // 断开串口
+        async function disconnectSerial() {
+            if (serialPort) {
+                try {
+                    await serialPort.close();
+                    serialPort = null;
+                    debug('SUCCESS', '✅ 串口已断开', 'serialLog');
+                    setStatus('serialStatus', 'info', '串口已断开');
+                } catch (error) {
+                    debug('ERROR', `断开串口失败: ${error.message}`, 'serialLog');
+                }
+            }
+        }
+
+        // 4. 测试T5AI设备
+        async function testT5AIDevice() {
+            debug('INFO', '开始T5AI设备测试...', 'deviceLog');
+            
+            if (!serialPort) {
+                debug('ERROR', '请先连接串口', 'deviceLog');
+                setStatus('deviceStatus', 'error', '❌ 请先连接串口');
+                return false;
+            }
+            
+            try {
+                // 创建T5AI下载器
+                debug('INFO', '创建T5AI下载器...', 'deviceLog');
+                t5aiDownloader = new T5AIDownloaderFixed(serialPort, (level, message) => {
+                    debug(level, message, 'deviceLog');
+                });
+                
+                // 连接设备
+                debug('INFO', '连接T5AI设备...', 'deviceLog');
+                const connectResult = await t5aiDownloader.connect();
+                
+                if (connectResult.success) {
+                    debug('SUCCESS', '✅ T5AI设备连接成功', 'deviceLog');
+                    setStatus('deviceStatus', 'success', '✅ T5AI设备已连接');
+                    
+                    // 获取设备信息
+                    const deviceInfo = t5aiDownloader.getDeviceStatus();
+                    debug('INFO', `设备信息: ${JSON.stringify(deviceInfo)}`, 'deviceLog');
+                    
+                    return true;
+                } else {
+                    debug('ERROR', `❌ T5AI设备连接失败: ${connectResult.error}`, 'deviceLog');
+                    setStatus('deviceStatus', 'error', '❌ T5AI设备连接失败');
+                    return false;
+                }
+                
+            } catch (error) {
+                debug('ERROR', `❌ T5AI设备测试失败: ${error.message}`, 'deviceLog');
+                setStatus('deviceStatus', 'error', '❌ T5AI设备测试失败');
+                return false;
+            }
+        }
+
+        // 5. 测试固件下载
+        async function testFirmwareDownload() {
+            debug('INFO', '开始固件下载测试...', 'downloadLog');
+            
+            const fileInput = document.getElementById('firmwareFile');
+            if (!fileInput.files.length) {
+                debug('ERROR', '请选择固件文件', 'downloadLog');
+                setStatus('downloadStatus', 'error', '❌ 请选择固件文件');
+                return false;
+            }
+            
+            if (!t5aiDownloader) {
+                debug('ERROR', '请先连接T5AI设备', 'downloadLog');
+                setStatus('downloadStatus', 'error', '❌ 请先连接T5AI设备');
+                return false;
+            }
+            
+            try {
+                const file = fileInput.files[0];
+                debug('INFO', `准备下载固件: ${file.name} (${file.size} 字节)`, 'downloadLog');
+                
+                const fileData = new Uint8Array(await file.arrayBuffer());
+                
+                // 设置进度回调
+                t5aiDownloader.setProgressCallback((progress) => {
+                    const progressBar = document.getElementById('downloadProgress');
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    debug('PROGRESS', `下载进度: ${progress}%`, 'downloadLog');
+                });
+                
+                // 开始下载
+                setStatus('downloadStatus', 'info', '下载中...');
+                const downloadResult = await t5aiDownloader.downloadFirmware(fileData, 0x10000);
+                
+                if (downloadResult.success) {
+                    debug('SUCCESS', '✅ 固件下载成功', 'downloadLog');
+                    setStatus('downloadStatus', 'success', '✅ 固件下载成功');
+                    return true;
+                } else {
+                    debug('ERROR', `❌ 固件下载失败: ${downloadResult.error}`, 'downloadLog');
+                    setStatus('downloadStatus', 'error', '❌ 固件下载失败');
+                    return false;
+                }
+                
+            } catch (error) {
+                debug('ERROR', `❌ 固件下载异常: ${error.message}`, 'downloadLog');
+                setStatus('downloadStatus', 'error', '❌ 固件下载异常');
+                return false;
+            }
+        }
+
+        // 停止下载
+        function stopDownload() {
+            if (t5aiDownloader) {
+                t5aiDownloader.stop();
+                debug('INFO', '已请求停止下载', 'downloadLog');
+                setStatus('downloadStatus', 'info', '下载已停止');
+            }
+        }
+
+        // 6. 完整流程测试
+        async function testCompleteFlow() {
+            debug('INFO', '开始完整流程测试...', 'completeLog');
+            setStatus('completeStatus', 'info', '测试中...');
+            
+            try {
+                // 步骤1: 类加载测试
+                debug('INFO', '=== 步骤1: 类加载测试 ===', 'completeLog');
+                if (!await testClassLoading()) {
+                    throw new Error('类加载测试失败');
+                }
+                
+                // 步骤2: 协议功能测试
+                debug('INFO', '=== 步骤2: 协议功能测试 ===', 'completeLog');
+                if (!await testProtocols()) {
+                    throw new Error('协议功能测试失败');
+                }
+                
+                // 步骤3: 串口连接测试
+                debug('INFO', '=== 步骤3: 串口连接测试 ===', 'completeLog');
+                if (!await testSerialConnection()) {
+                    throw new Error('串口连接测试失败');
+                }
+                
+                // 步骤4: T5AI设备测试
+                debug('INFO', '=== 步骤4: T5AI设备测试 ===', 'completeLog');
+                if (!await testT5AIDevice()) {
+                    throw new Error('T5AI设备测试失败');
+                }
+                
+                debug('SUCCESS', '✅ 完整流程测试通过！', 'completeLog');
+                setStatus('completeStatus', 'success', '✅ 完整流程测试通过');
+                
+            } catch (error) {
+                debug('ERROR', `❌ 完整流程测试失败: ${error.message}`, 'completeLog');
+                setStatus('completeStatus', 'error', '❌ 完整流程测试失败');
+            }
+        }
+
+        // 页面加载完成后运行基本检查
+        window.addEventListener('load', () => {
+            debug('INFO', 'T5AI下载器测试页面已加载');
+            debug('INFO', '准备进行基本检查...');
+            
+            // 检查Web Serial API支持
+            if (!navigator.serial) {
+                debug('ERROR', '浏览器不支持Web Serial API，请使用Chrome/Edge浏览器');
+                setStatus('serialStatus', 'error', '❌ 浏览器不支持Web Serial API');
+            } else {
+                debug('SUCCESS', '✅ 浏览器支持Web Serial API');
+            }
+            
+            debug('INFO', '请按顺序执行测试，或直接运行完整流程测试');
+        });
+
+        // 错误处理
+        window.addEventListener('error', (event) => {
+            debug('ERROR', `全局错误: ${event.error.message}`, 'completeLog');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            debug('ERROR', `未处理的Promise拒绝: ${event.reason}`, 'completeLog');
+        });
+    </script>
+</body>
+</html>

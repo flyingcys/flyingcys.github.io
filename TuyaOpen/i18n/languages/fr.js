@@ -1,7 +1,11 @@
 // Français (fr-FR)
 const fr = {
     // Titre de la page et description
-    title: "Outil Serial TuyaOpen Beta",
+    tit    start_download: "Démarrer la Gravure",
+    stop_download: "Arrêter la Gravure",
+    preparing: "Préparation...",
+    downloaded: "Gravé",
+    download_log: "Journal de Gravure",Outil Serial TuyaOpen Beta",
     subtitle: "Outil de développeur tout-en-un basé sur l'API Chrome Web Serial",
     
     // Exigences du navigateur et avis de version beta
@@ -18,15 +22,15 @@ const fr = {
     
     // Étiquettes des onglets
     tab_serial: "Debug Serial",
-    tab_flash: "Téléchargement Firmware",
+    tab_flash: "Gravure Firmware",
     
     // Panneau de contrôle
     control_title: "Contrôle de connexion Serial",
-    flash_connection_control: "Connexion Serial de téléchargement firmware",
+    flash_connection_control: "Connexion Serial pour gravure firmware",
     connect: "Connecter Serial",
-    connect_flash: "Connecter Serial de téléchargement firmware",
+    connect_flash: "Connecter Serial pour gravure firmware",
     disconnect: "Déconnecter",
-    disconnect_flash: "Déconnecter téléchargement firmware",
+    disconnect_flash: "Déconnecter gravure firmware",
     status_disconnected: "Déconnecté",
     status_connected: "Connecté",
     serial_target_device: "Appareil cible:",
@@ -77,11 +81,11 @@ const fr = {
     select_file: "Sélectionner le fichier firmware",
     no_file_selected: "Aucun fichier sélectionné",
     file_size: "Taille du fichier",
-    start_download: "Démarrer le téléchargement",
-    stop_download: "Arrêter le téléchargement",
+    start_download: "Démarrer la gravure",
+    stop_download: "Arrêter la gravure",
     preparing: "Préparation...",
-    downloaded: "Téléchargé",
-    download_log: "Journal de téléchargement",
+    downloaded: "Gravé",
+    download_log: "Journal de gravure",
     clear_log: "Effacer le journal",
     waiting_download: "En attente d'opération de téléchargement...",
     

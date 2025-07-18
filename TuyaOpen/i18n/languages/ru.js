@@ -18,15 +18,15 @@ const ru = {
     
     // Метки вкладок
     tab_serial: "Отладка Serial",
-    tab_flash: "Загрузка прошивки",
+    tab_flash: "Прошивка устройства",
     
     // Панель управления
     control_title: "Управление подключением Serial",
-    flash_connection_control: "Подключение Serial для загрузки прошивки",
+    flash_connection_control: "Подключение Serial для прошивки",
     connect: "Подключить Serial",
-    connect_flash: "Подключить Serial для загрузки прошивки",
+    connect_flash: "Подключить Serial для прошивки",
     disconnect: "Отключить",
-    disconnect_flash: "Отключить загрузку прошивки",
+    disconnect_flash: "Отключить прошивку",
     status_disconnected: "Отключено",
     status_connected: "Подключено",
     serial_target_device: "Целевое устройство:",
@@ -77,11 +77,11 @@ const ru = {
     select_file: "Выбрать файл прошивки",
     no_file_selected: "Файл не выбран",
     file_size: "Размер файла",
-    start_download: "Начать загрузку",
-    stop_download: "Остановить загрузку",
+    start_download: "Начать прошивку",
+    stop_download: "Остановить прошивку",
     preparing: "Подготовка...",
-    downloaded: "Загружено",
-    download_log: "Журнал загрузки",
+    downloaded: "Прошито",
+    download_log: "Журнал прошивки",
     clear_log: "Очистить журнал",
     waiting_download: "Ожидание операции загрузки...",
     

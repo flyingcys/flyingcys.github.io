@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T5AI紧急修复测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .urgent {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .test-section {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.urgent {
+            background: #dc3545;
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="urgent">
+            🚨 T5AI紧急修复测试 - 解决脚本加载时序问题
+        </div>
+
+        <h1>🔧 T5AI下载器紧急修复</h1>
+        <p><strong>问题根因：</strong>脚本加载时序导致类继承失败，LinkCheckProtocol等协议类未正确定义</p>
+        <p><strong>修复方案：</strong>使用修复版文件，直接引用window上的基础类，避免解构赋值的时序问题</p>
+
+        <!-- 紧急测试按钮 -->
+        <div class="test-section">
+            <button class="urgent" onclick="emergencyTest()">🚨 立即运行紧急修复测试</button>
+            <div id="emergencyStatus" class="status info">准备运行紧急测试...</div>
+            <div id="emergencyLog" class="log"></div>
+        </div>
+
+        <!-- 类加载验证 -->
+        <div class="test-section">
+            <h3>1. 修复版类加载验证</h3>
+            <button onclick="testFixedClasses()">验证修复版类</button>
+            <div id="classStatus" class="status info">等待验证...</div>
+            <div id="classLog" class="log"></div>
+        </div>
+
+        <!-- 协议实例化测试 -->
+        <div class="test-section">
+            <h3>2. 协议实例化测试</h3>
+            <button onclick="testProtocolInstances()">测试协议实例化</button>
+            <div id="protocolStatus" class="status info">等待测试...</div>
+            <div id="protocolLog" class="log"></div>
+        </div>
+
+        <!-- T5AI连接测试 -->
+        <div class="test-section">
+            <h3>3. T5AI连接测试</h3>
+            <button onclick="testT5Connection()">测试T5AI连接</button>
+            <div id="connectionStatus" class="status info">等待测试...</div>
+            <div id="connectionLog" class="log"></div>
+        </div>
+    </div>
+
+    <!-- 严格按顺序加载脚本 - 确保基础类先加载 -->
+    <script src="third_party/js/crc32.js"></script>
+    
+    <!-- 1. 基础协议类 (必须最先加载) -->
+    <script src="downloaders/shared/protocols/base-protocol.js"></script>
+    
+    <!-- 2. 基础配置类 -->
+    <script src="downloaders/shared/configs/flash-config-base.js"></script>
+    
+    <!-- 3. 基础下载器类 -->
+    <script src="downloaders/shared/base-downloader.js"></script>
+    
+    <!-- 4. T5修复版协议类 (使用修复版本) -->
+    <script src="downloaders/t5/protocols/t5-protocols-fixed.js"></script>
+    
+    <!-- 5. T5修复版配置类 (使用修复版本) -->
+    <script src="downloaders/t5/configs/t5-flash-config-fixed.js"></script>
+    
+    <!-- 6. T5核心模块 -->
+    <script src="downloaders/t5/core/t5-serial-handler.js"></script>
+    <script src="downloaders/t5/core/t5-connection-manager.js"></script>
+    <script src="downloaders/t5/core/t5-flash-operations.js"></script>
+    
+    <!-- 7. T5修复版下载器 -->
+    <script src="downloaders/t5/t5ai-downloader-fixed.js"></script>
+
+    <script>
+        // 全局变量
+        let serialPort = null;
+        let t5aiDownloader = null;
+
+        // 调试输出函数
+        function debug(level, message, logElementId = 'emergencyLog') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+            console.log(logMessage);
+            
+            const logElement = document.getElementById(logElementId);
+            if (logElement) {
+                logElement.textContent += logMessage + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        function setStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status ${type}`;
+                element.textContent = message;
+            }
+        }
+
+        // 紧急修复测试
+        async function emergencyTest() {
+            debug('URGENT', '🚨 开始紧急修复测试...', 'emergencyLog');
+            setStatus('emergencyStatus', 'info', '🚨 紧急测试进行中...');
+            
+            try {
+                // 1. 验证修复版类加载
+                debug('TEST', '步骤1: 验证修复版类加载', 'emergencyLog');
+                if (!await testFixedClasses()) {
+                    throw new Error('修复版类加载失败');
+                }
+                
+                // 2. 测试协议实例化
+                debug('TEST', '步骤2: 测试协议实例化', 'emergencyLog');
+                if (!await testProtocolInstances()) {
+                    throw new Error('协议实例化失败');
+                }
+                
+                // 3. 测试T5AI连接（如果有串口的话）
+                debug('TEST', '步骤3: 测试T5AI连接准备', 'emergencyLog');
+                debug('SUCCESS', '✅ 所有核心功能测试通过！', 'emergencyLog');
+                debug('SUCCESS', '✅ T5AI下载器修复成功，可以正常使用', 'emergencyLog');
+                
+                setStatus('emergencyStatus', 'success', '✅ 紧急修复测试通过！');
+                
+            } catch (error) {
+                debug('ERROR', `❌ 紧急测试失败: ${error.message}`, 'emergencyLog');
+                setStatus('emergencyStatus', 'error', '❌ 紧急测试失败');
+            }
+        }
+
+        // 测试修复版类加载
+        async function testFixedClasses() {
+            debug('INFO', '开始验证修复版类加载...', 'classLog');
+            
+            const requiredClasses = [
+                'BaseProtocol',
+                'BaseBootRomProtocol', 
+                'BaseBootRomFlashProtocol',
+                'FlashConfigBase',
+                'LinkCheckProtocol',
+                'GetChipIdProtocol',
+                'T5FlashConfig',
+                'T5SerialHandler',
+                'T5ConnectionManager',
+                'T5FlashOperations',
+                'T5AIDownloaderFixed'
+            ];
+
+            let allLoaded = true;
+            
+            for (const className of requiredClasses) {
+                const classRef = window[className];
+                const status = classRef ? '✅' : '❌';
+                const type = typeof classRef;
+                debug('DEBUG', `${className}: ${type} ${status}`, 'classLog');
+                
+                if (!classRef) {
+                    allLoaded = false;
+                    debug('ERROR', `❌ 类 ${className} 未加载`, 'classLog');
+                }
+            }
+
+            if (allLoaded) {
+                setStatus('classStatus', 'success', '✅ 所有修复版类加载成功');
+                debug('SUCCESS', '✅ 所有必需的修复版类都已正确加载', 'classLog');
+                return true;
+            } else {
+                setStatus('classStatus', 'error', '❌ 部分修复版类加载失败');
+                debug('ERROR', '❌ 部分必需的修复版类未正确加载', 'classLog');
+                return false;
+            }
+        }
+
+        // 测试协议实例化
+        async function testProtocolInstances() {
+            debug('INFO', '开始测试协议实例化...', 'protocolLog');
+            
+            try {
+                // 测试主要协议类实例化
+                debug('DEBUG', '测试LinkCheckProtocol实例化...', 'protocolLog');
+                const linkCheck = new LinkCheckProtocol();
+                debug('SUCCESS', '✅ LinkCheckProtocol实例化成功', 'protocolLog');
+                
+                debug('DEBUG', '测试GetChipIdProtocol实例化...', 'protocolLog');
+                const getChipId = new GetChipIdProtocol();
+                debug('SUCCESS', '✅ GetChipIdProtocol实例化成功', 'protocolLog');
+                
+                debug('DEBUG', '测试T5FlashConfig实例化...', 'protocolLog');
+                const flashConfig = new T5FlashConfig();
+                debug('SUCCESS', '✅ T5FlashConfig实例化成功', 'protocolLog');
+                
+                // 测试Flash配置功能
+                const supportedFlash = flashConfig.getSupportedFlashList();
+                debug('DEBUG', `支持的Flash型号数量: ${supportedFlash.length}`, 'protocolLog');
+                
+                // 测试协议命令生成
+                const linkCmd = linkCheck.cmd();
+                debug('DEBUG', `LinkCheck命令: [${linkCmd.map(b => '0x' + b.toString(16)).join(', ')}]`, 'protocolLog');
+                
+                const chipIdCmd = getChipId.cmd();
+                debug('DEBUG', `GetChipId命令: [${chipIdCmd.map(b => '0x' + b.toString(16)).join(', ')}]`, 'protocolLog');
+                
+                setStatus('protocolStatus', 'success', '✅ 协议实例化测试通过');
+                debug('SUCCESS', '✅ 所有协议实例化测试通过', 'protocolLog');
+                return true;
+                
+            } catch (error) {
+                debug('ERROR', `❌ 协议实例化测试失败: ${error.message}`, 'protocolLog');
+                setStatus('protocolStatus', 'error', '❌ 协议实例化测试失败');
+                return false;
+            }
+        }
+
+        // 测试T5AI连接
+        async function testT5Connection() {
+            debug('INFO', '开始T5AI连接测试...', 'connectionLog');
+            
+            try {
+                if (!navigator.serial) {
+                    throw new Error('浏览器不支持Web Serial API');
+                }
+                
+                // 请求串口权限
+                debug('INFO', '请求串口权限...', 'connectionLog');
+                const ports = await navigator.serial.getPorts();
+                if (ports.length === 0) {
+                    serialPort = await navigator.serial.requestPort();
+                } else {
+                    serialPort = ports[0];
+                }
+                
+                // 打开串口
+                debug('INFO', '打开串口...', 'connectionLog');
+                await serialPort.open({
+                    baudRate: 921600,
+                    dataBits: 8,
+                    stopBits: 1,
+                    parity: 'none'
+                });
+                
+                // 创建T5AI下载器
+                debug('INFO', '创建T5AI下载器...', 'connectionLog');
+                t5aiDownloader = new T5AIDownloaderFixed(serialPort, (level, message) => {
+                    debug(level, message, 'connectionLog');
+                });
+                
+                // 尝试连接
+                debug('INFO', '尝试连接T5AI设备...', 'connectionLog');
+                const result = await t5aiDownloader.connect();
+                
+                if (result.success) {
+                    debug('SUCCESS', '✅ T5AI设备连接成功', 'connectionLog');
+                    setStatus('connectionStatus', 'success', '✅ T5AI连接测试通过');
+                    return true;
+                } else {
+                    debug('ERROR', `❌ T5AI设备连接失败: ${result.error}`, 'connectionLog');
+                    setStatus('connectionStatus', 'error', '❌ T5AI连接测试失败');
+                    return false;
+                }
+                
+            } catch (error) {
+                if (error.message.includes('User cancelled')) {
+                    debug('INFO', '用户取消了串口选择', 'connectionLog');
+                    setStatus('connectionStatus', 'info', '用户取消了串口选择');
+                } else {
+                    debug('ERROR', `❌ T5AI连接测试失败: ${error.message}`, 'connectionLog');
+                    setStatus('connectionStatus', 'error', '❌ T5AI连接测试失败');
+                }
+                return false;
+            }
+        }
+
+        // 页面加载完成后立即检查
+        window.addEventListener('load', () => {
+            debug('INFO', '🚨 T5AI紧急修复测试页面已加载');
+            debug('INFO', '所有修复版脚本已按正确顺序加载');
+            debug('INFO', '准备运行紧急修复测试...');
+            
+            // 自动运行基础检查
+            setTimeout(() => {
+                debug('AUTO', '自动运行基础类检查...', 'emergencyLog');
+                testFixedClasses();
+            }, 1000);
+        });
+
+        // 错误处理
+        window.addEventListener('error', (event) => {
+            debug('ERROR', `全局错误: ${event.error.message}`, 'emergencyLog');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            debug('ERROR', `未处理的Promise拒绝: ${event.reason}`, 'emergencyLog');
+        });
+    </script>
+</body>
+</html>

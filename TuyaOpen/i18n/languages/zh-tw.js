@@ -5,7 +5,16 @@ const zhTw = {
     subtitle: "基於Chrome Web Serial API的一站式開發者工具",
     
     // 瀏覽器要求和測試版本說明
-    browser_requirement: "此工具需要Chrome內核瀏覽器支援，其他瀏覽器無法正常工作。請使用Chrome、Edge或其他基於Chromium的瀏覽器。",
+    browser_requirement: "此工具需要Chrome內核瀏覽器支援，其他瀏覽器無法正常工作。請使用Chrome    starting_firmware_download_process: "開始韌體燒錄程序...",
+    starting_device_download: "開始{0}韌體燒錄，檔案大小: {1} 位元組",
+    firmware_download_completed_time: "韌體燒錄完成！總時間: {0}毫秒",
+    device_firmware_download_completed: "{0}裝置韌體燒錄完成",
+    initializing_downloader: "初始化{0}燒錄器...",
+    connecting_device: "正在連接{0}裝置...",
+    cannot_connect_device: "無法連接到{0}裝置",
+    downloading_firmware_to_device: "開始燒錄韌體到{0}裝置...",
+    t5ai_firmware_download_completed: "T5AI韌體燒錄完成",
+    firmware_download_completed_device_restarted: "韌體燒錄完成，裝置重新啟動...",Chromium的瀏覽器。",
     beta_notice: "當前功能屬於測試版本，遇到問題請先保存相關日誌，然後提交issue到",
     repository_link: "TuyaOpen-Tools 倉庫",
     
@@ -18,15 +27,15 @@ const zhTw = {
     
     // Tab標籤
     tab_serial: "串列除錯",
-    tab_flash: "韌體下載",
+    tab_flash: "韌體燒錄",
     
     // 控制面板
     control_title: "串列連接控制",
-    flash_connection_control: "韌體下載串列連接",
+    flash_connection_control: "韌體燒錄串列連接",
     connect: "連接串列",
-    connect_flash: "連接韌體下載串列",
+    connect_flash: "連接韌體燒錄串列",
     disconnect: "斷開連接",
-    disconnect_flash: "斷開韌體下載連接",
+    disconnect_flash: "斷開韌體燒錄連接",
     status_disconnected: "未連接",
     status_connected: "已連接",
     serial_target_device: "目標設備:",
@@ -77,11 +86,11 @@ const zhTw = {
     select_file: "選擇韌體檔案",
     no_file_selected: "未選擇檔案",
     file_size: "檔案大小",
-    start_download: "開始下載",
-    stop_download: "停止下載",
+    start_download: "開始燒錄",
+    stop_download: "停止燒錄",
     preparing: "準備中...",
-    downloaded: "已下載",
-    download_log: "下載日誌",
+    downloaded: "已燒錄",
+    download_log: "燒錄日誌",
     clear_log: "清空日誌",
     waiting_download: "等待下載操作...",
     
@@ -104,11 +113,11 @@ const zhTw = {
     // 系統訊息
     serial_connected: "串列連接成功！",
     serial_disconnected: "串列已斷開連接。",
-    flash_serial_connected: "韌體下載串列連接成功！",
-    flash_serial_disconnected: "韌體下載串列已斷開連接。",
+    flash_serial_connected: "韌體燒錄串列連接成功！",
+    flash_serial_disconnected: "韌體燒錄串列已斷開連接。",
     switch_to_tab: "切換到{0}功能，串列連接已斷開",
     tab_serial_name: "串列除錯",
-    tab_flash_name: "韌體下載",
+    tab_flash_name: "韌體燒錄",
     
     // 確認對話方塊
     switch_tab_confirm: "⚠️ 串列互斥提醒\n\n當前{0}功能正在使用串列連接。\n{0}和{1}功能不能同時使用串列。\n\n切換到{1}功能將：\n• 自動斷開當前串列連接\n• 停止正在進行的操作\n\n確定要切換嗎？",
@@ -122,8 +131,8 @@ const zhTw = {
     no_log_to_save: "沒有日誌可儲存",
     please_select_file: "請先選擇韌體檔案",
     please_connect_serial: "請先連接串列",
-    please_connect_flash_serial: "請先連接韌體下載串列",
-    flash_serial_not_connected: "韌體下載串列未連接",
+    please_connect_flash_serial: "請先連接韌體燒錄串列",
+    flash_serial_not_connected: "韌體燒錄串列未連接",
     
     // Web Serial API 相關
     browser_not_supported: "您的瀏覽器不支援Web Serial API。請使用Chrome 89+或Edge 89+瀏覽器。",
@@ -133,19 +142,19 @@ const zhTw = {
     send_error: "發送資料錯誤: {0}",
     hex_length_error: "HEX字串長度必須是偶數",
     serial_not_connected: "串列未連接",
-    download_failed: "下載失敗: {0}",
+    download_failed: "燒錄失敗: {0}",
     
     // 檔案操作
     file_selected: "選擇檔案: {0} ({1} 位元組)",
-    start_download_to: "開始下載韌體到 {0}...",
-    download_complete: "韌體下載完成！",
-    user_cancelled: "使用者取消下載",
+    start_download_to: "開始燒錄韌體到 {0}...",
+    download_complete: "韌體燒錄完成！",
+    user_cancelled: "使用者取消燒錄",
     
     // 韌體下載進度訊息
     flash_handshaking: "正在握手連接...",
     flash_handshake_success: "握手成功",
     flash_handshake_failed: "握手失敗，請檢查裝置連接",
-    flash_download_cancelled: "下載已取消",
+    flash_download_cancelled: "燒錄已取消",
     waiting_reset: "等待裝置重啟...",
     flash_setting_baudrate: "設定鮑率到 {0}...",
     flash_baudrate_set: "鮑率設定完成",
@@ -216,17 +225,17 @@ const zhTw = {
     unsupported_device_type: "不支援的裝置類型: {0}",
     unsupported_chip_type: "不支援的晶片類型: {0}",
     
-    // 新增：韌體下載程序相關
-    starting_firmware_download_process: "開始韌體下載程序...",
-    starting_device_download: "開始{0}裝置下載，檔案大小: {1} 位元組",
-    firmware_download_completed_time: "韌體下載完成！總時間: {0}毫秒",
-    device_firmware_download_completed: "{0}裝置韌體下載完成",
-    initializing_downloader: "初始化{0}下載器...",
+    // 新增：韌體燒錄程序相關
+    starting_firmware_download_process: "開始韌體燒錄程序...",
+    starting_device_download: "開始{0}裝置燒錄，檔案大小: {1} 位元組",
+    firmware_download_completed_time: "韌體燒錄完成！總時間: {0}毫秒",
+    device_firmware_download_completed: "{0}裝置韌體燒錄完成",
+    initializing_downloader: "初始化{0}燒錄器...",
     connecting_device: "連接{0}裝置...",
     cannot_connect_device: "無法連接{0}裝置",
-    downloading_firmware_to_device: "下載韌體到{0}裝置...",
-    t5ai_firmware_download_completed: "T5AI韌體下載完成",
-    firmware_download_completed_device_restarted: "韌體下載完成，裝置重新啟動...",
+    downloading_firmware_to_device: "燒錄韌體到{0}裝置...",
+    t5ai_firmware_download_completed: "T5AI韌體燒錄完成",
+    firmware_download_completed_device_restarted: "韌體燒錄完成，裝置重新啟動...",
     serial_not_connected_connect_first: "串列埠未連接，請先連接串列裝置",
     restoring_serial_reader_writer_failed: "恢復串列埠reader/writer失敗",
     cleanup_reset_baudrate: "清理：重置波特率...",
