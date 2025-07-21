@@ -22,11 +22,11 @@ const es = {
     
     // Panel de control
     control_title: "Control de Conexión Serial",
-    flash_connection_control: "Conexión Serial de Flash de Firmware",
+    flash_connection_control: "Conexión Serial de Descarga de Firmware",
     connect: "Conectar Serial",
-    connect_flash: "Conectar Serial de Flash de Firmware",
+    connect_flash: "Conectar Serial de Descarga de Firmware",
     disconnect: "Desconectar",
-    disconnect_flash: "Desconectar Flash de Firmware",
+    disconnect_flash: "Desconectar Descarga de Firmware",
     status_disconnected: "Desconectado",
     status_connected: "Conectado",
     serial_target_device: "Dispositivo objetivo:",
@@ -68,22 +68,18 @@ const es = {
     no_quick_commands: "No hay comandos rápidos aún. Haga clic en 'Gestionar Comandos' para agregar comandos AT comunes, instrucciones de depuración, etc. y mejorar la eficiencia de depuración",
     
     // Flash de firmware
-    flash_config: "Configuración de Flash de Firmware",
+    flash_config: "Configuración de Descarga de Firmware",
     target_device: "Dispositivo Objetivo:",
-    esp32_flash_address: "Dirección ESP32 Flash:",
-    complete_firmware: "0x0000 (Firmware completo)",
-    custom_address: "Dirección personalizada...",
-    custom_address_placeholder: "0x10000",
     select_file: "Seleccionar Archivo de Firmware",
     no_file_selected: "No se ha seleccionado archivo",
     file_size: "Tamaño del Archivo",
-    start_download: "Iniciar Flash",
-    stop_download: "Detener Flash",
+    start_download: "Iniciar Descarga",
+    stop_download: "Detener Descarga",
     preparing: "Preparando...",
-    downloaded: "Flasheado",
-    download_log: "Registro de Flash",
+    downloaded: "Descargado",
+    download_log: "Registro de Descarga",
     clear_log: "Limpiar Registro",
-    waiting_download: "Esperando operación de flash...",
+    waiting_download: "Esperando operación de descarga...",
     
     // Gestión de comandos rápidos
     quick_send_management: "Gestión de Envío Rápido",
@@ -104,11 +100,11 @@ const es = {
     // Mensajes del sistema
     serial_connected: "¡Serial conectado exitosamente!",
     serial_disconnected: "Serial desconectado.",
-    flash_serial_connected: "¡Conexión Serial de Flash de Firmware Exitosa!",
-    flash_serial_disconnected: "Serial de Flash de Firmware Desconectado.",
+    flash_serial_connected: "¡Conexión Serial de Descarga de Firmware Exitosa!",
+    flash_serial_disconnected: "Serial de Descarga de Firmware Desconectado.",
     switch_to_tab: "Cambiado a {0}, conexión serial cerrada",
     tab_serial_name: "Debug Serial",
-    tab_flash_name: "Flash de Firmware",
+    tab_flash_name: "Descarga de Firmware",
     
     // Diálogos de confirmación
     switch_tab_confirm: "⚠️ Advertencia de Mutex Serial\n\nLa función {0} actual está usando conexión serial.\nLas funciones {0} y {1} no pueden usar serial simultáneamente.\n\nCambiar a {1} hará:\n• Desconectar automáticamente la conexión serial actual\n• Detener operaciones en curso\n\n¿Está seguro de cambiar?",
@@ -122,8 +118,8 @@ const es = {
     no_log_to_save: "No hay registro para guardar",
     please_select_file: "Por favor seleccione primero el archivo de firmware",
     please_connect_serial: "Por favor conecte primero el serial",
-    please_connect_flash_serial: "Por favor conecte primero el serial de flash de firmware",
-    flash_serial_not_connected: "Serial de Flash de Firmware no conectado",
+    please_connect_flash_serial: "Por favor conecte primero el serial de descarga de firmware",
+    flash_serial_not_connected: "Serial de Descarga de Firmware no conectado",
     
     // Relacionado con Web Serial API
     browser_not_supported: "Su navegador no soporta Web Serial API. Por favor use Chrome 89+ o Edge 89+.",
@@ -133,19 +129,19 @@ const es = {
     send_error: "Error de envío de datos: {0}",
     hex_length_error: "La longitud de la cadena HEX debe ser par",
     serial_not_connected: "Serial no conectado",
-    download_failed: "Falló el flash: {0}",
+    download_failed: "Falló la descarga: {0}",
     
     // Operaciones de archivo
     file_selected: "Archivo seleccionado: {0} ({1} bytes)",
-    start_download_to: "Iniciando flash de firmware a {0}...",
-    download_complete: "¡Flash de firmware completado!",
-    user_cancelled: "Usuario canceló el flash",
+    start_download_to: "Iniciando descarga de firmware a {0}...",
+    download_complete: "¡Descarga de firmware completada!",
+    user_cancelled: "Usuario canceló la descarga",
     
     // Mensajes de progreso de descarga de firmware
     flash_handshaking: "Estableciendo handshake...",
     flash_handshake_success: "Handshake exitoso",
     flash_handshake_failed: "Falló el handshake, por favor verifique la conexión del dispositivo",
-    flash_download_cancelled: "Flash cancelado",
+    flash_download_cancelled: "Descarga cancelada",
     waiting_reset: "Esperando reinicio del dispositivo...",
     flash_setting_baudrate: "Estableciendo velocidad de baudios a {0}...",
     flash_baudrate_set: "Velocidad de baudios establecida exitosamente",
@@ -162,10 +158,10 @@ const es = {
     flash_crc_failed_mismatch: "Falló la verificación CRC: local={0}, dispositivo={1}",
     flash_crc_failed: "Falló la verificación CRC: {0}",
     flash_rebooting: "Reiniciando dispositivo...",
-    flash_download_complete: "Flash completo",
-    flash_download_success: "¡Flash completado exitosamente!",
-    flash_download_failed: "Falló el flash: {0}",
-    flash_downloading: "Flash en progreso, por favor espere hasta completar",
+    flash_download_complete: "Descarga completa",
+    flash_download_success: "¡Descarga completada exitosamente!",
+    flash_download_failed: "Falló la descarga: {0}",
+    flash_downloading: "Descarga en progreso, por favor espere hasta completar",
     flash_user_cancelled: "Usuario canceló la operación",
     
     // Nombres de archivos de registro

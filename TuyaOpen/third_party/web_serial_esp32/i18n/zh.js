@@ -6,7 +6,7 @@ const zh = {
     
     // Tab导航
     tab_serial: '📡 串口调试',
-    tab_flash: '💾 固件烧录',
+    tab_flash: '💾 固件下载',
     tab_tuya_auth: '🔐 TuyaOpen授权',
     
     // 浏览器支持
@@ -80,18 +80,18 @@ const zh = {
     save: '保存',
     cancel: '取消',
     
-    // 固件烧录
-    flash_config: '💾 固件烧录配置',
+    // 固件下载
+    flash_config: '💾 固件下载配置',
     target_device: '目标设备',
     select_file: '选择固件文件',
     no_file_selected: '未选择文件',
     file_size: '文件大小',
-    start_download: '开始烧录',
-    stop_download: '停止烧录',
+    start_download: '开始下载',
+    stop_download: '停止下载',
     preparing: '准备中...',
-    downloaded: '已烧录',
-    download_log: '📋 烧录日志',
-    waiting_download: '等待烧录操作...',
+    downloaded: '已下载',
+    download_log: '📋 下载日志',
+    waiting_download: '等待下载操作...',
     
     // TuyaOpen授权
     tuya_auth_title: '🔐 TuyaOpen授权码写入',
@@ -150,8 +150,8 @@ const zh = {
     serial_not_connected: '串口未连接',
     send_error: '发送数据失败: {0}',
     hex_length_error: 'HEX字符串长度必须为偶数',
-    download_progress: '烧录进度: {0}%',
-    download_speed: '烧录速度: {0}',
+    download_progress: '下载进度: {0}%',
+    download_speed: '下载速度: {0}',
     
     // 其他消息
     connection_lost: '串口连接已断开',

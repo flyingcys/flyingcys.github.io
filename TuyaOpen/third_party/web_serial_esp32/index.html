@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title">TuyaOpen串口工具(内测版)</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 全站统一多语言系统 -->
-    <script src="../i18n/global-i18n-loader.js"></script>
-    <link rel="stylesheet" href="../i18n/components/global-language-switcher.css">
-    <script src="../i18n/components/global-language-switcher.js"></script>
 </head>
 <body>
     <div class="container">
@@ -102,7 +98,9 @@
                                     <option value="T5AI">T5AI</option>
                                     <option value="T3">T3</option>
                                     <option value="T2">T2</option>
-                                    <option value="ESP32-Series">ESP32-Series</option>
+                                    <option value="ESP32">ESP32</option>
+                                    <option value="ESP32C3">ESP32-C3</option>
+                                    <option value="ESP32S3">ESP32-S3</option>
                                     <option value="BK7231N">BK7231N</option>
                                     <option value="LN882H">LN882H</option>
                                 </select>
@@ -366,20 +364,14 @@
                                 <select id="deviceSelect">
                                     <option value="T5AI">T5AI</option>
                                     <option value="T3">T3</option>
-                                    <option value="ESP32-Series" selected>ESP32-Series</option>
                                     <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
                                     <!-- <option value="T2">T2</option> -->
+                                    <!-- <option value="ESP32">ESP32</option>
+                                    <option value="ESP32C3">ESP32-C3</option>
+                                    <option value="ESP32S3">ESP32-S3</option> -->
                                     <!-- <option value="BK7231N">BK7231N</option> -->
                                     <!-- <option value="LN882H">LN882H</option> -->
                                 </select>
-                            </div>
-                            <div class="config-group esp32-address-group" id="esp32AddressGroup">
-                                <label for="esp32FlashAddress" data-i18n="esp32_flash_address">ESP32 Flash 地址:</label>
-                                <select id="esp32FlashAddress">
-                                    <option value="0x0000" selected data-i18n="complete_firmware">0x0000 (完整固件包)</option>
-                                    <option value="custom" data-i18n="custom_address">自定义地址...</option>
-                                </select>
-                                <input type="text" id="customAddressInput" class="custom-address-input" placeholder="0x10000" maxlength="10" data-i18n-placeholder="custom_address_placeholder">
                             </div>
                         </div>
                     </div>
@@ -424,7 +416,7 @@
                     </div>
                 </div>
 
-                <!-- 烧录日志显示区域 -->
+                <!-- 下载日志显示区域 -->
                 <div class="flash-log-panel">
                     <div class="data-header">
                         <h3 data-i18n="download_log">📋 烧录日志</h3>
@@ -791,18 +783,13 @@
     <!-- 多语言配置文件 -->
     <script src="i18n/loader.js"></script>
     
-    <!-- 主要功能脚本 -->
-    <script src="script-clean.js"></script>
-    
-    <!-- ESP32 esptool-js 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="third_party/esptool-js-umd.bundle.js"></script>
-    
-    <!-- 下载器脚本 -->
-    <script src="flash-downloader.js"></script>
+    <!-- 下载器相关文件 -->
     <script src="downloaders/base-downloader.js"></script>
-    <script src="downloaders/esp32-esptool-js-wrapper.js"></script>
     <script src="downloaders/downloader-manager.js"></script>
+    
+    <!-- 核心功能文件 -->
+    <script src="flash-downloader.js"></script>
+    <script src="script-clean.js"></script>
     
     <!-- 初始化多语言系统和事件处理 -->
     <script>
@@ -1022,220 +1009,6 @@
             const newLang = event.detail.language;
             updateLanguageDisplay(newLang);
             console.log('主页语言已切换到:', newLang);
-        });
-        
-        // ESP32专用固件下载管理器
-        // 不影响现有T5AI/T3逻辑，专注于ESP32优化
-        class ESP32FlashManager {
-            constructor() {
-                this.downloader = null;
-                this.isConnected = false;
-                this.chipInfo = null;
-                this.serialPort = null;
-                this.isDownloading = false;
-                
-                // 只在固件下载Tab页面初始化
-                if (document.getElementById('flashTab')) {
-                    this.initializeESP32Events();
-                }
-            }
-            
-            initializeESP32Events() {
-                // 只处理ESP32相关的事件，不影响T5AI/T3
-                const deviceSelect = document.getElementById('deviceSelect');
-                if (!deviceSelect) {
-                    console.error('deviceSelect element not found');
-                    return;
-                }
-                
-                // 监听设备选择变化
-                deviceSelect.addEventListener('change', (e) => {
-                    if (this.isESP32Device(e.target.value)) {
-                        this.enableESP32Features();
-                    } else {
-                        this.disableESP32Features();
-                    }
-                });
-                
-                // ESP32地址选择事件
-                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
-                const customAddressInput = document.getElementById('customAddressInput');
-                
-                if (esp32AddressSelect) {
-                    esp32AddressSelect.addEventListener('change', (e) => {
-                        if (e.target.value === 'custom') {
-                            if (customAddressInput) {
-                                customAddressInput.classList.add('show');
-                                customAddressInput.focus();
-                            }
-                        } else {
-                            if (customAddressInput) {
-                                customAddressInput.classList.remove('show');
-                            }
-                        }
-                        this.logESP32(`ESP32下载地址已选择: ${this.getESP32FlashAddress()}`, 'info');
-                    });
-                    
-                    // 自定义地址输入验证
-                    if (customAddressInput) {
-                        customAddressInput.addEventListener('input', (e) => {
-                            let value = e.target.value.trim();
-                            // 自动添加0x前缀
-                            if (value && !value.startsWith('0x')) {
-                                value = '0x' + value;
-                                e.target.value = value;
-                            }
-                            // 验证十六进制格式
-                            if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
-                                e.target.classList.add('error');
-                                e.target.classList.remove('valid');
-                            } else {
-                                e.target.classList.remove('error');
-                                if (value) {
-                                    e.target.classList.add('valid');
-                                } else {
-                                    e.target.classList.remove('valid');
-                                }
-                            }
-                        });
-                    }
-                }
-                
-                // 初始状态检查
-                if (this.isESP32Device(deviceSelect.value)) {
-                    this.enableESP32Features();
-                }
-            }
-            
-            isESP32Device(deviceType) {
-                return ['ESP32-Series'].includes(deviceType);
-            }
-            
-            enableESP32Features() {
-                // 显示ESP32地址配置
-                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
-                if (esp32AddressGroup) {
-                    esp32AddressGroup.classList.add('show');
-                    
-                    // 强制更新新显示元素的多语言文本
-                    setTimeout(() => {
-                        if (window.i18nLoader) {
-                            window.i18nLoader.updatePageText();
-                        }
-                    }, 50);
-                }
-                this.logESP32(`ESP32设备已选择，下载地址: ${this.getESP32FlashAddress()}`, 'info');
-            }
-            
-            disableESP32Features() {
-                // 隐藏ESP32地址配置
-                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
-                const customAddressInput = document.getElementById('customAddressInput');
-                if (esp32AddressGroup) {
-                    esp32AddressGroup.classList.remove('show');
-                }
-                if (customAddressInput) {
-                    customAddressInput.classList.remove('show');
-                }
-            }
-            
-            getESP32FlashAddress() {
-                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
-                const customAddressInput = document.getElementById('customAddressInput');
-                
-                if (!esp32AddressSelect) {
-                    return 0x10000; // 默认地址
-                }
-                
-                const selectedValue = esp32AddressSelect.value;
-                
-                if (selectedValue === 'custom') {
-                    const customValue = customAddressInput ? customAddressInput.value.trim() : '';
-                    if (customValue && /^0x[0-9a-fA-F]+$/.test(customValue)) {
-                        return parseInt(customValue, 16);
-                    } else {
-                        this.logESP32('⚠️ 自定义地址格式错误，使用默认地址0x10000', 'warning');
-                        return 0x10000;
-                    }
-                } else {
-                    return parseInt(selectedValue, 16);
-                }
-            }
-            
-
-            
-            logESP32(message, type = 'info') {
-                try {
-                    // 只在调试模式下显示详细日志
-                    const debugModeCheckbox = document.getElementById('flashDebugMode');
-                    const debugMode = debugModeCheckbox ? debugModeCheckbox.checked : false;
-                    
-                    if (!debugMode && type === 'debug') {
-                        return; // 非调试模式下不显示debug日志
-                    }
-                    
-                    const logDisplay = document.getElementById('flashLogDisplay');
-                    if (!logDisplay) {
-                        console.log('[ESP32]', message); // 备用日志
-                        return;
-                    }
-                    
-                    const timestamp = new Date().toLocaleTimeString();
-                
-                const logEntry = document.createElement('div');
-                logEntry.className = `log-entry ${type}`;
-                
-                let icon = '📝';
-                switch (type) {
-                    case 'success': icon = '✅'; break;
-                    case 'error': icon = '❌'; break;
-                    case 'warning': icon = '⚠️'; break;
-                    case 'debug': icon = '🔍'; break;
-                    case 'info': 
-                    default: icon = 'ℹ️'; break;
-                }
-                
-                logEntry.innerHTML = 
-                    '<span class="log-time">[' + timestamp + ']</span>' +
-                    '<span class="log-icon">' + icon + '</span>' +
-                    '<span class="log-message">' + message + '</span>';
-                
-                // 清除占位符
-                if (logDisplay.querySelector('.placeholder')) {
-                    logDisplay.innerHTML = '';
-                }
-                
-                logDisplay.appendChild(logEntry);
-                
-                // 自动滚动
-                const autoScrollCheckbox = document.getElementById('flashAutoScroll');
-                if (autoScrollCheckbox && autoScrollCheckbox.checked) {
-                    logDisplay.scrollTop = logDisplay.scrollHeight;
-                }
-                } catch (error) {
-                    console.error('logESP32 error:', error);
-                    console.log('[ESP32]', message); // 备用日志
-                }
-            }
-        }
-        
-        // 初始化ESP32管理器（不影响现有初始化流程）
-        window.addEventListener('DOMContentLoaded', () => {
-            // 确保esptool-js库加载完成后再初始化ESP32管理器
-            const waitForEsptoolJs = () => {
-                if (typeof window.esptooljs !== 'undefined' && window.esptooljs.ESPLoader) {
-                    if (document.getElementById('flashTab')) {
-                        window.esp32FlashManager = new ESP32FlashManager();
-                        console.log('ESP32固件下载管理器已初始化 (esptool-js已就绪)');
-                    }
-                } else {
-                    // 如果esptool-js还没加载完，等待一段时间再试
-                    setTimeout(waitForEsptoolJs, 100);
-                }
-            };
-            
-            // 延迟启动，确保其他脚本都加载完
-            setTimeout(waitForEsptoolJs, 500);
         });
     </script>
 </body>

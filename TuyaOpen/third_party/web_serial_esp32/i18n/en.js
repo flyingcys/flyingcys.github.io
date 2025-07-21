@@ -6,7 +6,7 @@ const en = {
     
     // Tab navigation
     tab_serial: '📡 Serial Debug',
-    tab_flash: '💾 Firmware Flash',
+    tab_flash: '💾 Firmware Download',
     tab_tuya_auth: '🔐 TuyaOpen Authorization',
     
     // Browser support
@@ -80,18 +80,18 @@ const en = {
     save: 'Save',
     cancel: 'Cancel',
     
-    // Firmware flash
-    flash_config: '💾 Firmware Flash Config',
+    // Firmware download
+    flash_config: '💾 Firmware Download Config',
     target_device: 'Target Device',
     select_file: 'Select Firmware File',
     no_file_selected: 'No file selected',
     file_size: 'File Size',
-    start_download: 'Start Flash',
-    stop_download: 'Stop Flash',
+    start_download: 'Start Download',
+    stop_download: 'Stop Download',
     preparing: 'Preparing...',
-    downloaded: 'Flashed',
-    download_log: '📋 Flash Log',
-    waiting_download: 'Waiting for flash operation...',
+    downloaded: 'Downloaded',
+    download_log: '📋 Download Log',
+    waiting_download: 'Waiting for download operation...',
     
     // TuyaOpen authorization
     tuya_auth_title: '🔐 TuyaOpen Authorization Code Writing',
@@ -150,8 +150,8 @@ const en = {
     serial_not_connected: 'Serial not connected',
     send_error: 'Failed to send data: {0}',
     hex_length_error: 'HEX string length must be even',
-    download_progress: 'Flash progress: {0}%',
-    download_speed: 'Flash speed: {0}',
+    download_progress: 'Download progress: {0}%',
+    download_speed: 'Download speed: {0}',
     
     // Other messages
     connection_lost: 'Serial connection lost',

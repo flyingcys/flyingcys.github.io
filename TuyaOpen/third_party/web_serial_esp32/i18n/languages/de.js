@@ -18,15 +18,15 @@ const de = {
     
     // Tab-Labels
     tab_serial: "Serial Debug",
-    tab_flash: "Firmware-Flash",
+    tab_flash: "Firmware-Download",
     
     // Bedienfeld
     control_title: "Serial-Verbindungssteuerung",
-    flash_connection_control: "Firmware-Flash Serial-Verbindung",
+    flash_connection_control: "Firmware-Download Serial-Verbindung",
     connect: "Serial verbinden",
-    connect_flash: "Firmware-Flash Serial verbinden",
+    connect_flash: "Firmware-Download Serial verbinden",
     disconnect: "Trennen",
-    disconnect_flash: "Firmware-Flash trennen",
+    disconnect_flash: "Firmware-Download trennen",
     status_disconnected: "Getrennt",
     status_connected: "Verbunden",
     serial_target_device: "Zielgerät:",
@@ -68,22 +68,18 @@ const de = {
     no_quick_commands: "Keine Schnellbefehle vorhanden. Klicken Sie auf 'Befehle verwalten', um häufig verwendete AT-Befehle, Debug-Kommandos usw. hinzuzufügen und die Debug-Effizienz zu verbessern",
     
     // Firmware-Flash
-    flash_config: "Firmware-Flash-Konfiguration",
+    flash_config: "Firmware-Download-Konfiguration",
     target_device: "Zielgerät:",
-    esp32_flash_address: "ESP32 Flash Adresse:",
-    complete_firmware: "0x0000 (Vollständige Firmware)",
-    custom_address: "Benutzerdefinierte Adresse...",
-    custom_address_placeholder: "0x10000",
     select_file: "Firmware-Datei auswählen",
     no_file_selected: "Keine Datei ausgewählt",
     file_size: "Dateigröße",
-    start_download: "Flash starten",
-    stop_download: "Flash stoppen",
+    start_download: "Download starten",
+    stop_download: "Download stoppen",
     preparing: "Vorbereitung...",
-    downloaded: "Geflasht",
-    download_log: "Flash-Log",
+    downloaded: "Heruntergeladen",
+    download_log: "Download-Log",
     clear_log: "Log löschen",
-    waiting_download: "Warten auf Flash-Operation...",
+    waiting_download: "Warten auf Download-Operation...",
     
     // Schnellbefehl-Verwaltung
     quick_send_management: "Schnellsendung-Verwaltung",
@@ -104,11 +100,11 @@ const de = {
     // Systemmeldungen
     serial_connected: "Serial erfolgreich verbunden!",
     serial_disconnected: "Serial getrennt.",
-    flash_serial_connected: "Firmware-Flash Serial-Verbindung erfolgreich!",
-    flash_serial_disconnected: "Firmware-Flash Serial getrennt.",
+    flash_serial_connected: "Firmware-Download Serial-Verbindung erfolgreich!",
+    flash_serial_disconnected: "Firmware-Download Serial getrennt.",
     switch_to_tab: "Zu {0} gewechselt, Serial-Verbindung geschlossen",
     tab_serial_name: "Serial Debug",
-    tab_flash_name: "Firmware-Flash",
+    tab_flash_name: "Firmware-Download",
     
     // Bestätigungsdialoge
     switch_tab_confirm: "⚠️ Serial Mutex Warnung\n\nDie aktuelle {0}-Funktion verwendet eine Serial-Verbindung.\n{0}- und {1}-Funktionen können nicht gleichzeitig Serial verwenden.\n\nWechsel zu {1} wird:\n• Automatisch die aktuelle Serial-Verbindung trennen\n• Laufende Operationen stoppen\n\nSind Sie sicher, dass Sie wechseln möchten?",
@@ -122,8 +118,8 @@ const de = {
     no_log_to_save: "Kein Log zum Speichern",
     please_select_file: "Wählen Sie zuerst eine Firmware-Datei aus",
     please_connect_serial: "Verbinden Sie zuerst Serial",
-    please_connect_flash_serial: "Verbinden Sie zuerst Firmware-Flash Serial",
-    flash_serial_not_connected: "Firmware-Flash Serial nicht verbunden",
+    please_connect_flash_serial: "Verbinden Sie zuerst Firmware-Download Serial",
+    flash_serial_not_connected: "Firmware-Download Serial nicht verbunden",
     
     // Web Serial API bezogen
     browser_not_supported: "Ihr Browser unterstützt Web Serial API nicht. Verwenden Sie Chrome 89+ oder Edge 89+.",
@@ -133,19 +129,19 @@ const de = {
     send_error: "Datensendungsfehler: {0}",
     hex_length_error: "HEX-String-Länge muss gerade sein",
     serial_not_connected: "Serial nicht verbunden",
-    download_failed: "Flash fehlgeschlagen: {0}",
+    download_failed: "Download fehlgeschlagen: {0}",
     
     // Dateioperationen
     file_selected: "Datei ausgewählt: {0} ({1} Bytes)",
-    start_download_to: "Starte Firmware-Flash zu {0}...",
-    download_complete: "Firmware-Flash abgeschlossen!",
-    user_cancelled: "Benutzer hat Flash abgebrochen",
+    start_download_to: "Starte Firmware-Download zu {0}...",
+    download_complete: "Firmware-Download abgeschlossen!",
+    user_cancelled: "Benutzer hat Download abgebrochen",
     
-    // Firmware-Flash-Fortschrittsmeldungen
+    // Firmware-Download-Fortschrittsmeldungen
     flash_handshaking: "Handshake wird hergestellt...",
     flash_handshake_success: "Handshake erfolgreich",
     flash_handshake_failed: "Handshake fehlgeschlagen, überprüfen Sie die Geräteverbindung",
-    flash_download_cancelled: "Flash abgebrochen",
+    flash_download_cancelled: "Download abgebrochen",
     waiting_reset: "Warten auf Geräte-Neustart...",
     flash_setting_baudrate: "Setze Baudrate auf {0}...",
     flash_baudrate_set: "Baudrate erfolgreich gesetzt",
@@ -162,10 +158,10 @@ const de = {
     flash_crc_failed_mismatch: "CRC-Verifikation fehlgeschlagen: lokal={0}, Gerät={1}",
     flash_crc_failed: "CRC-Verifikation fehlgeschlagen: {0}",
     flash_rebooting: "Gerät wird neu gestartet...",
-    flash_download_complete: "Flash abgeschlossen",
-    flash_download_success: "Flash erfolgreich abgeschlossen!",
-    flash_download_failed: "Flash fehlgeschlagen: {0}",
-    flash_downloading: "Flash läuft, bitte warten Sie auf Abschluss",
+    flash_download_complete: "Download abgeschlossen",
+    flash_download_success: "Download erfolgreich abgeschlossen!",
+    flash_download_failed: "Download fehlgeschlagen: {0}",
+    flash_downloading: "Download läuft, bitte warten Sie auf Abschluss",
     flash_user_cancelled: "Benutzer hat Operation abgebrochen",
     
     // Log-Dateinamen

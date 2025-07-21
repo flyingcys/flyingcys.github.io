@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础加载测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .log { padding: 10px; margin: 5px 0; border-radius: 3px; font-family: monospace; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>基础加载测试</h1>
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            document.getElementById('logs').appendChild(div);
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+
+        function testBasicLoading() {
+            log('开始基础加载测试...', 'info');
+            
+            // 检查浏览器环境
+            if (typeof window === 'undefined') {
+                log('错误: 不在浏览器环境中', 'error');
+                return;
+            }
+            log('✓ 浏览器环境正常', 'success');
+
+            // 检查基本JavaScript功能
+            try {
+                const testClass = class TestClass {
+                    constructor() {
+                        this.name = 'test';
+                    }
+                };
+                const instance = new testClass();
+                if (instance.name === 'test') {
+                    log('✓ JavaScript类功能正常', 'success');
+                } else {
+                    log('错误: JavaScript类功能异常', 'error');
+                }
+            } catch (error) {
+                log('错误: JavaScript类功能测试失败: ' + error.message, 'error');
+            }
+
+            log('基础环境测试完成', 'info');
+        }
+
+        // 运行测试
+        testBasicLoading();
+    </script>
+
+    <!-- 开始逐步加载脚本 -->
+    <script>
+        log('开始加载BaseDownloader...', 'info');
+    </script>
+    
+    <script src="downloaders/shared/base-downloader.js" 
+            onload="log('✓ BaseDownloader加载成功', 'success')" 
+            onerror="log('✗ BaseDownloader加载失败', 'error')"></script>
+
+    <script>
+        // 检查BaseDownloader是否正确加载
+        setTimeout(() => {
+            if (typeof BaseDownloader !== 'undefined') {
+                log('✓ BaseDownloader类可用', 'success');
+                
+                // 测试BaseDownloader实例化
+                try {
+                    const mockCallback = (level, message, data) => console.log(`[${level}] ${message}`, data);
+                    const baseInstance = new BaseDownloader(null, mockCallback);
+                    log('✓ BaseDownloader实例化成功', 'success');
+                    log('  chipName: ' + baseInstance.chipName, 'info');
+                } catch (error) {
+                    log('✗ BaseDownloader实例化失败: ' + error.message, 'error');
+                }
+                
+                // 开始加载T5下载器
+                log('开始加载T5DownloaderV2...', 'info');
+                const script = document.createElement('script');
+                script.src = 'downloaders/t5/t5ai-downloader.js';
+                script.onload = function() {
+                    log('✓ T5DownloaderV2脚本加载完成', 'success');
+                    
+                    setTimeout(() => {
+                        if (typeof T5DownloaderV2 !== 'undefined') {
+                            log('✓ T5DownloaderV2类可用', 'success');
+                            
+                            // 测试T5DownloaderV2实例化
+                            try {
+                                const t5Instance = new T5DownloaderV2(null, mockCallback);
+                                log('✓ T5DownloaderV2实例化成功', 'success');
+                                log('  chipName: ' + t5Instance.chipName, 'info');
+                                
+                                // 检查继承关系
+                                if (t5Instance instanceof BaseDownloader) {
+                                    log('✓ T5DownloaderV2正确继承BaseDownloader', 'success');
+                                } else {
+                                    log('✗ T5DownloaderV2继承关系错误', 'error');
+                                }
+                                
+                                // 检查关键方法
+                                const methods = ['connect', 'downloadFirmware', 'disconnect'];
+                                methods.forEach(method => {
+                                    if (typeof t5Instance[method] === 'function') {
+                                        log(`✓ 方法 ${method} 存在`, 'success');
+                                    } else {
+                                        log(`✗ 方法 ${method} 不存在`, 'error');
+                                    }
+                                });
+                                
+                                log('=== 所有测试完成 ===', 'info');
+                                
+                            } catch (error) {
+                                log('✗ T5DownloaderV2实例化失败: ' + error.message, 'error');
+                                log('错误详情: ' + error.stack, 'error');
+                            }
+                        } else {
+                            log('✗ T5DownloaderV2类未定义', 'error');
+                        }
+                    }, 100);
+                };
+                script.onerror = function() {
+                    log('✗ T5DownloaderV2脚本加载失败', 'error');
+                };
+                document.head.appendChild(script);
+                
+            } else {
+                log('✗ BaseDownloader类未定义', 'error');
+            }
+        }, 100);
+    </script>
+</body>
+</html>

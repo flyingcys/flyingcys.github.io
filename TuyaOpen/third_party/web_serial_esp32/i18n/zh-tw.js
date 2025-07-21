@@ -6,7 +6,7 @@ const zhTw = {
     
     // Tab導航
     tab_serial: '📡 串口調試',
-    tab_flash: '💾 韌體燒錄',
+    tab_flash: '💾 韌體下載',
     tab_tuya_auth: '🔐 TuyaOpen授權',
     
     // 瀏覽器支援
@@ -80,18 +80,18 @@ const zhTw = {
     save: '保存',
     cancel: '取消',
     
-    // 韌體燒錄
-    flash_config: '💾 韌體燒錄配置',
+    // 韌體下載
+    flash_config: '💾 韌體下載配置',
     target_device: '目標設備',
     select_file: '選擇韌體檔案',
     no_file_selected: '未選擇檔案',
     file_size: '檔案大小',
-    start_download: '開始燒錄',
-    stop_download: '停止燒錄',
+    start_download: '開始下載',
+    stop_download: '停止下載',
     preparing: '準備中...',
-    downloaded: '已燒錄',
-    download_log: '📋 燒錄日誌',
-    waiting_download: '等待燒錄操作...',
+    downloaded: '已下載',
+    download_log: '📋 下載日誌',
+    waiting_download: '等待下載操作...',
     
     // TuyaOpen授權
     tuya_auth_title: '🔐 TuyaOpen授權碼寫入',
@@ -150,8 +150,8 @@ const zhTw = {
     serial_not_connected: '串口未連接',
     send_error: '發送資料失敗: {0}',
     hex_length_error: 'HEX字串長度必須為偶數',
-    download_progress: '燒錄進度: {0}%',
-    download_speed: '燒錄速度: {0}',
+    download_progress: '下載進度: {0}%',
+    download_speed: '下載速度: {0}',
     
     // 其他訊息
     connection_lost: '串口連接已斷開',

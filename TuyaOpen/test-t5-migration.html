@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T5AI下载器迁移测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>T5AI下载器迁移测试</h1>
+    
+    <div id="testResults">
+        <div class="test-result info">测试开始...</div>
+    </div>
+
+    <!-- 加载依赖脚本 -->
+    <script src="downloaders/shared/base-downloader.js"></script>
+    <script src="downloaders/t5/t5ai-downloader.js"></script>
+    <script src="downloaders/shared/downloader-manager.js"></script>
+
+    <script>
+        function addTestResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            document.getElementById('testResults').appendChild(div);
+        }
+
+        function runTests() {
+            try {
+                // 测试1: 检查BaseDownloader是否加载
+                if (typeof BaseDownloader === 'undefined') {
+                    addTestResult('错误: BaseDownloader类未定义', 'error');
+                    return;
+                }
+                addTestResult('✓ BaseDownloader类已正确加载', 'success');
+
+                // 测试2: 检查T5DownloaderV2是否加载
+                if (typeof T5DownloaderV2 === 'undefined') {
+                    addTestResult('错误: T5DownloaderV2类未定义', 'error');
+                    return;
+                }
+                addTestResult('✓ T5DownloaderV2类已正确加载', 'success');
+
+                // 测试3: 检查DownloaderManager是否加载
+                if (typeof DownloaderManager === 'undefined') {
+                    addTestResult('错误: DownloaderManager类未定义', 'error');
+                    return;
+                }
+                addTestResult('✓ DownloaderManager类已正确加载', 'success');
+
+                // 测试4: 创建T5DownloaderV2实例
+                try {
+                    const mockDebugCallback = (level, message, data) => {
+                        console.log(`[${level}] ${message}`, data || '');
+                    };
+                    
+                    const downloader = new T5DownloaderV2(null, mockDebugCallback);
+                    addTestResult('✓ T5DownloaderV2实例创建成功', 'success');
+                    
+                    // 测试基本属性
+                    if (downloader.chipName === 'T5AI') {
+                        addTestResult('✓ chipName属性正确: ' + downloader.chipName, 'success');
+                    } else {
+                        addTestResult('错误: chipName属性不正确: ' + downloader.chipName, 'error');
+                    }
+
+                    // 测试继承关系
+                    if (downloader instanceof BaseDownloader) {
+                        addTestResult('✓ T5DownloaderV2正确继承了BaseDownloader', 'success');
+                    } else {
+                        addTestResult('错误: T5DownloaderV2未正确继承BaseDownloader', 'error');
+                    }
+
+                    // 测试方法存在性
+                    const requiredMethods = ['connect', 'downloadFirmware', 'disconnect', 'setProgressCallback'];
+                    let methodsOk = true;
+                    for (const method of requiredMethods) {
+                        if (typeof downloader[method] === 'function') {
+                            addTestResult(`✓ 方法 ${method} 存在`, 'success');
+                        } else {
+                            addTestResult(`错误: 方法 ${method} 不存在`, 'error');
+                            methodsOk = false;
+                        }
+                    }
+
+                    if (methodsOk) {
+                        addTestResult('✓ 所有必需方法都存在', 'success');
+                    }
+
+                } catch (error) {
+                    addTestResult('错误: T5DownloaderV2实例创建失败: ' + error.message, 'error');
+                }
+
+                // 测试5: 检查DownloaderManager配置
+                try {
+                    const manager = new DownloaderManager();
+                    const t5aiConfig = manager.supportedChips.T5AI;
+                    
+                    if (t5aiConfig) {
+                        addTestResult('✓ DownloaderManager中找到T5AI配置', 'success');
+                        
+                        if (t5aiConfig.downloaderClass === 'T5DownloaderV2') {
+                            addTestResult('✓ T5AI配置的downloaderClass正确', 'success');
+                        } else {
+                            addTestResult('错误: T5AI配置的downloaderClass不正确: ' + t5aiConfig.downloaderClass, 'error');
+                        }
+
+                        if (t5aiConfig.scriptPath === './downloaders/t5/t5ai-downloader.js') {
+                            addTestResult('✓ T5AI配置的scriptPath正确', 'success');
+                        } else {
+                            addTestResult('错误: T5AI配置的scriptPath不正确: ' + t5aiConfig.scriptPath, 'error');
+                        }
+                    } else {
+                        addTestResult('错误: DownloaderManager中未找到T5AI配置', 'error');
+                    }
+                } catch (error) {
+                    addTestResult('错误: DownloaderManager测试失败: ' + error.message, 'error');
+                }
+
+                addTestResult('=== 测试完成 ===', 'info');
+
+            } catch (error) {
+                addTestResult('严重错误: ' + error.message, 'error');
+                console.error('测试错误:', error);
+            }
+        }
+
+        // 等待DOM加载完成后运行测试
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runTests);
+        } else {
+            runTests();
+        }
+    </script>
+</body>
+</html>

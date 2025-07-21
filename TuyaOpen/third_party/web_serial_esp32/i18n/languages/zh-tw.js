@@ -18,15 +18,15 @@ const zhTw = {
     
     // Tab標籤
     tab_serial: "串列除錯",
-    tab_flash: "韌體燒錄",
+    tab_flash: "韌體下載",
     
     // 控制面板
     control_title: "串列連接控制",
-    flash_connection_control: "韌體燒錄串列連接",
+    flash_connection_control: "韌體下載串列連接",
     connect: "連接串列",
-    connect_flash: "連接韌體燒錄串列",
+    connect_flash: "連接韌體下載串列",
     disconnect: "斷開連接",
-    disconnect_flash: "斷開韌體燒錄連接",
+    disconnect_flash: "斷開韌體下載連接",
     status_disconnected: "未連接",
     status_connected: "已連接",
     serial_target_device: "目標設備:",
@@ -67,13 +67,9 @@ const zhTw = {
     manage: "管理命令",
     no_quick_commands: "暫無快捷命令。點選\"管理命令\"按鈕可新增常用AT指令、調試命令等，提高調試效率",
     
-    // 韌體燒錄
-    flash_config: "韌體燒錄設定",
+    // 韌體下載
+    flash_config: "韌體下載設定",
     target_device: "目標裝置:",
-    esp32_flash_address: "ESP32 燒錄地址:",
-    complete_firmware: "0x0000 (完整韌體包)",
-    custom_address: "自訂地址...",
-    custom_address_placeholder: "0x10000",
     select_file: "選擇韌體檔案",
     no_file_selected: "未選擇檔案",
     file_size: "檔案大小",
@@ -104,11 +100,11 @@ const zhTw = {
     // 系統訊息
     serial_connected: "串列連接成功！",
     serial_disconnected: "串列已斷開連接。",
-    flash_serial_connected: "韌體燒錄串列連接成功！",
-    flash_serial_disconnected: "韌體燒錄串列已斷開連接。",
+    flash_serial_connected: "韌體下載串列連接成功！",
+    flash_serial_disconnected: "韌體下載串列已斷開連接。",
     switch_to_tab: "切換到{0}功能，串列連接已斷開",
     tab_serial_name: "串列除錯",
-    tab_flash_name: "韌體燒錄",
+    tab_flash_name: "韌體下載",
     
     // 確認對話方塊
     switch_tab_confirm: "⚠️ 串列互斥提醒\n\n當前{0}功能正在使用串列連接。\n{0}和{1}功能不能同時使用串列。\n\n切換到{1}功能將：\n• 自動斷開當前串列連接\n• 停止正在進行的操作\n\n確定要切換嗎？",
@@ -122,8 +118,8 @@ const zhTw = {
     no_log_to_save: "沒有日誌可儲存",
     please_select_file: "請先選擇韌體檔案",
     please_connect_serial: "請先連接串列",
-    please_connect_flash_serial: "請先連接韌體燒錄串列",
-    flash_serial_not_connected: "韌體燒錄串列未連接",
+    please_connect_flash_serial: "請先連接韌體下載串列",
+    flash_serial_not_connected: "韌體下載串列未連接",
     
     // Web Serial API 相關
     browser_not_supported: "您的瀏覽器不支援Web Serial API。請使用Chrome 89+或Edge 89+瀏覽器。",
@@ -138,7 +134,7 @@ const zhTw = {
     // 檔案操作
     file_selected: "選擇檔案: {0} ({1} 位元組)",
     start_download_to: "開始下載韌體到 {0}...",
-    download_complete: "韌體燒錄完成！",
+    download_complete: "韌體下載完成！",
     user_cancelled: "使用者取消下載",
     
     // 韌體下載進度訊息
@@ -489,4 +485,4 @@ const zhTw = {
 if (typeof window !== 'undefined') {
     window.i18nLanguages = window.i18nLanguages || {};
     window.i18nLanguages['zh-tw'] = zhTw;
-}
+} 

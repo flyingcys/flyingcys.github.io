@@ -18,7 +18,7 @@ const fr = {
     
     // Étiquettes des onglets
     tab_serial: "Debug Serial",
-    tab_flash: "Flash Firmware",
+    tab_flash: "Téléchargement Firmware",
     
     // Panneau de contrôle
     control_title: "Contrôle de connexion Serial",
@@ -68,22 +68,18 @@ const fr = {
     no_quick_commands: "Aucune commande rapide pour le moment. Cliquez sur 'Gérer les commandes' pour ajouter des commandes AT courantes, des instructions de débogage, etc. et améliorer l'efficacité du débogage",
     
     // Flash firmware
-    flash_config: "Configuration de flash firmware",
+    flash_config: "Configuration de téléchargement firmware",
     target_device: "Appareil cible :",
-    esp32_flash_address: "Adresse ESP32 Flash :",
-    complete_firmware: "0x0000 (Firmware complet)",
-    custom_address: "Adresse personnalisée...",
-    custom_address_placeholder: "0x10000",
     select_file: "Sélectionner le fichier firmware",
     no_file_selected: "Aucun fichier sélectionné",
     file_size: "Taille du fichier",
-    start_download: "Démarrer le flash",
-    stop_download: "Arrêter le flash",
+    start_download: "Démarrer le téléchargement",
+    stop_download: "Arrêter le téléchargement",
     preparing: "Préparation...",
-    downloaded: "Flashé",
-    download_log: "Journal de flash",
+    downloaded: "Téléchargé",
+    download_log: "Journal de téléchargement",
     clear_log: "Effacer le journal",
-    waiting_download: "En attente d'opération de flash...",
+    waiting_download: "En attente d'opération de téléchargement...",
     
     // Gestion des commandes rapides
     quick_send_management: "Gestion d'envoi rapide",

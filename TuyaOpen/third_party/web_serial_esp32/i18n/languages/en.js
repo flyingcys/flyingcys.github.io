@@ -23,11 +23,11 @@ const en = {
     
     // Control panel
     control_title: "Serial Connection Control",
-    flash_connection_control: "Firmware Flash Serial Connection",
+    flash_connection_control: "Firmware Download Serial Connection",
     connect: "Connect Serial",
-    connect_flash: "Connect Firmware Flash Serial",
+    connect_flash: "Connect Firmware Download Serial",
     disconnect: "Disconnect",
-    disconnect_flash: "Disconnect Firmware Flash Connection",
+    disconnect_flash: "Disconnect Firmware Download Connection",
     status_disconnected: "Disconnected",
     status_connected: "Connected",
     serial_target_device: "Target Device:",
@@ -71,10 +71,6 @@ const en = {
     // Firmware flash
     flash_config: "Firmware Flash Configuration",
     target_device: "Target Device:",
-    esp32_flash_address: "ESP32 Flash Address:",
-    complete_firmware: "0x0000 (Complete Firmware)",
-    custom_address: "Custom Address...",
-    custom_address_placeholder: "0x10000",
     select_file: "Select Firmware File",
     no_file_selected: "No file selected",
     file_size: "File Size",
@@ -105,8 +101,8 @@ const en = {
     // System messages
     serial_connected: "Serial connected successfully!",
     serial_disconnected: "Serial disconnected.",
-    flash_serial_connected: "Firmware Flash Serial Connection Successful!",
-    flash_serial_disconnected: "Firmware Flash Serial Disconnected.",
+    flash_serial_connected: "Firmware Download Serial Connection Successful!",
+    flash_serial_disconnected: "Firmware Download Serial Disconnected.",
     switch_to_tab: "Switched to {0}, serial connection closed",
     tab_serial_name: "Serial Debug",
     tab_flash_name: "Firmware Flash",
@@ -123,8 +119,8 @@ const en = {
     no_log_to_save: "No log to save",
     please_select_file: "Please select firmware file first",
     please_connect_serial: "Please connect serial first",
-    please_connect_flash_serial: "Please connect firmware flash serial first",
-    flash_serial_not_connected: "Firmware Flash Serial not connected",
+    please_connect_flash_serial: "Please connect firmware download serial first",
+    flash_serial_not_connected: "Firmware Download Serial not connected",
     
     // Web Serial API related
     browser_not_supported: "Your browser does not support Web Serial API. Please use Chrome 89+ or Edge 89+ browser.",
@@ -139,7 +135,7 @@ const en = {
     // File operations
     file_selected: "File selected: {0} ({1} bytes)",
     start_download_to: "Start downloading firmware to {0}...",
-    download_complete: "Firmware flash completed!",
+    download_complete: "Firmware download completed!",
     user_cancelled: "User cancelled download",
     
     // Firmware download progress messages
@@ -217,17 +213,17 @@ const en = {
     unsupported_device_type: "Unsupported device type: {0}",
     unsupported_chip_type: "Unsupported chip type: {0}",
     
-    // New: Firmware flash process related
-    starting_firmware_download_process: "Starting firmware flash process...",
-    starting_device_download: "Starting {0} firmware flash, file size: {1} bytes",
-    firmware_download_completed_time: "Firmware flash completed, total time: {0} seconds",
-    device_firmware_download_completed: "{0} firmware flash completed",
+    // New: Firmware download process related
+    starting_firmware_download_process: "Starting firmware download process...",
+    starting_device_download: "Starting {0} firmware download, file size: {1} bytes",
+    firmware_download_completed_time: "Firmware download completed, total time: {0} seconds",
+    device_firmware_download_completed: "{0} firmware download completed",
     initializing_downloader: "Initializing {0} downloader...",
     connecting_device: "Connecting to {0} device...",
     cannot_connect_device: "Cannot connect to {0} device",
     downloading_firmware_to_device: "Starting firmware download to {0} device...",
-    t5ai_firmware_download_completed: "✅ T5AI firmware flash completed",
-    firmware_download_completed_device_restarted: "Firmware flash completed, device restarted",
+    t5ai_firmware_download_completed: "✅ T5AI firmware download completed",
+    firmware_download_completed_device_restarted: "Firmware download completed, device restarted",
     
     // New: Serial connection related
     serial_not_connected_connect_first: "Serial port not connected, please connect serial device first",
@@ -249,9 +245,9 @@ const en = {
     bps: "bps",
     
     // New: Console debug messages (only essential ones for demo)
-    console_flash_connect_success: "Firmware flash connected successfully (115200), serial debug connection status:",
-    console_flash_connect_failed: "Firmware flash connection failed:",
-    console_flash_independent_success: "Firmware flash independent connection successful (115200), serial debug connection status:",
+    console_flash_connect_success: "Firmware download connected successfully (115200), serial debug connection status:",
+    console_flash_connect_failed: "Firmware download connection failed:",
+    console_flash_independent_success: "Firmware download independent connection successful (115200), serial debug connection status:",
     console_filtered_null_chars: "Filtered {0} 0x00 characters",
     console_language_switched: "Language switched to:",
     console_language_display_updated: "Language display updated to:",
@@ -503,4 +499,4 @@ const en = {
 if (typeof window !== 'undefined') {
     window.i18nLanguages = window.i18nLanguages || {};
     window.i18nLanguages.en = en;
-}
+} 
