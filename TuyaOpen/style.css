@@ -2886,7 +2886,6 @@ div.flash-controls {
 .error-analysis-panel .header-title-section {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 使标题和按钮分布在两端 */
     gap: 12px;
     margin-bottom: 15px;
 }
