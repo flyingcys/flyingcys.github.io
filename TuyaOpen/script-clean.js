@@ -2690,8 +2690,8 @@ class SerialTerminal {
         // 定义设备对应的波特率配置
         const deviceBaudrateConfig = {
             'custom': { baudrate: 115200, readonly: false }, // 自定义时恢复到默认值115200
-            'T5AI': { baudrate: 921600, readonly: true },
-            'T3': { baudrate: 921600, readonly: true },
+            'T5AI': { baudrate: 460800, readonly: true },
+            'T3': { baudrate: 460800, readonly: true },
             'T2': { baudrate: 115200, readonly: true },
             'ESP32': { baudrate: 115200, readonly: true },
             'ESP32C3': { baudrate: 115200, readonly: true },
