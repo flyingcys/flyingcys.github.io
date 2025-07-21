@@ -819,9 +819,13 @@ div.flash-controls {
     transform: none !important;
 }
 
-/* ESP32地址组样式优化 */
+/* ESP32地址组样式优化 - 修改为固定位置布局 */
 .esp32-address-group {
-    display: none;
+    /* 改为visibility控制显示隐藏，保持占据空间 */
+    visibility: hidden;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
     background: rgba(79, 70, 229, 0.05);
     border: 2px solid rgba(79, 70, 229, 0.15);
     border-radius: 8px;
@@ -829,11 +833,14 @@ div.flash-controls {
     transition: all 0.3s ease;
     position: relative;
     margin-top: 0;
+    /* 确保隐藏时仍占据空间，保持布局稳定 */
+    min-height: 80px;
 }
 
 .esp32-address-group.show {
-    display: flex;
-    flex-direction: column;
+    /* 显示时恢复可见性和透明度 */
+    visibility: visible;
+    opacity: 1;
     animation: slideInDown 0.3s ease-out;
     margin-top: 0;
 }

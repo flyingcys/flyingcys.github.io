@@ -3787,6 +3787,18 @@ class SerialTerminal {
         // 保存选择的目标设备到localStorage
         this.saveTargetDevice('flash', selectedDevice);
         
+        // 控制ESP32地址组的显示隐藏 - 使用CSS类控制而非display属性
+        const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+        if (esp32AddressGroup) {
+            if (selectedDevice === 'ESP32-Series') {
+                // 显示ESP32地址选择器 - 添加show类
+                esp32AddressGroup.classList.add('show');
+            } else {
+                // 隐藏ESP32地址选择器（T5AI、T3等其他设备） - 移除show类
+                esp32AddressGroup.classList.remove('show');
+            }
+        }
+        
         console.log('固件下载目标设备已选择:', selectedDevice);
     }
 
