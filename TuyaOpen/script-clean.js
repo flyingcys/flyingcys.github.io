@@ -38,6 +38,7 @@ class SerialTerminal {
         this.initializeQuickCommands();
         this.initializeTuyaAuth();
         this.loadSavedTargetDevices();
+        this.initializeErrorAnalysisCollapse();
         
         // 监听多语言系统就绪事件
         window.addEventListener('i18nReady', () => {
@@ -225,7 +226,11 @@ class SerialTerminal {
         this.clearErrorAnalysisBtn = document.getElementById('clearErrorAnalysisBtn');
         this.autoErrorAnalysis = document.getElementById('autoErrorAnalysis');
         this.testErrorAnalysisBtn = document.getElementById('testErrorAnalysisBtn');
+        this.toggleErrorAnalysisBtn = document.getElementById('toggleErrorAnalysisBtn');
+        this.errorAnalysisPanel = document.querySelector('.error-analysis-panel');
+        this.errorAnalysisContent = document.getElementById('errorAnalysisContent');
         this.detectedErrors = new Set(); // 用于避免重复显示相同错误
+        this.isErrorAnalysisCollapsed = true; // 默认折叠状态
     }
 
     bindEvents() {
@@ -490,6 +495,10 @@ class SerialTerminal {
         
         if (this.testErrorAnalysisBtn) {
             this.testErrorAnalysisBtn.addEventListener('click', () => this.testErrorAnalysis());
+        }
+        
+        if (this.toggleErrorAnalysisBtn) {
+            this.toggleErrorAnalysisBtn.addEventListener('click', () => this.toggleErrorAnalysis());
         }
     }
 
@@ -3614,6 +3623,9 @@ class SerialTerminal {
     addErrorToDisplay(errorInfo) {
         if (!this.errorAnalysisDisplay) return;
 
+        // 检测到错误时强制展开
+        this.forceExpandErrorAnalysis();
+
         // 移除占位符
         const placeholder = this.errorAnalysisDisplay.querySelector('.placeholder');
         if (placeholder) {
@@ -3778,6 +3790,43 @@ class SerialTerminal {
         this.saveTargetDevice('flash', selectedDevice);
         
         console.log('固件下载目标设备已选择:', selectedDevice);
+    }
+
+    // 初始化错误分析折叠状态
+    initializeErrorAnalysisCollapse() {
+        if (this.errorAnalysisContent && this.toggleErrorAnalysisBtn) {
+            // 确保默认为折叠状态
+            this.isErrorAnalysisCollapsed = true;
+            // 设置初始折叠状态
+            this.updateErrorAnalysisCollapseState();
+        }
+    }
+
+    // 切换错误分析折叠状态
+    toggleErrorAnalysis() {
+        this.isErrorAnalysisCollapsed = !this.isErrorAnalysisCollapsed;
+        this.updateErrorAnalysisCollapseState();
+    }
+
+    // 更新错误分析折叠状态
+    updateErrorAnalysisCollapseState() {
+        if (!this.errorAnalysisContent || !this.toggleErrorAnalysisBtn) return;
+
+        if (this.isErrorAnalysisCollapsed) {
+            this.errorAnalysisContent.classList.add('collapsed');
+            this.toggleErrorAnalysisBtn.classList.add('collapsed');
+        } else {
+            this.errorAnalysisContent.classList.remove('collapsed');
+            this.toggleErrorAnalysisBtn.classList.remove('collapsed');
+        }
+    }
+
+    // 强制展开错误分析（当检测到错误时）
+    forceExpandErrorAnalysis() {
+        if (this.isErrorAnalysisCollapsed) {
+            this.isErrorAnalysisCollapsed = false;
+            this.updateErrorAnalysisCollapseState();
+        }
     }
 }
 

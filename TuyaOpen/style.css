@@ -2882,6 +2882,59 @@ div.flash-controls {
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
+/* 错误分析标题区域样式 */
+.error-analysis-panel .header-title-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 使标题和按钮分布在两端 */
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+/* 折叠/展开按钮样式 */
+.btn-toggle {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    padding: 6px 10px;
+    min-width: auto;
+    transition: all 0.3s ease;
+}
+
+.btn-toggle:hover:not(:disabled) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+}
+
+.btn-toggle .toggle-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+/* 折叠状态下的图标旋转 */
+.btn-toggle.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+/* 错误分析内容区域 */
+.error-analysis-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 1000px;
+    opacity: 1;
+    margin-top: 15px;
+}
+
+/* 折叠状态 */
+.error-analysis-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+
 .error-analysis-display {
     background: white; /* Changed to white */
     color: #374151;
