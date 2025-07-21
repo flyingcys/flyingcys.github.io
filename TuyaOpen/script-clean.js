@@ -2693,9 +2693,7 @@ class SerialTerminal {
             'T5AI': { baudrate: 460800, readonly: true },
             'T3': { baudrate: 460800, readonly: true },
             'T2': { baudrate: 115200, readonly: true },
-            'ESP32': { baudrate: 115200, readonly: true },
-            'ESP32C3': { baudrate: 115200, readonly: true },
-            'ESP32S3': { baudrate: 115200, readonly: true },
+            'ESP32-Series': { baudrate: 115200, readonly: true },
             'BK7231N': { baudrate: 115200, readonly: true },
             'LN882H': { baudrate: 921600, readonly: true }
         };
