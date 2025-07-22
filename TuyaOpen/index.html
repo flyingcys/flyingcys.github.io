@@ -369,21 +369,24 @@
                 <div class="flash-panel">
                     <div class="flash-header">
                         <h3 data-i18n="flash_config">💾 固件烧录配置</h3>
-                        <div class="flash-controls">
-                            <div class="config-group">
-                                <label for="deviceSelect" data-i18n="target_device">目标设备:</label>
-                                <select id="deviceSelect">
-                                    <option value="T5AI">T5AI</option>
-                                    <option value="T3">T3</option>
-                                    <option value="ESP32-Series" selected>ESP32-Series</option>
-                                    <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
-                                    <!-- <option value="T2">T2</option> -->
-                                    <!-- <option value="BK7231N">BK7231N</option> -->
-                                    <!-- <option value="LN882H">LN882H</option> -->
-                                </select>
-                            </div>
-                            <div class="config-group esp32-address-group" id="esp32AddressGroup">
-                                <label for="esp32FlashAddress" data-i18n="esp32_flash_address">ESP32 Flash 地址:</label>
+                    </div>
+                    
+                    <div class="flash-controls">
+                        <div class="config-group">
+                            <label for="deviceSelect" data-i18n="target_device">目标设备:</label>
+                            <select id="deviceSelect">
+                                <option value="T5AI">T5AI</option>
+                                <option value="T3">T3</option>
+                                <option value="ESP32-Series" selected>ESP32-Series</option>
+                                <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
+                                <!-- <option value="T2">T2</option> -->
+                                <!-- <option value="BK7231N">BK7231N</option> -->
+                                <!-- <option value="LN882H">LN882H</option> -->
+                            </select>
+                        </div>
+                        <div class="config-group esp32-address-group" id="esp32AddressGroup">
+                            <label for="esp32FlashAddress" data-i18n="esp32_flash_address">ESP32 Flash 地址:</label>
+                            <div class="address-controls">
                                 <select id="esp32FlashAddress">
                                     <option value="0x0000" selected data-i18n="complete_firmware">0x0000 (完整固件包)</option>
                                     <option value="custom" data-i18n="custom_address">自定义地址...</option>

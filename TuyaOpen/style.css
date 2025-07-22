@@ -752,17 +752,22 @@ header p {
 }
 
 .flash-controls {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 15px !important;
-    align-items: start !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    padding: 15px 0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 /* 确保flash-controls中的config-group标签顶部对齐 */
 .flash-controls .config-group {
     align-items: flex-start;
-    align-self: start;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    min-width: 180px;
 }
 
 .flash-controls .config-group label {
@@ -776,12 +781,14 @@ header p {
 .flash-controls > .config-group:first-child {
     padding-top: 0;
     margin-right: 0;
+    flex: 0 0 auto;
 }
 
 /* ESP32地址组样式调整 */
 .flash-controls .esp32-address-group {
-    align-self: start;
+    align-self: flex-start;
     margin-left: 0;
+    flex: 0 0 auto;
 }
 
 .flash-controls .esp32-address-group label {
@@ -808,9 +815,10 @@ div.flash-controls {
 }
 
 .flash-panel .flash-header .flash-controls {
-    gap: 15px !important;
-    grid-template-columns: 1fr !important;
-    display: grid !important;
+    gap: 20px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
 }
 
 /* 移除过度的transform */
@@ -834,6 +842,14 @@ div.flash-controls {
     margin-top: 0;
     /* 确保隐藏时仍占据空间，保持布局稳定 */
     min-height: 80px;
+}
+
+/* ESP32地址组内部横向布局 */
+.esp32-address-group .address-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .esp32-address-group.show {
@@ -880,7 +896,8 @@ div.flash-controls {
 
 .custom-address-input {
     display: none;
-    margin-top: 12px;
+    margin-top: 0;
+    margin-left: 10px;
     padding: 10px 12px;
     border: 2px solid #e2e8f0;
     border-radius: 6px;
@@ -890,9 +907,9 @@ div.flash-controls {
     transition: all 0.3s ease;
     min-height: 40px;
     box-sizing: border-box;
-    max-width: 200px !important;
-    width: 200px !important;
-    min-width: 150px !important;
+    max-width: 150px !important;
+    width: 150px !important;
+    min-width: 120px !important;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
 }
