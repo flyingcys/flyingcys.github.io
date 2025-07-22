@@ -265,6 +265,28 @@ class FlashManager {
     }
     
     /**
+     * 断开固件下载串口连接
+     */
+    async disconnectFlash() {
+        try {
+            // 通过事件总线触发串口断开
+            this.eventBus.emit('flash:disconnect-request');
+            
+            // 如果有SerialManager实例，直接调用其断开方法
+            if (window.serialTerminal && window.serialTerminal.disconnectFlash) {
+                await window.serialTerminal.disconnectFlash();
+            }
+        } catch (error) {
+            this.eventBus.emit('flash:log-add', {
+                message: `断开串口失败: ${error.message}`,
+                type: 'error',
+                isMainProcess: true
+            });
+            throw error;
+        }
+    }
+    
+    /**
      * 开始固件下载
      */
     async startFlashDownload() {
@@ -305,16 +327,37 @@ class FlashManager {
 
             // 检查是否需要自动断开串口
             const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
+            console.log('检查自动断开复选框:', autoDisconnectCheckbox, '选中状态:', autoDisconnectCheckbox?.checked);
+            
             if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
+                this.eventBus.emit('flash:log-add', {
+                    message: '检测到自动断开选项已选中，将在1秒后断开串口...',
+                    type: 'info',
+                    isMainProcess: true
+                });
+                
                 // 延迟一秒后自动断开串口，让用户看到完成消息
-                setTimeout(() => {
-                    this.disconnectFlash();
-                    this.eventBus.emit('flash:log-add', {
-                        message: i18n.t('auto_disconnect_after_flash'),
-                        type: 'info',
-                        isMainProcess: true
-                    });
+                setTimeout(async () => {
+                    try {
+                        console.log('开始执行自动断开串口...');
+                        await this.disconnectFlash();
+                        this.eventBus.emit('flash:log-add', {
+                            message: i18n.t('auto_disconnect_after_flash'),
+                            type: 'success',
+                            isMainProcess: true
+                        });
+                        console.log('自动断开串口完成');
+                    } catch (error) {
+                        console.error('自动断开串口失败:', error);
+                        this.eventBus.emit('flash:log-add', {
+                            message: `自动断开串口失败: ${error.message}`,
+                            type: 'error',
+                            isMainProcess: true
+                        });
+                    }
                 }, 1000);
+            } else {
+                console.log('自动断开功能未启用或复选框未选中');
             }
 
         } catch (error) {

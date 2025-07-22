@@ -1741,10 +1741,20 @@ class SerialTerminal {
             
             this.addToFlashLog(i18n.t('download_failed', error.message), 'error');
             this.showError(i18n.t('download_failed', error.message));
-        } finally {
-            // 只有在非异常断开的情况下才执行finally逻辑
+            
+            // 错误情况下重置按钮状态
             this.downloadBtn.disabled = !this.isFlashConnected || !this.selectedFile;
             this.stopDownloadBtn.disabled = true;
+        } finally {
+            // 成功完成下载后，确保按钮状态正确
+            // 对于ESP32设备，downloadWithESP32Manager已经处理了连接状态
+            // 这里只需要确保按钮状态正确
+            if (this.isFlashConnected) {
+                this.downloadBtn.disabled = !this.selectedFile; // 如果有文件且连接正常，启用下载按钮
+            } else {
+                this.downloadBtn.disabled = true; // 如果连接断开，禁用下载按钮
+            }
+            this.stopDownloadBtn.disabled = true; // 下载完成后总是禁用停止按钮
         }
     }
 
