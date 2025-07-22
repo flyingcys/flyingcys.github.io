@@ -1,7 +1,7 @@
 // English translation
 const en = {
     // Basic information
-    title: 'TuyaOpen Serial Tool (Beta)',
+    title: 'TuyaOpen Serial Tool',
     subtitle: 'One-stop development tool based on Chrome Web Serial API',
     
     // Tab navigation
@@ -122,11 +122,11 @@ const en = {
     tuya_open_project: 'TuyaOpen',
     arduino_project: 'Arduino-TuyaOpen',
     lua_project: 'Luanode-TuyaOpen',
-    tools_project: 'TuyaOpen-Tools',
+    tools_project: 'TuyaOpen-WebSerial',
     
     // Beta notice
     beta_notice: 'Current function is in beta version, please submit issues to',
-    repository_link: 'TuyaOpen-Tools Repository',
+    repository_link: 'TuyaOpen-WebSerial Repository',
     
     // Error messages
     error: '❌ Error',
@@ -158,4 +158,4 @@ const en = {
     reconnect_prompt: 'Do you want to try reconnecting?',
     yes: 'Yes',
     no: 'No'
-}; 
+};

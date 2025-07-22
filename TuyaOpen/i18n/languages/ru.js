@@ -1,20 +1,20 @@
 // Русский (ru-RU)
 const ru = {
     // Заголовок страницы и описание
-    title: "Инструмент TuyaOpen Serial Beta",
+    title: "Инструмент TuyaOpen Serial",
     subtitle: "Универсальный инструмент разработчика на основе Chrome Web Serial API",
     
     // Требования к браузеру и уведомление о бета-версии
     browser_requirement: "Этот инструмент требует браузеры на основе Chrome. Другие браузеры не могут работать правильно. Используйте Chrome, Edge или другие браузеры на основе Chromium.",
     beta_notice: "Текущая функциональность находится в бета-версии. При возникновении проблем сначала сохраните соответствующие логи, затем сообщайте о проблемах в репозиторий по адресу",
-    repository_link: "Репозиторий TuyaOpen-Tools",
+    repository_link: "Репозиторий TuyaOpen-WebSerial",
     
     // Ссылки, связанные с проектом
     project_info: "Этот проект является частью TuyaOpen. Связанные проекты включают:",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-Tools",
+    tools_project: "TuyaOpen-WebSerial",
     
     // Метки вкладок
     tab_serial: "Отладка Serial",
@@ -489,4 +489,4 @@ const ru = {
 if (typeof window !== 'undefined') {
     window.i18nLanguages = window.i18nLanguages || {};
     window.i18nLanguages.ru = ru;
-} 
+}

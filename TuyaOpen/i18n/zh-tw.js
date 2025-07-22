@@ -1,7 +1,7 @@
 // 繁體中文翻譯
 const zhTw = {
     // 基礎資訊
-    title: 'TuyaOpen串口工具(內測版)',
+    title: 'TuyaOpen串口工具',
     subtitle: '基於Chrome Web Serial API的一站式開發者工具',
     
     // Tab導航
@@ -122,11 +122,11 @@ const zhTw = {
     tuya_open_project: 'TuyaOpen',
     arduino_project: 'Arduino-TuyaOpen',
     lua_project: 'Luanode-TuyaOpen',
-    tools_project: 'TuyaOpen-Tools',
+    tools_project: 'TuyaOpen-WebSerial',
     
     // 測試版本說明
     beta_notice: '當前功能屬於測試版本，遇到問題請透過提交issue到',
-    repository_link: 'TuyaOpen-Tools 倉庫',
+    repository_link: 'TuyaOpen-WebSerial 倉庫',
     
     // 錯誤資訊
     error: '❌ 錯誤',
@@ -158,4 +158,4 @@ const zhTw = {
     reconnect_prompt: '是否嘗試重新連接？',
     yes: '是',
     no: '否'
-}; 
+};

@@ -1,20 +1,20 @@
 // 简体中文 (zh-CN)
 const zh = {
     // 页面标题和描述
-    title: "TuyaOpen串口工具(内测版)",
+    title: "TuyaOpen串口工具",
     subtitle: "基于Chrome Web Serial API的一站式开发者工具",
     
     // 浏览器要求和测试版本说明
     browser_requirement: "此工具需要Chrome内核浏览器支持，其他浏览器无法正常工作。请使用Chrome、Edge或其他基于Chromium的浏览器。",
     beta_notice: "当前功能属于测试版本，遇到问题请先保存相关日志，然后提交issue到",
-    repository_link: "TuyaOpen-Tools 仓库",
+    repository_link: "TuyaOpen-WebSerial 仓库",
     
     // 项目相关链接
     project_info: "这个项目是TuyaOpen的一部分，相关项目包括：",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-Tools",
+    tools_project: "TuyaOpen-WebSerial",
     
     // Tab标签
     tab_serial: "串口调试",
@@ -523,4 +523,4 @@ const zh = {
 if (typeof window !== 'undefined') {
     window.i18nLanguages = window.i18nLanguages || {};
     window.i18nLanguages.zh = zh;
-} 
+}
