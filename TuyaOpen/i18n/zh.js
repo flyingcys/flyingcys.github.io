@@ -87,7 +87,8 @@ const zh = {
     no_file_selected: '未选择文件',
     file_size: '文件大小',
     start_download: '开始烧录',
-    stop_download: '停止烧录',
+    stop_download: '结束烧录',
+    auto_disconnect_after_flash: '完成烧录后自动断开串口',
     preparing: '准备中...',
     downloaded: '已烧录',
     download_log: '📋 烧录日志',
@@ -158,4 +159,4 @@ const zh = {
     reconnect_prompt: '是否尝试重新连接？',
     yes: '是',
     no: '否'
-}; 
+};

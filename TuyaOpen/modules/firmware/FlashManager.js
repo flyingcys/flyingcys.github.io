@@ -303,6 +303,20 @@ class FlashManager {
                 isMainProcess: true
             });
 
+            // 检查是否需要自动断开串口
+            const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
+            if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
+                // 延迟一秒后自动断开串口，让用户看到完成消息
+                setTimeout(() => {
+                    this.disconnectFlash();
+                    this.eventBus.emit('flash:log-add', {
+                        message: i18n.t('auto_disconnect_after_flash'),
+                        type: 'info',
+                        isMainProcess: true
+                    });
+                }, 1000);
+            }
+
         } catch (error) {
             this.eventBus.emit('flash:log-add', {
                 message: i18n.t('download_failed', error.message),
@@ -492,4 +506,4 @@ class FlashManager {
 // 导出
 if (typeof window !== 'undefined') {
     window.FlashManager = FlashManager;
-} 
+}
