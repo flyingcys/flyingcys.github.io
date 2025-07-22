@@ -971,6 +971,24 @@ div.flash-controls {
 
 .file-select-area {
     margin-bottom: 20px;
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+    cursor: pointer;
+}
+
+.file-select-area:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+.file-select-area.drag-over {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    transform: scale(1.02);
 }
 
 .file-input-container {
