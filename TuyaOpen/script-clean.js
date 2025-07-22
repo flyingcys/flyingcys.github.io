@@ -346,6 +346,9 @@ class SerialTerminal {
             this.handleFileSelect(e);
         });
 
+        // 设置拖拽功能
+        this.setupFileDragAndDrop();
+
         // 固件下载事件
         this.downloadBtn.addEventListener('click', () => {
             this.startFlashDownload();
@@ -3849,6 +3852,117 @@ class SerialTerminal {
             this.isErrorAnalysisCollapsed = false;
             this.updateErrorAnalysisCollapseState();
         }
+    }
+
+    /**
+     * 设置文件拖拽功能
+     * 为文件选择区域添加拖拽上传支持
+     */
+    setupFileDragAndDrop() {
+        const fileSelectArea = document.querySelector('.file-select-area');
+        if (!fileSelectArea) {
+            console.warn('文件选择区域未找到，无法设置拖拽功能');
+            return;
+        }
+
+        // 阻止默认拖拽行为
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileSelectArea.addEventListener(eventName, this.preventDefaults.bind(this), false);
+            document.body.addEventListener(eventName, this.preventDefaults.bind(this), false);
+        });
+
+        // 拖拽进入和悬停效果
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileSelectArea.addEventListener(eventName, () => {
+                fileSelectArea.classList.add('drag-over');
+            }, false);
+        });
+
+        // 拖拽离开效果
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileSelectArea.addEventListener(eventName, () => {
+                fileSelectArea.classList.remove('drag-over');
+            }, false);
+        });
+
+        // 处理文件拖放
+        fileSelectArea.addEventListener('drop', this.handleFileDrop.bind(this), false);
+    }
+
+    /**
+     * 阻止默认拖拽行为
+     * @param {Event} e - 拖拽事件
+     */
+    preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    /**
+     * 处理文件拖放
+     * @param {DragEvent} e - 拖放事件
+     */
+    handleFileDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length === 0) {
+            return;
+        }
+
+        const file = files[0];
+        
+        // 验证文件类型
+        if (!file.name.toLowerCase().endsWith('.bin')) {
+            this.showError('请选择.bin格式的固件文件');
+            return;
+        }
+
+        // 设置选中的文件
+        this.selectedFile = file;
+        
+        // 更新UI显示
+        this.updateFileDisplay(file);
+        
+        // 启用下载按钮（如果已连接）
+        if (this.isFlashConnected) {
+            this.downloadBtn.disabled = false;
+        }
+
+        console.log('通过拖拽选择文件:', file.name, '大小:', file.size, '字节');
+    }
+
+    /**
+     * 更新文件显示信息
+     * @param {File} file - 选中的文件
+     */
+    updateFileDisplay(file) {
+        if (this.selectedFileName) {
+            this.selectedFileName.textContent = file.name;
+        }
+        
+        if (this.fileSize) {
+            this.fileSize.textContent = this.formatFileSize(file.size);
+        }
+        
+        if (this.fileInfo) {
+            this.fileInfo.style.display = 'block';
+        }
+    }
+
+    /**
+     * 格式化文件大小显示
+     * @param {number} bytes - 文件大小（字节）
+     * @returns {string} 格式化后的文件大小
+     */
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }
 
