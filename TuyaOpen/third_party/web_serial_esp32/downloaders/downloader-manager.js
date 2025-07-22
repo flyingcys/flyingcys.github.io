@@ -10,35 +10,35 @@ class DownloaderManager {
                 displayName: 'T5AI',
                 downloader: 'T5Downloader',
                 order: 1,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/t5ai-downloader.js',
                 downloaderClass: 'T5Downloader'
             },
             T3: { 
                 displayName: 'T3',
                 downloader: 'T5Downloader',
                 order: 2,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/t5ai-downloader.js',
                 downloaderClass: 'T5Downloader'
             },
             T2: { 
                 displayName: 'T2',
                 downloader: 'T5Downloader',
                 order: 3,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/t5ai-downloader.js',
                 downloaderClass: 'T5Downloader'
             },
             BK7231N: { 
                 displayName: 'BK7231N',
                 downloader: 'BK7231NDownloader',
                 order: 4,
-                scriptPath: './downloaders/bk7231n-downloader.js',
+                scriptPath: './downloaders/bk7231n/bk7231n-downloader.js',
                 downloaderClass: 'BK7231NDownloader'
             },
             LN882H: { 
                 displayName: 'LN882H',
                 downloader: 'LN882HDownloader',
                 order: 5,
-                scriptPath: './downloaders/ln882h-downloader.js',
+                scriptPath: './downloaders/ln882h/ln882h-downloader.js',
                 downloaderClass: 'LN882HDownloader'
             }
         };

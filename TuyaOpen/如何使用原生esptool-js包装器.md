@@ -17,7 +17,7 @@
 
 ```html
 <!-- 引入esptool-js原生包装器 -->
-<script src="./downloaders/esp32-esptool-js-wrapper.js"></script>
+<script src="./downloaders/esp32/esp32-esptool-js-wrapper.js"></script>
 ```
 
 ### 2. 创建下载器实例

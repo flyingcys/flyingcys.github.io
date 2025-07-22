@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>T5AI 协议测试</title>
+</head>
+<body>
+    <h1>T5AI 协议加载测试</h1>
+    <div id="output"></div>
+    
+    <!-- T5AI模块化下载器脚本 -->
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/t5ai/core/t5-serial-manager.js"></script>
+    <script src="downloaders/t5ai/configs/t5-flash-config.js"></script>
+    <script src="downloaders/t5ai/configs/t5-flash-database.js"></script>
+    <script src="downloaders/t5ai/utils/t5-crc-utils.js"></script>
+    <script src="downloaders/t5ai/utils/t5-debug-utils.js"></script>
+    <script src="downloaders/t5ai/protocols/t5-protocols.js"></script>
+    <script src="downloaders/t5ai/t5-downloader-modular.js"></script>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        // 测试协议类是否正确加载
+        try {
+            log('开始测试协议类加载...');
+            
+            // 检查协议类是否存在
+            if (typeof LinkCheckProtocol !== 'undefined') {
+                log('✅ LinkCheckProtocol 类已加载');
+                
+                // 尝试创建实例
+                const linkCheck = new LinkCheckProtocol();
+                log('✅ LinkCheckProtocol 实例创建成功');
+                
+                // 检查 cmd 方法
+                if (typeof linkCheck.cmd === 'function') {
+                    log('✅ LinkCheckProtocol.cmd 方法存在');
+                    
+                    // 尝试调用 cmd 方法
+                    const command = linkCheck.cmd();
+                    log('✅ LinkCheckProtocol.cmd() 调用成功: ' + JSON.stringify(command));
+                } else {
+                    log('❌ LinkCheckProtocol.cmd 方法不存在，类型: ' + typeof linkCheck.cmd);
+                }
+            } else {
+                log('❌ LinkCheckProtocol 类未加载');
+            }
+            
+            // 检查其他必要的类
+            const classes = ['T5SerialManager', 'T5FlashConfig', 'T5FlashDatabase', 'T5CrcUtils', 'T5DebugUtils', 'T5DownloaderModular'];
+            classes.forEach(className => {
+                if (typeof window[className] !== 'undefined') {
+                    log('✅ ' + className + ' 类已加载');
+                } else {
+                    log('❌ ' + className + ' 类未加载');
+                }
+            });
+            
+            // 尝试创建 T5DownloaderModular 实例
+            if (typeof T5DownloaderModular !== 'undefined') {
+                log('尝试创建 T5DownloaderModular 实例...');
+                
+                // 模拟串口对象
+                const mockSerialPort = {
+                    readable: { getReader: () => ({}) },
+                    writable: { getWriter: () => ({}) },
+                    setSignals: async () => {},
+                    close: async () => {}
+                };
+                
+                const mockDebugCallback = (level, message) => {
+                    log(`[${level}] ${message}`);
+                };
+                
+                try {
+                    const downloader = new T5DownloaderModular(mockSerialPort, mockDebugCallback);
+                    log('✅ T5DownloaderModular 实例创建成功');
+                    
+                    // 检查协议对象
+                    if (downloader.protocols && downloader.protocols.linkCheck) {
+                        log('✅ protocols.linkCheck 对象存在');
+                        
+                        if (typeof downloader.protocols.linkCheck.cmd === 'function') {
+                            log('✅ protocols.linkCheck.cmd 方法存在');
+                        } else {
+                            log('❌ protocols.linkCheck.cmd 方法不存在，类型: ' + typeof downloader.protocols.linkCheck.cmd);
+                            log('linkCheck 对象内容: ' + JSON.stringify(Object.getOwnPropertyNames(downloader.protocols.linkCheck)));
+                        }
+                    } else {
+                        log('❌ protocols.linkCheck 对象不存在');
+                        log('protocols 对象内容: ' + JSON.stringify(Object.keys(downloader.protocols || {})));
+                    }
+                } catch (error) {
+                    log('❌ T5DownloaderModular 实例创建失败: ' + error.message);
+                    log('错误堆栈: ' + error.stack);
+                }
+            }
+            
+        } catch (error) {
+            log('❌ 测试过程中发生错误: ' + error.message);
+            log('错误堆栈: ' + error.stack);
+        }
+    </script>
+</body>
+</html>

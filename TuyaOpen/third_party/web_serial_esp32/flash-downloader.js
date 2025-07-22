@@ -7,7 +7,7 @@
 // 导入T5下载器 (如果在模块环境中)
 if (typeof T5Downloader === 'undefined' && typeof require !== 'undefined') {
     try {
-        window.T5Downloader = require('./t5ai-downloader.js');
+        window.T5Downloader = require('./t5ai/t5ai-downloader.js');
     } catch (e) {
         // T5下载器不可用，将只支持BK7231N
         console.warn('T5Downloader not available, only BK7231N support enabled');

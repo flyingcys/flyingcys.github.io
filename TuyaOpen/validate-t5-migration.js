@@ -24,7 +24,7 @@ console.log('🚀 开始T5AI下载器迁移验证...\n');
 
 // 1. 检查文件存在性
 const baseDownloaderPath = './downloaders/shared/base-downloader.js';
-const t5DownloaderPath = './downloaders/t5/t5ai-downloader.js';
+const t5DownloaderPath = './downloaders/t5/t5ai/t5ai-downloader.js';
 
 console.log('📁 检查文件存在性:');
 if (fs.existsSync(baseDownloaderPath)) {

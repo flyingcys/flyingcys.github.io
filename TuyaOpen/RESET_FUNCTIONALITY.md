@@ -2,7 +2,7 @@
 
 ## 概述
 
-ESP32包装器（`esp32-esptool-js-wrapper.js`）完全保持了T5AI和esptool-js的DTR/RTS复位功能。这些功能对于ESP32进入下载模式和正常重启至关重要。
+ESP32包装器（`esp32/esp32-esptool-js-wrapper.js`）完全保持了T5AI和esptool-js的DTR/RTS复位功能。这些功能对于ESP32进入下载模式和正常重启至关重要。
 
 ## DTR/RTS 控制实现
 
@@ -79,7 +79,7 @@ await customReset.reset();
 
 ### T5AI的复位逻辑
 ```javascript
-// T5AI复位实现 (t5ai-downloader.js:262-264)
+// T5AI复位实现 (t5ai/t5ai-downloader.js:262-264)
 await this.port.setSignals({ dataTerminalReady: false, requestToSend: true });
 await new Promise(resolve => setTimeout(resolve, 300));
 await this.port.setSignals({ requestToSend: false });

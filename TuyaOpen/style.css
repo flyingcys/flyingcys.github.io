@@ -745,9 +745,8 @@ header p {
 
 .flash-controls {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 5px !important;
-    column-gap: 5px !important;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
     align-items: start !important;
     margin-bottom: 20px;
 }
@@ -765,22 +764,16 @@ header p {
     height: auto;
 }
 
-/* 目标设备区域添加上边距，与ESP32地址组的标签对齐 */
+/* 目标设备区域样式调整 */
 .flash-controls > .config-group:first-child {
-    padding-top: 16px;
-    margin-right: -15px !important;
+    padding-top: 0;
+    margin-right: 0;
 }
 
-/* 进一步缩小间距 */
-.flash-header .flash-controls {
-    gap: 5px !important;
-    grid-column-gap: 5px !important;
-}
-
-/* 特别处理ESP32地址组，确保标签对齐并缩小间距 */
+/* ESP32地址组样式调整 */
 .flash-controls .esp32-address-group {
     align-self: start;
-    margin-left: -10px !important;
+    margin-left: 0;
 }
 
 .flash-controls .esp32-address-group label {
@@ -795,22 +788,20 @@ header p {
     min-width: 100px !important;
 }
 
-/* 直接设置两个区域的间距 - 调整到合适大小 */
+/* ESP32地址组间距调整 */
 #esp32AddressGroup {
-    margin-left: -8px !important;
-    padding-left: 8px !important;
+    margin-left: 0;
+    padding-left: 0;
 }
 
-/* 设置合适的flash-controls间距 */
+/* flash-controls间距设置 */
 div.flash-controls {
-    gap: 8px !important;
-    column-gap: 8px !important;
+    gap: 15px !important;
 }
 
 .flash-panel .flash-header .flash-controls {
-    gap: 8px !important;
-    column-gap: 8px !important;
-    grid-template-columns: 1fr 1fr !important;
+    gap: 15px !important;
+    grid-template-columns: 1fr !important;
     display: grid !important;
 }
 
@@ -826,10 +817,10 @@ div.flash-controls {
     opacity: 0;
     display: flex;
     flex-direction: column;
-    background: rgba(79, 70, 229, 0.05);
-    border: 2px solid rgba(79, 70, 229, 0.15);
-    border-radius: 8px;
-    padding: 16px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
     transition: all 0.3s ease;
     position: relative;
     margin-top: 0;
@@ -859,15 +850,15 @@ div.flash-controls {
 */
 
 .esp32-address-group label {
-    color: #4f46e5;
+    color: #555;
     font-weight: 600;
     font-size: 0.9em;
     margin-bottom: 8px;
 }
 
 .esp32-address-group select {
-    border-color: rgba(79, 70, 229, 0.3);
-    background: rgba(255, 255, 255, 0.9);
+    border-color: #e2e8f0;
+    background: white;
 }
 
 .esp32-address-group select:focus {
@@ -880,9 +871,9 @@ div.flash-controls {
     display: none;
     margin-top: 12px;
     padding: 10px 12px;
-    border: 2px solid rgba(79, 70, 229, 0.3);
+    border: 2px solid #e2e8f0;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.9);
+    background: white;
     font-size: 14px;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     transition: all 0.3s ease;

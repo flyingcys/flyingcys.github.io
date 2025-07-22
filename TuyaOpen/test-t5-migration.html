@@ -22,7 +22,7 @@
 
     <!-- 加载依赖脚本 -->
     <script src="downloaders/shared/base-downloader.js"></script>
-    <script src="downloaders/t5/t5ai-downloader.js"></script>
+    <script src="downloaders/t5/t5ai/t5ai-downloader.js"></script>
     <script src="downloaders/shared/downloader-manager.js"></script>
 
     <script>
@@ -113,7 +113,7 @@
                             addTestResult('错误: T5AI配置的downloaderClass不正确: ' + t5aiConfig.downloaderClass, 'error');
                         }
 
-                        if (t5aiConfig.scriptPath === './downloaders/t5/t5ai-downloader.js') {
+                        if (t5aiConfig.scriptPath === './downloaders/t5/t5ai/t5ai-downloader.js') {
                             addTestResult('✓ T5AI配置的scriptPath正确', 'success');
                         } else {
                             addTestResult('错误: T5AI配置的scriptPath不正确: ' + t5aiConfig.scriptPath, 'error');

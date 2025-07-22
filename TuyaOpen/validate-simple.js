@@ -12,7 +12,7 @@ console.log('🚀 T5AI下载器迁移简化验证\n');
 console.log('📁 文件检查:');
 const files = [
     './downloaders/shared/base-downloader.js',
-    './downloaders/t5/t5ai-downloader.js',
+    './downloaders/t5/t5ai/t5ai-downloader.js',
     './downloaders/shared/downloader-manager.js'
 ];
 
@@ -101,7 +101,7 @@ try {
         console.log('❌ 配置中未使用T5DownloaderV2类名');
     }
     
-    if (managerContent.includes('./downloaders/t5/t5ai-downloader.js')) {
+    if (managerContent.includes('./downloaders/t5/t5ai/t5ai-downloader.js')) {
         console.log('✅ 配置中使用正确的脚本路径');
     } else {
         console.log('❌ 配置中脚本路径不正确');
