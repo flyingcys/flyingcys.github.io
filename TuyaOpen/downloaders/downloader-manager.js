@@ -10,35 +10,35 @@ class DownloaderManager {
                 displayName: 'T5AI',
                 downloader: 'T5Downloader',
                 order: 1,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/index.js',
                 downloaderClass: 'T5Downloader'
             },
             T3: { 
                 displayName: 'T3',
                 downloader: 'T5Downloader',
                 order: 2,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/index.js',
                 downloaderClass: 'T5Downloader'
             },
             T2: { 
                 displayName: 'T2',
                 downloader: 'T5Downloader',
                 order: 3,
-                scriptPath: './downloaders/t5ai-downloader.js',
+                scriptPath: './downloaders/t5ai/index.js',
                 downloaderClass: 'T5Downloader'
             },
             BK7231N: { 
                 displayName: 'BK7231N',
                 downloader: 'BK7231NDownloader',
                 order: 4,
-                scriptPath: './downloaders/bk7231n-downloader.js',
+                scriptPath: './downloaders/bk7231n/index.js',
                 downloaderClass: 'BK7231NDownloader'
             },
             LN882H: { 
                 displayName: 'LN882H',
                 downloader: 'LN882HDownloader',
                 order: 5,
-                scriptPath: './downloaders/ln882h-downloader.js',
+                scriptPath: './downloaders/ln882h/index.js',
                 downloaderClass: 'LN882HDownloader'
             },
             'ESP32-Series': { 
@@ -46,7 +46,7 @@ class DownloaderManager {
                 downloader: 'ESP32EsptoolJSWrapper',
                 order: 6,
                 description: '100%使用esptool-js原生功能，支持ESP32全系列芯片自动检测',
-                scriptPath: './downloaders/esp32-esptool-js-wrapper.js',
+                scriptPath: './downloaders/esp32/index.js',
                 downloaderClass: 'ESP32EsptoolJSWrapper'
             }
         };
@@ -266,4 +266,4 @@ if (typeof window !== 'undefined') {
 // 导出类
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DownloaderManager;
-} 
+}
