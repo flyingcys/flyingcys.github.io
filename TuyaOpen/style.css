@@ -783,9 +783,9 @@ header p {
 
 /* 目标设备下拉列表样式优化 */
 #deviceSelect {
-    max-width: 140px !important;
-    width: 140px !important;
-    min-width: 100px !important;
+    max-width: 200px !important;
+    width: 200px !important;
+    min-width: 150px !important;
 }
 
 /* ESP32地址组间距调整 */
@@ -859,6 +859,9 @@ div.flash-controls {
 .esp32-address-group select {
     border-color: #e2e8f0;
     background: white;
+    max-width: 200px !important;
+    width: 200px !important;
+    min-width: 150px !important;
 }
 
 .esp32-address-group select:focus {
@@ -879,6 +882,11 @@ div.flash-controls {
     transition: all 0.3s ease;
     min-height: 40px;
     box-sizing: border-box;
+    max-width: 200px !important;
+    width: 200px !important;
+    min-width: 150px !important;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 .custom-address-input.show {
