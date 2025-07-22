@@ -3769,8 +3769,8 @@ class SerialTerminal {
                     const flashOption = Array.from(this.deviceSelect.options).find(option => option.value === savedDevices.flash);
                     if (flashOption) {
                         this.deviceSelect.value = savedDevices.flash;
-                        // 保存当前选择(不需要特殊配置处理)
-                        this.saveTargetDevice('flash', savedDevices.flash);
+                        // 触发change事件以应用设备配置
+                        this.handleFlashTargetDeviceChange();
                         console.log('已恢复固件下载目标设备:', savedDevices.flash);
                     }
                 }
@@ -3789,13 +3789,25 @@ class SerialTerminal {
         
         // 控制ESP32地址组的显示隐藏 - 使用CSS类控制而非display属性
         const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+        const customAddressInput = document.getElementById('customAddressInput');
+        
         if (esp32AddressGroup) {
             if (selectedDevice === 'ESP32-Series') {
                 // 显示ESP32地址选择器 - 添加show类
                 esp32AddressGroup.classList.add('show');
+                
+                // 检查当前ESP32地址选择器的值，如果是custom则显示自定义输入框
+                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
+                if (esp32AddressSelect && esp32AddressSelect.value === 'custom' && customAddressInput) {
+                    customAddressInput.classList.add('show');
+                }
             } else {
                 // 隐藏ESP32地址选择器（T5AI、T3等其他设备） - 移除show类
                 esp32AddressGroup.classList.remove('show');
+                // 同时隐藏自定义地址输入框
+                if (customAddressInput) {
+                    customAddressInput.classList.remove('show');
+                }
             }
         }
         
