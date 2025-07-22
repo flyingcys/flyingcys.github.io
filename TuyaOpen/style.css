@@ -595,6 +595,16 @@ header p {
     font-size: 1.2em;
 }
 
+/* 烧录日志区域标题特殊样式 */
+.flash-log-panel .data-header h3 {
+    color: #dc2626;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-radius: 6px;
+    margin: -5px 0 0 -5px;
+    display: inline-block;
+}
+
 /* 接收数据区域标题特殊样式 */
 .receive-data-panel .data-header h3 {
     color: #1e40af;
@@ -747,8 +757,13 @@ header p {
 }
 
 .flash-header h3 {
-    color: #2d3748;
+    color: #059669;
     font-size: 1.2em;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-radius: 6px;
+    margin: -5px 0 0 -5px;
+    display: inline-block;
 }
 
 .flash-controls {
