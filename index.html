@@ -3,194 +3,1243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工具箱 - Tools</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 60px 40px;
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        h1 {
-            color: #333;
-            font-size: 3em;
-            margin-bottom: 20px;
-            font-weight: 300;
-            letter-spacing: 2px;
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 1.2em;
-            margin-bottom: 50px;
-            font-weight: 300;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .tool-card {
-            background: linear-gradient(145deg, #ffffff, #f0f0f0);
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.5s;
-        }
-
-        .tool-card:hover::before {
-            left: 100%;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            border-color: #667eea;
-        }
-
-        .tool-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        /* 为扳手图标添加阴影效果，让其看起来更深 */
-        .wrench-icon {
-            text-shadow: 0 0 0 #333, 0 0 0 #333, 0 0 0 #333;
-            color: #555;
-        }
-
-        .tool-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .tool-description {
-            color: #666;
-            font-size: 1em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .tool-link {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
-        }
-
-        .tool-link:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .footer {
-            margin-top: 50px;
-            color: #888;
-            font-size: 0.9em;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 40px 20px;
-            }
-            
-            h1 {
-                font-size: 2.5em;
-            }
-            
-            .tools-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .tool-card {
-                padding: 30px 20px;
-            }
-        }
-    </style>
+    <title data-i18n="title">TuyaOpen串口工具</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 多语言系统将在页面底部加载 -->
 </head>
 <body>
     <div class="container">
-        <h1>工具箱</h1>
-        <p class="subtitle">实用工具集合 - 提升您的工作效率</p>
-        
-        <div class="tools-grid">
-            <div class="tool-card">
-                <div class="tool-icon">🎵</div>
-                <h2 class="tool-title">MP3 转换工具</h2>
-                <p class="tool-description">
-                    将MP3文件转换为C语言数组，
-                    方便嵌入式开发使用，支持在线转换，无需安装额外软件。
-                </p>
-                <a href="mp3_converter/index.html" class="tool-link">
-                    打开工具 →
-                </a>
-            </div>
-            
-            <div class="tool-card">
-                <div class="tool-icon wrench-icon">🛠️</div>
-                <h2 class="tool-title">Web 串口工具</h2>
-                <p class="tool-description">
-                    基于 Web Serial API 的串口通信工具，
-                    支持设备调试、固件烧录等功能，无需安装额外软件。
-                </p>
-                <a href="web_serial/index.html" class="tool-link">
-                    打开工具 →
-                </a>
+        <!-- Chrome浏览器要求提醒 -->
+        <div class="browser-warning" id="browserWarning" style="display: none;">
+            <div class="warning-content">
+                <span class="warning-icon">⚠️</span>
+                <span class="warning-text" data-i18n="browser_requirement">此工具需要Chrome内核浏览器支持，其他浏览器无法正常工作。请使用Chrome、Edge或其他基于Chromium的浏览器。</span>
+                <button class="warning-close" onclick="document.getElementById('browserWarning').style.display='none'">✕</button>
             </div>
         </div>
-        
-        <div class="footer">
-            <p>选择上方工具开始使用 | 所有工具均可在浏览器中直接运行</p>
+
+        <header>
+            <div class="header-top">
+                <div class="language-switcher">
+                    <div class="lang-dropdown" id="langDropdown">
+                        <button class="lang-dropdown-btn" id="langDropdownBtn" title="切换语言 / Switch Language">
+                            <span class="lang-flag" id="currentLangFlag">🇨🇳</span>
+                            <span class="lang-name" id="currentLangName">简体中文</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="lang-dropdown-menu" id="langDropdownMenu">
+                            <div class="lang-option" data-lang="zh">
+                                <span class="lang-flag">🇨🇳</span>
+                                <span class="lang-name">简体中文</span>
+                            </div>
+                            <div class="lang-option" data-lang="zh-tw">
+                                <span class="lang-flag">🇹🇼</span>
+                                <span class="lang-name">繁體中文</span>
+                            </div>
+                            <div class="lang-option" data-lang="en">
+                                <span class="lang-flag">🇺🇸</span>
+                                <span class="lang-name">English</span>
+                            </div>
+                            <div class="lang-option" data-lang="fr">
+                                <span class="lang-flag">🇫🇷</span>
+                                <span class="lang-name">Français</span>
+                            </div>
+                            <div class="lang-option" data-lang="de">
+                                <span class="lang-flag">🇩🇪</span>
+                                <span class="lang-name">Deutsch</span>
+                            </div>
+                            <div class="lang-option" data-lang="es">
+                                <span class="lang-flag">🇪🇸</span>
+                                <span class="lang-name">Español</span>
+                            </div>
+                            <div class="lang-option" data-lang="ja">
+                                <span class="lang-flag">🇯🇵</span>
+                                <span class="lang-name">日本語</span>
+                            </div>
+                            <div class="lang-option" data-lang="ko">
+                                <span class="lang-flag">🇰🇷</span>
+                                <span class="lang-name">한국어</span>
+                            </div>
+                            <div class="lang-option" data-lang="ru">
+                                <span class="lang-flag">🇷🇺</span>
+                                <span class="lang-name">Русский</span>
+                            </div>
+                            <div class="lang-option" data-lang="pt">
+                                <span class="lang-flag">🇵🇹</span>
+                                <span class="lang-name">Português</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 data-i18n="title">TuyaOpen串口工具</h1>
+            <p data-i18n="subtitle">基于Chrome Web Serial API的一站式开发者工具</p>
+        </header>
+
+        <!-- Tab导航 -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="serial" data-i18n="tab_serial">📡 串口调试</button>
+            <button class="tab-btn" data-tab="flash" data-i18n="tab_flash">💾 固件烧录</button>
+            <button class="tab-btn" data-tab="tuyaauth" data-i18n="tab_tuya_auth">🔐 TuyaOpen授权</button>
+        </div>
+
+        <!-- Tab内容区域 -->
+        <div class="tab-content">
+            <!-- 串口调试Tab -->
+            <div id="serialTab" class="tab-panel active">
+                <!-- 串口调试控制面板 -->
+                <div class="control-panel">
+                    <div class="control-header">
+                        <h3 data-i18n="control_title">🔧 串口连接控制</h3>
+                        <div class="control-header-right" id="serialTargetDeviceContainer">
+                            <div class="config-group">
+                                <label for="serialTargetDevice" data-i18n="serial_target_device">目标设备:</label>
+                                <select id="serialTargetDevice">
+                                    <option value="custom" selected data-i18n="custom_device">自定义</option>
+                                    <option value="T5AI">T5AI</option>
+                                    <option value="T3">T3</option>
+                                    <option value="T2">T2</option>
+                                    <option value="ESP32-Series">ESP32-Series</option>
+                                    <option value="BK7231N">BK7231N</option>
+                                    <option value="LN882H">LN882H</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="serial-config">
+                        <div class="config-group">
+                            <label for="baudRate" data-i18n="baud_rate">波特率:</label>
+                            <select id="baudRate">
+                                <option value="9600">9600</option>
+                                <option value="19200">19200</option>
+                                <option value="38400">38400</option>
+                                <option value="57600">57600</option>
+                                <option value="115200" selected>115200</option>
+                                <option value="230400">230400</option>
+                                <option value="460800">460800</option>
+                                <option value="921600">921600</option>
+                                <option value="1500000">1500000</option>
+                                <option value="2000000">2000000</option>
+                                <option value="3000000">3000000</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="dataBits" data-i18n="data_bits">数据位:</label>
+                            <select id="dataBits">
+                                <option value="7">7</option>
+                                <option value="8" selected>8</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="stopBits" data-i18n="stop_bits">停止位:</label>
+                            <select id="stopBits">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="parity" data-i18n="parity">校验位:</label>
+                            <select id="parity">
+                                <option value="none" selected data-i18n="parity_none">无</option>
+                                <option value="even" data-i18n="parity_even">偶校验</option>
+                                <option value="odd" data-i18n="parity_odd">奇校验</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect">连接串口</span>
+                        </button>
+                        <button id="disconnectBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect">断开连接</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="statusDot"></span>
+                            <span id="statusText" data-i18n="status_disconnected">未连接</span>
+                        </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据接收显示区域 -->
+                <div class="receive-data-panel">
+                    <div class="data-header">
+                        <h3 data-i18n="receive_data">📨 接收数据</h3>
+                        <div class="data-controls">
+                            <div class="data-controls-left">
+                                <button id="clearBtn" class="btn btn-small" data-i18n="clear_log">清空日志</button>
+                                <button id="saveBtn" class="btn btn-small" data-i18n="save_log">保存日志</button>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="showTimestamp" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="show_timestamp">显示时间戳</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="autoScroll" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="auto_scroll">自动滚动</span>
+                                </label>
+                            </div>
+                            <div class="data-controls-right">
+                                <button id="fullscreenBtn" class="btn btn-small btn-fullscreen" data-i18n-title="fullscreen">
+                                    <span class="icon">⛶</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-display" id="dataDisplay">
+                        <div class="placeholder" data-i18n="waiting_data">等待串口数据...</div>
+                    </div>
+                    <div class="data-stats">
+                        <span><span data-i18n="received">接收</span>: <span id="rxCount">0</span> <span data-i18n="bytes">字节</span></span>
+                        <span><span data-i18n="sent">发送</span>: <span id="txCount">0</span> <span data-i18n="bytes">字节</span></span>
+                    </div>
+                </div>
+
+                <!-- 错误日志分析区域 -->
+                <div class="error-analysis-panel">
+                    <div class="data-header">
+                        <div class="header-title-section">
+                            <h3 data-i18n="error_analysis">错误日志分析</h3>
+                        </div>
+                        <div class="data-controls">
+                            <div class="data-controls-left">
+                                <button id="clearErrorAnalysisBtn" class="btn btn-small btn-secondary" data-i18n="clear_analysis">清空分析（重置检测）</button>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="autoErrorAnalysis" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="auto_analysis">自动分析</span>
+                                </label>
+                                <button id="testErrorAnalysisBtn" class="btn btn-small btn-debug" data-i18n="test_error_analysis">测试错误分析</button>
+                            </div>
+                            <div class="data-controls-right">
+                                <button id="toggleErrorAnalysisBtn" class="btn btn-small btn-toggle collapsed" data-i18n-title="toggle_error_analysis" title="展开/折叠错误分析">
+                                    <span class="toggle-icon">▼</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="error-analysis-content collapsed" id="errorAnalysisContent">
+                        <div class="error-analysis-display" id="errorAnalysisDisplay">
+                            <div class="placeholder" data-i18n="no_errors_detected">暂未检测到错误...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 发送数据区域 -->
+                <div class="send-panel">
+                    <div class="send-header">
+                        <h3 data-i18n="send_data">📤 发送数据</h3>
+                        <div class="send-controls">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="hexMode">
+                                <span class="checkmark"></span>
+                                <span data-i18n="hex_mode">HEX模式</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="addNewline" checked>
+                                <span class="checkmark"></span>
+                                <span data-i18n="add_newline">添加换行符</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="send-input-area">
+                        <div class="input-container">
+                            <textarea 
+                                id="sendInput" 
+                                data-i18n-placeholder="input_placeholder"
+                                placeholder="输入要发送的数据..."
+                                rows="3"
+                            ></textarea>
+                            <button id="sendBtn" class="btn btn-success" disabled>
+                                <span class="icon">📤</span>
+                                <span data-i18n="send">发送</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 快捷发送按钮 -->
+                    <div class="quick-send">
+                        <div class="quick-send-header">
+                            <h4 data-i18n="quick_send">快捷发送:</h4>
+                            <button id="manageQuickBtn" class="btn btn-small btn-manage">
+                                <span class="icon">⚙️</span>
+                                <span data-i18n="manage">管理</span>
+                            </button>
+                        </div>
+                        <div class="quick-buttons" id="quickButtons">
+                            <!-- 快捷按钮将通过JavaScript动态生成 -->
+                        </div>
+                        <div class="no-quick-commands" id="noQuickCommands" style="display: none;">
+                            <p data-i18n="no_quick_commands">暂无快捷命令，点击"管理"按钮添加</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试版本说明 -->
+                <div class="beta-notice">
+                    <div class="beta-content">
+                        <span class="beta-icon">🧪</span>
+                        <span class="beta-text" data-i18n="beta_notice">如在使用过程中遇到问题，请通过提交issue到</span>
+                        <a href="https://github.com/Tuya/TuyaOpen-Tools" target="_blank" class="beta-link" data-i18n="repository_link">TuyaOpen-Tools 仓库</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 固件烧录Tab -->
+            <div id="flashTab" class="tab-panel">
+                <!-- 固件烧录串口控制面板 -->
+                <div class="control-panel">
+                    <div class="control-header">
+                        <h3 data-i18n="control_title">🔧 串口连接控制</h3>
+                    </div>
+
+                    <div class="serial-config">
+                        <div class="config-group">
+                            <label for="flashBaudRate" data-i18n="baud_rate">波特率:</label>
+                            <select id="flashBaudRate">
+                                <option value="115200">115200</option>
+                                <option value="230400">230400</option>
+                                <option value="460800">460800</option>
+                                <option value="921600" selected>921600</option>
+                                <option value="1500000">1500000</option>
+                                <option value="2000000">2000000</option>
+                                <option value="3000000">3000000</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="flashDataBits" data-i18n="data_bits">数据位:</label>
+                            <select id="flashDataBits">
+                                <option value="7">7</option>
+                                <option value="8" selected>8</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="flashStopBits" data-i18n="stop_bits">停止位:</label>
+                            <select id="flashStopBits">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="flashParity" data-i18n="parity">校验位:</label>
+                            <select id="flashParity">
+                                <option value="none" selected data-i18n="parity_none">无</option>
+                                <option value="even" data-i18n="parity_even">偶校验</option>
+                                <option value="odd" data-i18n="parity_odd">奇校验</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectFlashBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect">连接串口</span>
+                        </button>
+                        <button id="disconnectFlashBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect">断开连接</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="flashStatusDot"></span>
+                            <span id="flashStatusText" data-i18n="status_disconnected">未连接</span>
+                        </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 固件选择区域 -->
+                <div class="flash-panel">
+                    <div class="flash-header">
+                        <h3 data-i18n="flash_config">💾 固件烧录配置</h3>
+                    </div>
+                    
+                    <div class="flash-controls">
+                        <div class="config-group">
+                            <label for="deviceSelect" data-i18n="target_device">目标设备:</label>
+                            <select id="deviceSelect">
+                                <option value="T5AI">T5AI</option>
+                                <option value="T3">T3</option>
+                                <option value="ESP32-Series" selected>ESP32-Series</option>
+                                <!-- 暂时隐藏以下设备选项，代码保留以备后用 -->
+                                <!-- <option value="T2">T2</option> -->
+                                <!-- <option value="BK7231N">BK7231N</option> -->
+                                <!-- <option value="LN882H">LN882H</option> -->
+                            </select>
+                        </div>
+                        <div class="config-group esp32-address-group" id="esp32AddressGroup">
+                            <label for="esp32FlashAddress" data-i18n="esp32_flash_address">ESP32 Flash 地址:</label>
+                            <div class="address-controls">
+                                <select id="esp32FlashAddress">
+                                    <option value="0x0000" selected data-i18n="complete_firmware">0x0000 (完整固件包)</option>
+                                    <option value="custom" data-i18n="custom_address">自定义地址...</option>
+                                </select>
+                                <input type="text" id="customAddressInput" class="custom-address-input" placeholder="0x10000" maxlength="10" data-i18n-placeholder="custom_address_placeholder">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-select-area">
+                        <div class="file-input-container">
+                            <input type="file" id="binFileInput" accept=".bin" style="display: none;">
+                            <button id="selectFileBtn" class="btn btn-primary">
+                                <span class="icon">📁</span>
+                                <span data-i18n="select_file">选择固件文件</span>
+                            </button>
+                            <span id="selectedFileName" class="file-name" data-i18n="no_file_selected">未选择文件</span>
+                        </div>
+                        <div class="file-info" id="fileInfo" style="display: none;">
+                            <span><span data-i18n="file_size">文件大小</span>: <span id="fileSize">0</span> <span data-i18n="bytes">字节</span></span>
+                        </div>
+                    </div>
+
+                    <div class="download-area">
+                        <button id="downloadBtn" class="btn btn-download" disabled>
+                            <span class="icon">⬇️</span>
+                            <span data-i18n="start_download">开始烧录</span>
+                        </button>
+                        <button id="stopDownloadBtn" class="btn btn-secondary" disabled>
+                            <span class="icon">⏹️</span>
+                            <span data-i18n="stop_download">停止烧录</span>
+                        </button>
+                    </div>
+
+                    <div class="flash-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="autoDisconnectAfterFlash">
+                            <span class="checkmark"></span>
+                            <span data-i18n="auto_disconnect_after_flash">完成烧录后自动断开串口</span>
+                        </label>
+                    </div>
+
+                    <div class="progress-area" id="progressArea" style="display: none;">
+                        <div class="progress-info">
+                            <span id="progressText" data-i18n="preparing">准备中...</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span><span data-i18n="downloaded">已烧录</span>: <span id="downloadedBytes">0</span> / <span id="totalBytes">0</span> <span data-i18n="bytes">字节</span></span>
+                            <span id="downloadSpeed"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 烧录日志显示区域 -->
+                <div class="flash-log-panel">
+                    <div class="data-header">
+                        <h3 data-i18n="download_log">📋 烧录日志</h3>
+                        <div class="data-controls">
+                            <!-- 调试控制区域 -->
+                            <div class="debug-controls-inline">
+                                <label class="checkbox-container debug-toggle">
+                                    <input type="checkbox" id="flashDebugMode">
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="debug_mode">🔧 调试模式</span>
+                                </label>
+                            </div>
+                            <button id="clearFlashLogBtn" class="btn btn-small" data-i18n="clear_log">清空日志</button>
+                            <button id="saveFlashLogBtn" class="btn btn-small" data-i18n="save_log">保存日志</button>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="flashAutoScroll" checked>
+                                <span class="checkmark"></span>
+                                <span data-i18n="auto_scroll">自动滚动</span>
+                            </label>
+                            <button id="flashFullscreenBtn" class="btn btn-small btn-fullscreen" data-i18n-title="fullscreen">
+                                <span class="icon">⛶</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 调试状态显示 -->
+                    <div class="debug-status-bar" id="debugStatusBar">
+                        <div class="debug-status-item">
+                            <span class="debug-label" data-i18n="debug_status">调试状态:</span>
+                            <span class="debug-value" id="debugStatusValue" data-i18n="disabled">禁用</span>
+                        </div>
+                    </div>
+                    
+                    <div class="data-display flash-log-display" id="flashLogDisplay">
+                        <div class="placeholder" data-i18n="waiting_download">等待烧录操作...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TuyaOpen授权Tab -->
+            <div id="tuyaauthTab" class="tab-panel">
+                <!-- TuyaOpen授权串口控制面板 -->
+                <div class="control-panel">
+                    <div class="control-header">
+                        <h3 data-i18n="control_title">🔧 串口连接控制</h3>
+                    </div>
+
+                    <div class="serial-config">
+                        <div class="config-group">
+                            <label for="authBaudRate" data-i18n="baud_rate">波特率:</label>
+                            <select id="authBaudRate" disabled>
+                                <option value="115200" selected>115200</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authDataBits" data-i18n="data_bits">数据位:</label>
+                            <select id="authDataBits" disabled>
+                                <option value="8" selected>8</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authStopBits" data-i18n="stop_bits">停止位:</label>
+                            <select id="authStopBits" disabled>
+                                <option value="1" selected>1</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="authParity" data-i18n="parity">校验位:</label>
+                            <select id="authParity" disabled>
+                                <option value="none" selected data-i18n="parity_none">无</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="connection-controls">
+                        <button id="connectAuthBtn" class="btn btn-primary">
+                            <span class="icon">🔗</span>
+                            <span data-i18n="connect_tuya_auth">连接授权串口</span>
+                        </button>
+                        <button id="disconnectAuthBtn" class="btn btn-secondary" disabled>
+                            <span class="icon"></span>
+                            <span data-i18n="disconnect_tuya_auth">断开授权串口</span>
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="authStatusDot"></span>
+                            <span id="authStatusText" data-i18n="status_disconnected">未连接</span>
+                        </div>
+                        <div class="troubleshooting-link">
+                            <a href="#" class="help-link" onclick="openTroubleshooting(event)">
+                                <span class="icon">❓</span>
+                                <span data-i18n="serial_troubleshooting">串口故障排除</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TuyaOpen授权输入区域 -->
+                <div class="tuya-auth-panel">
+                    <div class="auth-header">
+                        <h3 data-i18n="tuya_auth_title">🔐 TuyaOpen授权码写入</h3>
+                        <p class="auth-subtitle" data-i18n="tuya_auth_subtitle">向设备写入TuyaOpen项目授权信息</p>
+                        <div class="auth-header-right">
+                            <a href="#" class="help-link" onclick="openLicenseGuide(event)">
+                                <span class="icon">📖</span>
+                                <span data-i18n="license_guide">授权码获取指南</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-input-area">
+                        <div class="auth-form">
+                            <div class="auth-form-group">
+                                <label for="uuidInput" data-i18n="uuid_label">UUID (20字符):</label>
+                                <input 
+                                    type="text" 
+                                    id="uuidInput" 
+                                    data-i18n-placeholder="uuid_placeholder"
+                                    placeholder="请输入20字符的UUID..."
+                                    maxlength="20"
+                                    class="auth-input"
+                                />
+                                <div class="input-help">
+                                    <span class="char-count">0/20 字符</span>
+                                </div>
+                            </div>
+                            
+                            <div class="auth-form-group">
+                                <label for="authKeyInput" data-i18n="auth_key_label">AUTH_KEY (32字符):</label>
+                                <input 
+                                    type="text" 
+                                    id="authKeyInput" 
+                                    data-i18n-placeholder="auth_key_placeholder"
+                                    placeholder="请输入32字符的AUTH_KEY..."
+                                    maxlength="32"
+                                    class="auth-input"
+                                />
+                                <div class="input-help">
+                                    <span class="char-count">0/32 字符</span>
+                                </div>
+                            </div>
+                            
+                            <div class="auth-button-area">
+                                <button id="authorizeBtn" class="btn btn-success" disabled>
+                                    <span class="icon">🔐</span>
+                                    <span data-i18n="authorize_btn">写入授权</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据接收显示区域 -->
+                <div class="receive-data-panel">
+                    <div class="data-header">
+                        <h3 data-i18n="receive_data">📨 接收数据</h3>
+                        <div class="data-controls">
+                            <div class="data-controls-left">
+                                <button id="clearAuthBtn" class="btn btn-small" data-i18n="clear_log">清空日志</button>
+                                <button id="saveAuthBtn" class="btn btn-small" data-i18n="save_log">保存日志</button>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="authShowTimestamp" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="show_timestamp">显示时间戳</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="authAutoScroll" checked>
+                                    <span class="checkmark"></span>
+                                    <span data-i18n="auto_scroll">自动滚动</span>
+                                </label>
+                            </div>
+                            <div class="data-controls-right">
+                                <button id="authFullscreenBtn" class="btn btn-small btn-fullscreen" data-i18n-title="fullscreen">
+                                    <span class="icon">⛶</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-display" id="authDataDisplay">
+                        <div class="placeholder" data-i18n="tuya_auth_waiting">等待授权操作...</div>
+                    </div>
+                    <div class="data-stats">
+                        <span><span data-i18n="received">接收</span>: <span id="authRxCount">0</span> <span data-i18n="bytes">字节</span></span>
+                        <span><span data-i18n="sent">发送</span>: <span id="authTxCount">0</span> <span data-i18n="bytes">字节</span></span>
+                    </div>
+                </div>
+
+                <!-- 重要提示区域 -->
+                <div class="tuya-auth-notice">
+                    <div class="notice-content">
+                        <h4 data-i18n="tuya_auth_notice_title">⚠️ 重要提示</h4>
+                        <div class="notice-list">
+                            <p data-i18n="tuya_auth_notice_content">当前授权功能只适用于TuyaOpen工程的授权码写入，非TuyaOpen工程无法使用。</p>
+                            <p data-i18n="tuya_auth_additional_info">请确保设备已进入授权模式，并正确连接串口后再进行授权操作。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试版本说明 -->
+                <div class="beta-notice">
+                    <div class="beta-content">
+                        <span class="beta-icon">🧪</span>
+                        <span class="beta-text" data-i18n="beta_notice">当前功能属于测试版本，遇到问题请通过提交issue到</span>
+                        <a href="https://github.com/Tuya-Community/TuyaOpen-Tools" target="_blank" class="beta-link" data-i18n="repository_link">TuyaOpen-Tools 仓库</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- 系统信息 -->
+    <div class="system-info-bottom">
+        <p class="system-info-text" id="systemInfoSubtitle">加载中...</p>
+    </div>
+
+    <!-- 页脚版权信息 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="version">v0.2</span>
+                <span class="separator">|</span>
+                <span data-i18n="powered_by">基于</span> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API" target="_blank">Web Serial API</a>
+            </div>
+            <div class="footer-right">
+                <span>&copy; 2025 <a href="https://www.tuyaopen.ai/" target="_blank">TuyaOpen.ai</a></span>
+                <span class="separator">|</span>
+                <span data-i18n="all_rights_reserved">保留所有权利</span>
+            </div>
+        </div>
+        
+        <!-- TuyaOpen项目相关链接 -->
+        <div class="project-links">
+            <div class="project-info">
+                <span class="project-title" data-i18n="project_info">这个项目是TuyaOpen的一部分，相关项目包括：</span>
+            </div>
+            <div class="project-list">
+                <a href="https://github.com/tuya/TuyaOpen" target="_blank" class="project-link">
+                    <span class="link-icon">🏗️</span>
+                    <span data-i18n="tuya_open_project">TuyaOpen</span>
+                </a>
+                <a href="https://github.com/tuya/arduino-TuyaOpen" target="_blank" class="project-link">
+                    <span class="link-icon">🤖</span>
+                    <span data-i18n="arduino_project">Arduino-TuyaOpen</span>
+                </a>
+                <a href="https://github.com/tuya/luanode-TuyaOpen" target="_blank" class="project-link">
+                    <span class="link-icon">🌙</span>
+                    <span data-i18n="lua_project">Luanode-TuyaOpen</span>
+                </a>
+                <a href="https://github.com/Tuya-Community/TuyaOpen-Tools" target="_blank" class="project-link">
+                    <span class="link-icon">🔧</span>
+                    <span data-i18n="tools_project">TuyaOpen-Tools</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 全屏显示覆盖层 -->
+    <div id="fullscreenOverlay" class="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <h3 data-i18n="receive_data">📨 接收数据</h3>
+            <button id="fullscreenCloseBtn" class="fullscreen-close" data-i18n-title="exit_fullscreen">
+                <span class="icon">✕</span>
+            </button>
+        </div>
+        <div id="fullscreenDataDisplay" class="fullscreen-data-display">
+            <div class="placeholder" data-i18n="waiting_data">等待串口数据...</div>
+        </div>
+    </div>
+
+    <!-- 下载日志全屏显示覆盖层 -->
+    <div id="flashFullscreenOverlay" class="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <h3 data-i18n="download_log">📋 下载日志</h3>
+            <button id="flashFullscreenCloseBtn" class="fullscreen-close" data-i18n-title="exit_fullscreen">
+                <span class="icon">✕</span>
+            </button>
+        </div>
+        <div id="flashFullscreenDataDisplay" class="fullscreen-data-display">
+            <div class="placeholder" data-i18n="waiting_download">等待下载操作...</div>
+        </div>
+    </div>
+
+    <!-- 授权日志全屏显示覆盖层 -->
+    <div id="authFullscreenOverlay" class="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <h3 data-i18n="receive_data">📨 接收数据</h3>
+            <button id="authFullscreenCloseBtn" class="fullscreen-close" data-i18n-title="exit_fullscreen">
+                <span class="icon">✕</span>
+            </button>
+        </div>
+        <div id="authFullscreenDataDisplay" class="fullscreen-data-display">
+            <div class="placeholder" data-i18n="tuya_auth_waiting">等待授权操作...</div>
+        </div>
+    </div>
+
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 data-i18n="error">❌ 错误</h3>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <!-- 快捷发送管理模态框 -->
+    <div id="quickCommandModal" class="modal">
+        <div class="modal-content quick-command-modal">
+            <span class="close">&times;</span>
+            <h3 data-i18n="quick_send_management">⚙️ 快捷发送管理</h3>
+            
+            <!-- 添加新命令 -->
+            <div class="add-command-section">
+                <h4 data-i18n="add_new_command">添加新命令</h4>
+                <div class="command-form">
+                    <div class="form-group">
+                        <label for="commandName" data-i18n="display_name">显示名称:</label>
+                        <input type="text" id="commandName" data-i18n-placeholder="name_example" placeholder="例如: 复位" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="commandValue" data-i18n="send_content">发送内容:</label>
+                        <input type="text" id="commandValue" data-i18n-placeholder="content_example" placeholder="例如: AT+RST">
+                    </div>
+                    <button id="addCommandBtn" class="btn btn-primary btn-small">
+                        <span class="icon">➕</span>
+                        <span data-i18n="add">添加</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 命令列表 -->
+            <div class="command-list-section">
+                <h4 data-i18n="existing_commands">已有命令</h4>
+                <div class="command-list" id="commandList">
+                    <!-- 命令项将通过JavaScript动态生成 -->
+                </div>
+                <div class="no-commands" id="noCommands" style="display: none;">
+                    <p data-i18n="no_commands">暂无快捷命令</p>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="resetDefaultBtn" class="btn btn-secondary btn-small">
+                    <span class="icon">🔄</span>
+                    <span data-i18n="reset_default">恢复默认</span>
+                </button>
+                <button id="closeQuickModalBtn" class="btn btn-primary" data-i18n="close">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 多语言配置文件 -->
+    <script src="i18n/loader.js"></script>
+    
+    <!-- 主要功能脚本 -->
+    <script src="script-clean.js"></script>
+    
+    <!-- ESP32 esptool-js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="third_party/esptool-js-umd.bundle.js"></script>
+    
+    <!-- 下载器脚本 -->
+    <script src="flash-downloader.js"></script>
+    <script src="downloaders/base-downloader.js"></script>
+    <script src="downloaders/esp32/esp32-esptool-js-wrapper.js"></script>
+    <script src="downloaders/downloader-manager.js"></script>
+    
+    <!-- 初始化多语言系统和事件处理 -->
+    <script>
+        // 打开故障排除页面，传递当前语言参数
+        function openTroubleshooting(event) {
+            event.preventDefault();
+            const currentLang = localStorage.getItem('selectedLanguage') || 'zh';
+            window.open(`troubleshooting.html?lang=${currentLang}`, '_blank');
+        }
+        
+        // 打开授权码获取指南页面，传递当前语言参数
+        function openLicenseGuide(event) {
+            event.preventDefault();
+            const currentLang = localStorage.getItem('selectedLanguage') || 'zh';
+            window.open(`authorization.html?lang=${currentLang}`, '_blank');
+        }
+        
+        // 更新语言显示
+        function updateLanguageDisplay(lang) {
+            const flagElement = document.getElementById('currentLangFlag');
+            const nameElement = document.getElementById('currentLangName');
+            
+            if (flagElement && nameElement) {
+                flagElement.textContent = getFlagEmoji(lang);
+                
+                // 获取语言名称
+                const langNames = {
+                    'zh': '简体中文',
+                    'zh-tw': '繁體中文', 
+                    'en': 'English',
+                    'fr': 'Français',
+                    'de': 'Deutsch',
+                    'es': 'Español',
+                    'ja': '日本語',
+                    'ko': '한국어',
+                    'ru': 'Русский',
+                    'pt': 'Português'
+                };
+                nameElement.textContent = langNames[lang] || '简体中文';
+            }
+            
+            // 更新语言选项的激活状态
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        function getFlagEmoji(lang) {
+            const flagMap = {
+                'zh': '🇨🇳',
+                'zh-tw': '🇹🇼',
+                'en': '🇺🇸',
+                'fr': '🇫🇷',
+                'de': '🇩🇪',
+                'es': '🇪🇸',
+                'ja': '🇯🇵',
+                'ko': '🇰🇷',
+                'ru': '🇷🇺',
+                'pt': '🇵🇹'
+            };
+            return flagMap[lang] || '🌐';
+        }
+        
+        // 语言下拉菜单状态
+        let isDropdownOpen = false;
+        
+        // 切换下拉菜单
+        function toggleLanguageDropdown() {
+            const langDropdown = document.getElementById('langDropdown');
+            const langDropdownMenu = document.getElementById('langDropdownMenu');
+            
+            if (!langDropdown || !langDropdownMenu) {
+                console.error('语言下拉菜单元素未找到');
+                return;
+            }
+            
+            isDropdownOpen = !isDropdownOpen;
+            
+            if (isDropdownOpen) {
+                // 打开菜单
+                langDropdown.classList.add('active');
+                console.log('语言下拉菜单已打开');
+            } else {
+                // 关闭菜单
+                langDropdown.classList.remove('active');
+                console.log('语言下拉菜单已关闭');
+            }
+        }
+        
+        // 关闭下拉菜单
+        function closeLanguageDropdown() {
+            const langDropdown = document.getElementById('langDropdown');
+            if (langDropdown) {
+                langDropdown.classList.remove('active');
+                isDropdownOpen = false;
+                console.log('语言下拉菜单已关闭');
+            }
+        }
+        
+        // 选择语言
+        function selectLanguage(langCode) {
+            console.log('选择语言:', langCode);
+            
+            // 关闭下拉菜单
+            closeLanguageDropdown();
+            
+            // 切换语言
+            if (window.i18nLoader && typeof window.i18nLoader.setLanguage === 'function') {
+                window.i18nLoader.setLanguage(langCode).then(() => {
+                    console.log('语言切换成功:', langCode);
+                }).catch(error => {
+                    console.error('语言切换失败:', error);
+                });
+            } else {
+                console.error('i18nLoader未初始化或setLanguage方法不存在');
+            }
+        }
+        
+        // 初始化语言下拉菜单
+        function initLanguageDropdown() {
+            console.log('开始初始化语言下拉菜单...');
+            
+            const langDropdownBtn = document.getElementById('langDropdownBtn');
+            const langDropdown = document.getElementById('langDropdown');
+            
+            if (!langDropdownBtn || !langDropdown) {
+                console.error('语言下拉菜单元素未找到:', {
+                    btn: !!langDropdownBtn,
+                    dropdown: !!langDropdown
+                });
+                return;
+            }
+            
+            // 移除可能存在的旧事件监听器
+            langDropdownBtn.replaceWith(langDropdownBtn.cloneNode(true));
+            const newBtn = document.getElementById('langDropdownBtn');
+            
+            // 添加按钮点击事件
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('语言下拉按钮被点击');
+                toggleLanguageDropdown();
+            });
+            
+            // 为每个语言选项添加点击事件
+            document.querySelectorAll('.lang-option').forEach(option => {
+                // 移除旧的事件监听器
+                const newOption = option.cloneNode(true);
+                option.parentNode.replaceChild(newOption, option);
+                
+                // 添加新的事件监听器
+                newOption.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const selectedLang = this.getAttribute('data-lang');
+                    selectLanguage(selectedLang);
+                });
+            });
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function(event) {
+                const langDropdown = document.getElementById('langDropdown');
+                if (langDropdown && !langDropdown.contains(event.target)) {
+                    closeLanguageDropdown();
+                }
+            });
+            
+            console.log('语言下拉菜单初始化完成');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('页面DOM加载完成，开始初始化...');
+            
+            try {
+                // 先初始化多语言系统
+                if (window.i18nLoader) {
+                    console.log('开始初始化多语言系统...');
+                    await window.i18nLoader.init();
+                    console.log('多语言系统初始化完成');
+                } else {
+                    console.error('i18nLoader未找到');
+                }
+                
+                // 等待一小段时间确保DOM完全准备好
+                setTimeout(() => {
+                    // 初始化语言下拉菜单
+                    initLanguageDropdown();
+                }, 100);
+                
+                // 然后初始化串口终端（如果还没有初始化的话）
+                if (!window.serialTerminal && typeof SerialTerminal !== 'undefined') {
+                    window.serialTerminal = new SerialTerminal();
+                    console.log('串口终端初始化完成');
+                    
+                    // 初始化后立即显示系统信息
+                    window.serialTerminal.updateSystemInfoDisplay();
+                }
+            } catch (error) {
+                console.error('系统初始化失败:', error);
+            }
+        });
+        
+        // 监听多语言系统初始化完成事件
+        window.addEventListener('i18nReady', function(event) {
+            const currentLang = event.detail.language;
+            updateLanguageDisplay(currentLang);
+            console.log('主页多语言系统就绪，当前语言:', currentLang);
+        });
+        
+        // 监听语言变更事件
+        window.addEventListener('languageChanged', function(event) {
+            const newLang = event.detail.language;
+            updateLanguageDisplay(newLang);
+            console.log('主页语言已切换到:', newLang);
+        });
+        
+        // ESP32专用固件下载管理器
+        // 不影响现有T5AI/T3逻辑，专注于ESP32优化
+        class ESP32FlashManager {
+            constructor() {
+                this.downloader = null;
+                this.isConnected = false;
+                this.chipInfo = null;
+                this.serialPort = null;
+                this.isDownloading = false;
+                
+                // 只在固件下载Tab页面初始化
+                if (document.getElementById('flashTab')) {
+                    this.initializeESP32Events();
+                }
+            }
+            
+            initializeESP32Events() {
+                // 只处理ESP32相关的事件，不影响T5AI/T3
+                const deviceSelect = document.getElementById('deviceSelect');
+                if (!deviceSelect) {
+                    console.error('deviceSelect element not found');
+                    return;
+                }
+                
+                // 监听设备选择变化
+                deviceSelect.addEventListener('change', (e) => {
+                    if (this.isESP32Device(e.target.value)) {
+                        this.enableESP32Features();
+                    } else {
+                        this.disableESP32Features();
+                    }
+                });
+                
+                // ESP32地址选择事件
+                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
+                const customAddressInput = document.getElementById('customAddressInput');
+                
+                if (esp32AddressSelect) {
+                    esp32AddressSelect.addEventListener('change', (e) => {
+                        if (e.target.value === 'custom') {
+                            if (customAddressInput) {
+                                customAddressInput.classList.add('show');
+                                customAddressInput.focus();
+                            }
+                        } else {
+                            if (customAddressInput) {
+                                customAddressInput.classList.remove('show');
+                            }
+                        }
+                        this.logESP32(`ESP32下载地址已选择: ${this.getESP32FlashAddress()}`, 'info');
+                    });
+                    
+                    // 自定义地址输入验证
+                    if (customAddressInput) {
+                        customAddressInput.addEventListener('input', (e) => {
+                            let value = e.target.value.trim();
+                            // 自动添加0x前缀
+                            if (value && !value.startsWith('0x')) {
+                                value = '0x' + value;
+                                e.target.value = value;
+                            }
+                            // 验证十六进制格式
+                            if (value && !/^0x[0-9a-fA-F]+$/.test(value)) {
+                                e.target.classList.add('error');
+                                e.target.classList.remove('valid');
+                            } else {
+                                e.target.classList.remove('error');
+                                if (value) {
+                                    e.target.classList.add('valid');
+                                } else {
+                                    e.target.classList.remove('valid');
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // 初始状态检查
+                if (this.isESP32Device(deviceSelect.value)) {
+                    this.enableESP32Features();
+                }
+            }
+            
+            isESP32Device(deviceType) {
+                return ['ESP32-Series'].includes(deviceType);
+            }
+            
+            enableESP32Features() {
+                // 显示ESP32地址配置
+                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+                if (esp32AddressGroup) {
+                    esp32AddressGroup.classList.add('show');
+                    
+                    // 强制更新新显示元素的多语言文本
+                    setTimeout(() => {
+                        if (window.i18nLoader) {
+                            window.i18nLoader.updatePageText();
+                        }
+                    }, 50);
+                }
+                this.logESP32(`ESP32设备已选择，下载地址: ${this.getESP32FlashAddress()}`, 'info');
+            }
+            
+            disableESP32Features() {
+                // 隐藏ESP32地址配置
+                const esp32AddressGroup = document.getElementById('esp32AddressGroup');
+                const customAddressInput = document.getElementById('customAddressInput');
+                if (esp32AddressGroup) {
+                    esp32AddressGroup.classList.remove('show');
+                }
+                if (customAddressInput) {
+                    customAddressInput.classList.remove('show');
+                }
+            }
+            
+            getESP32FlashAddress() {
+                const esp32AddressSelect = document.getElementById('esp32FlashAddress');
+                const customAddressInput = document.getElementById('customAddressInput');
+                
+                if (!esp32AddressSelect) {
+                    return 0x10000; // 默认地址
+                }
+                
+                const selectedValue = esp32AddressSelect.value;
+                
+                if (selectedValue === 'custom') {
+                    const customValue = customAddressInput ? customAddressInput.value.trim() : '';
+                    if (customValue && /^0x[0-9a-fA-F]+$/.test(customValue)) {
+                        return parseInt(customValue, 16);
+                    } else {
+                        this.logESP32('⚠️ 自定义地址格式错误，使用默认地址0x10000', 'warning');
+                        return 0x10000;
+                    }
+                } else {
+                    return parseInt(selectedValue, 16);
+                }
+            }
+            
+
+            
+            logESP32(message, type = 'info') {
+                try {
+                    // 只在调试模式下显示详细日志
+                    const debugModeCheckbox = document.getElementById('flashDebugMode');
+                    const debugMode = debugModeCheckbox ? debugModeCheckbox.checked : false;
+                    
+                    if (!debugMode && type === 'debug') {
+                        return; // 非调试模式下不显示debug日志
+                    }
+                    
+                    const logDisplay = document.getElementById('flashLogDisplay');
+                    if (!logDisplay) {
+                        console.log('[ESP32]', message); // 备用日志
+                        return;
+                    }
+                    
+                    const timestamp = new Date().toLocaleTimeString();
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                
+                let icon = '📝';
+                switch (type) {
+                    case 'success': icon = '✅'; break;
+                    case 'error': icon = '❌'; break;
+                    case 'warning': icon = '⚠️'; break;
+                    case 'debug': icon = '🔍'; break;
+                    case 'info': 
+                    default: icon = 'ℹ️'; break;
+                }
+                
+                logEntry.innerHTML = 
+                    '<span class="log-time">[' + timestamp + ']</span>' +
+                    '<span class="log-icon">' + icon + '</span>' +
+                    '<span class="log-message">' + message + '</span>';
+                
+                // 清除占位符
+                if (logDisplay.querySelector('.placeholder')) {
+                    logDisplay.innerHTML = '';
+                }
+                
+                logDisplay.appendChild(logEntry);
+                
+                // 自动滚动
+                const autoScrollCheckbox = document.getElementById('flashAutoScroll');
+                if (autoScrollCheckbox && autoScrollCheckbox.checked) {
+                    logDisplay.scrollTop = logDisplay.scrollHeight;
+                }
+                } catch (error) {
+                    console.error('logESP32 error:', error);
+                    console.log('[ESP32]', message); // 备用日志
+                }
+            }
+        }
+        
+        // 初始化ESP32管理器（不影响现有初始化流程）
+        window.addEventListener('DOMContentLoaded', () => {
+            // 确保esptool-js库加载完成后再初始化ESP32管理器
+            const waitForEsptoolJs = () => {
+                if (typeof window.esptooljs !== 'undefined' && window.esptooljs.ESPLoader) {
+                    if (document.getElementById('flashTab')) {
+                        window.esp32FlashManager = new ESP32FlashManager();
+                        console.log('ESP32固件下载管理器已初始化 (esptool-js已就绪)');
+                    }
+                } else {
+                    // 如果esptool-js还没加载完，等待一段时间再试
+                    setTimeout(waitForEsptoolJs, 100);
+                }
+            };
+            
+            // 延迟启动，确保其他脚本都加载完
+            setTimeout(waitForEsptoolJs, 500);
+        });
+    </script>
 </body>
-</html> 
+</html>
