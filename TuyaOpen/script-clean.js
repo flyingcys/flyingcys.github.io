@@ -908,25 +908,55 @@ class SerialTerminal {
         }
     }
 
-    // 固件下载独立断开连接
+    // 固件下载独立断开连接 - 修复流锁定问题
     async disconnectFlashIndependent() {
         try {
-            // 停止读取
+            console.log('[ESP32-DEBUG] 开始独立断开固件下载连接');
+            
+            // 停止读取 - 加强错误处理
             if (this.flashReader) {
-                await this.flashReader.cancel();
-                await this.flashReader.releaseLock();
+                try {
+                    console.log('[ESP32-DEBUG] 尝试取消flashReader');
+                    await this.flashReader.cancel();
+                    console.log('[ESP32-DEBUG] flashReader取消成功');
+                } catch (e) {
+                    console.log('[ESP32-DEBUG] flashReader取消失败，忽略:', e.message);
+                }
+                
+                try {
+                    console.log('[ESP32-DEBUG] 尝试释放flashReader锁定');
+                    await this.flashReader.releaseLock();
+                    console.log('[ESP32-DEBUG] flashReader锁定释放成功');
+                } catch (e) {
+                    console.log('[ESP32-DEBUG] flashReader锁定释放失败，忽略:', e.message);
+                }
+                
                 this.flashReader = null;
             }
 
-            // 关闭写入器
+            // 关闭写入器 - 加强错误处理
             if (this.flashWriter) {
-                await this.flashWriter.releaseLock();
+                try {
+                    console.log('[ESP32-DEBUG] 尝试释放flashWriter锁定');
+                    await this.flashWriter.releaseLock();
+                    console.log('[ESP32-DEBUG] flashWriter锁定释放成功');
+                } catch (e) {
+                    console.log('[ESP32-DEBUG] flashWriter锁定释放失败，忽略:', e.message);
+                }
+                
                 this.flashWriter = null;
             }
 
-            // 关闭串口
+            // 关闭串口 - 加强错误处理
             if (this.flashPort) {
-                await this.flashPort.close();
+                try {
+                    console.log('[ESP32-DEBUG] 尝试关闭串口');
+                    await this.flashPort.close();
+                    console.log('[ESP32-DEBUG] 串口关闭成功');
+                } catch (e) {
+                    console.log('[ESP32-DEBUG] 串口关闭失败，忽略:', e.message);
+                }
+                
                 this.flashPort = null;
             }
 
@@ -937,11 +967,12 @@ class SerialTerminal {
             
             // 添加日志
             this.addToFlashLog(i18n.t('serial_disconnected'), 'info');
+            console.log('[ESP32-DEBUG] 独立断开固件下载连接完成');
 
         } catch (error) {
-            console.error('固件下载断开连接失败:', error);
-            this.showError(i18n.t('disconnect_failed', error.message));
-            throw error;
+            console.error('[ESP32-DEBUG] 固件下载断开连接失败:', error);
+            this.addToFlashLog(`断开连接时出错: ${error.message}`, 'warning');
+            // 不再抛出错误，避免影响后续逻辑
         }
     }
 
@@ -1940,7 +1971,7 @@ class SerialTerminal {
                 
                 // 3. 确保固件下载连接状态正确
                 console.log('[ESP32-DEBUG] 检查固件下载连接状态');
-                this.isFlashConnected = this.flashPort && this.flashPort.readable && this.flashPort.writable;
+                this.isFlashConnected = !!(this.flashPort && this.flashPort.readable && this.flashPort.writable);
                 console.log('[ESP32-DEBUG] 当前连接状态:', this.isFlashConnected);
                 this.updateFlashConnectionStatus(this.isFlashConnected);
                 
@@ -1967,7 +1998,7 @@ class SerialTerminal {
                 this.addToFlashLog(`⚠️ ESP32下载完成处理时出错: ${e.message}`, 'warning');
                 
                 // 错误时简化处理
-                this.isFlashConnected = this.flashPort && this.flashPort.readable;
+                this.isFlashConnected = !!(this.flashPort && this.flashPort.readable);
                 this.updateFlashConnectionStatus(this.isFlashConnected);
             }
             
