@@ -7,14 +7,14 @@ const zhTw = {
     // 瀏覽器要求和測試版本說明
     browser_requirement: "此工具需要Chrome內核瀏覽器支援，其他瀏覽器無法正常工作。請使用Chrome、Edge或其他基於Chromium的瀏覽器。",
     beta_notice: "當前功能屬於測試版本，遇到問題請先保存相關日誌，然後提交issue到",
-    repository_link: "TuyaOpen-WebSerial 倉庫",
+    repository_link: "TuyaOpen-Tools 倉庫",
     
     // 專案相關連結
     project_info: "這個專案是TuyaOpen的一部分，相關專案包括：",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-WebSerial",
+    tools_project: "TuyaOpen-Tools",
     
     // Tab標籤
     tab_serial: "串列除錯",

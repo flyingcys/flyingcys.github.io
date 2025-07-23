@@ -7,14 +7,14 @@ const ko = {
     // 브라우저 요구사항과 베타 버전 공지
     browser_requirement: "이 도구는 Chrome 기반 브라우저가 필요합니다. 다른 브라우저는 정상적으로 작동하지 않습니다. Chrome, Edge 또는 기타 Chromium 기반 브라우저를 사용하십시오.",
     beta_notice: "현재 기능은 베타 버전입니다. 문제가 발생하면 먼저 관련 로그를 저장한 다음 리포지토리에 문제를 제출하십시오",
-    repository_link: "TuyaOpen-WebSerial 리포지토리",
+    repository_link: "TuyaOpen-Tools 리포지토리",
     
     // 프로젝트 관련 링크
     project_info: "이 프로젝트는 TuyaOpen의 일부입니다. 관련 프로젝트는 다음과 같습니다:",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-WebSerial",
+    tools_project: "TuyaOpen-Tools",
     
     // 탭 라벨
     tab_serial: "시리얼 디버그",

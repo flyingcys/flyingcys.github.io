@@ -1,14 +1,18 @@
-# TuyaOpen Serial Tool
+# TuyaOpen Tools
 
-**One-stop Developer Tool Based on Chrome Web Serial API**
 
-A powerful modern web serial tool that supports serial debugging, firmware flashing, and TuyaOpen authorization. No software installation required - complete all operations directly in your browser.
+## TuyaOpen-WebSerial
+**One-stop Developer Toolkit Based on Chrome Web APIs**
+
+A powerful modern web toolkit that currently supports serial debugging, firmware flashing, and TuyaOpen authorization. No software installation required - complete all operations directly in your browser. More development tools will be added in future updates.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](license.md)
 [![Chrome](https://img.shields.io/badge/Chrome-89%2B-green.svg)](https://www.google.com/chrome/)
 [![Web Serial API](https://img.shields.io/badge/Web%20Serial%20API-supported-brightgreen.svg)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API)
 
 ## Key Features
+
+### Current Tools
 
 ### Serial Debugging
 - **Real-time Serial Communication**: Support for multiple baud rates and serial parameter configurations
@@ -145,7 +149,7 @@ Welcome to submit Issues and Pull Requests!
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](license.md) file for details
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
@@ -164,9 +168,8 @@ Thanks to the developers of these projects for their contributions to the open-s
 
 ## Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/Tuya/TuyaOpen-WebSerial/issues)
-- **Feature Requests**: [GitHub Discussions](https://github.com/Tuya/TuyaOpen-WebSerial/discussions)
-- **Technical Support**: [TuyaOpen Community](https://developer.tuya.com/)
+- **Bug Reports**: [GitHub Issues](https://github.com/Tuya/TuyaOpen-Tools/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/Tuya/TuyaOpen-Tools/discussions)
 
 ---
 

@@ -122,11 +122,11 @@ const zhTw = {
     tuya_open_project: 'TuyaOpen',
     arduino_project: 'Arduino-TuyaOpen',
     lua_project: 'Luanode-TuyaOpen',
-    tools_project: 'TuyaOpen-WebSerial',
+    tools_project: 'TuyaOpen-Tools',
     
     // 測試版本說明
     beta_notice: '當前功能屬於測試版本，遇到問題請透過提交issue到',
-    repository_link: 'TuyaOpen-WebSerial 倉庫',
+    repository_link: 'TuyaOpen-Tools 倉庫',
     
     // 錯誤資訊
     error: '❌ 錯誤',

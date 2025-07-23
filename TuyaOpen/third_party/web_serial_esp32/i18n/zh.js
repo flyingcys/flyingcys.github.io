@@ -122,11 +122,11 @@ const zh = {
     tuya_open_project: 'TuyaOpen',
     arduino_project: 'Arduino-TuyaOpen',
     lua_project: 'Luanode-TuyaOpen',
-    tools_project: 'TuyaOpen-WebSerial',
+    tools_project: 'TuyaOpen-Tools',
     
     // 测试版本说明
     beta_notice: '当前功能属于测试版本，遇到问题请通过提交issue到',
-    repository_link: 'TuyaOpen-WebSerial 仓库',
+    repository_link: 'TuyaOpen-Tools 仓库',
     
     // 错误信息
     error: '❌ 错误',

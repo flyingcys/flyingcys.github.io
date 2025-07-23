@@ -7,14 +7,14 @@ const fr = {
     // Exigences du navigateur et avis de version beta
     browser_requirement: "Cet outil nécessite des navigateurs basés sur Chrome. Les autres navigateurs ne peuvent pas fonctionner correctement. Utilisez Chrome, Edge ou d'autres navigateurs basés sur Chromium.",
     beta_notice: "La fonctionnalité actuelle est en version beta. Si vous rencontrez des problèmes, veuillez d'abord sauvegarder les logs pertinents, puis signalez les problèmes dans le dépôt à",
-    repository_link: "Dépôt TuyaOpen-WebSerial",
+    repository_link: "Dépôt TuyaOpen-Tools",
     
     // Liens liés au projet
     project_info: "Ce projet fait partie de TuyaOpen. Les projets connexes incluent :",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-WebSerial",
+    tools_project: "TuyaOpen-Tools",
     
     // Étiquettes des onglets
     tab_serial: "Debug Serial",

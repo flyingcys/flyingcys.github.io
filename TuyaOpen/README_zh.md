@@ -1,14 +1,19 @@
-# TuyaOpen 串口工具
+# TuyaOpen 工具集
 
-**基于 Chrome Web Serial API 的一站式开发者工具**
+## TuyaOpen-WebSerial
 
-一个功能强大的现代化Web串口工具，支持串口调试、固件烧录和TuyaOpen授权，无需安装任何软件，直接在浏览器中完成所有操作。
+**基于 Chrome Web APIs 的一站式开发者工具集**
+
+
+一个功能强大的现代化Web工具集，目前支持串口调试、固件烧录和TuyaOpen授权，无需安装任何软件，直接在浏览器中完成所有操作。未来的更新中将添加更多开发工具。
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](license.md)
 [![Chrome](https://img.shields.io/badge/Chrome-89%2B-green.svg)](https://www.google.com/chrome/)
 [![Web Serial API](https://img.shields.io/badge/Web%20Serial%20API-supported-brightgreen.svg)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API)
 
 ## 主要功能
+
+### 当前工具
 
 ### 串口调试
 - **实时串口通信**: 支持多种波特率和串口参数配置
@@ -145,7 +150,7 @@ downloaders/
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](license.md) 文件了解详情
+本项目采用 Apache 2.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
 ## 致谢
 
@@ -162,11 +167,11 @@ downloaders/
 - [Arduino-TuyaOpen](https://github.com/tuya/arduino-tuyaopen) - Arduino平台支持
 - [Luanode-TuyaOpen](https://github.com/tuya/luanode-tuyaopen) - Lua开发支持
 
+
 ## 支持
 
-- **Bug报告**: [GitHub Issues](https://github.com/Tuya/TuyaOpen-WebSerial/issues)
-- **功能建议**: [GitHub Discussions](https://github.com/Tuya/TuyaOpen-WebSerial/discussions)
-- **技术支持**: [TuyaOpen社区](https://developer.tuya.com/)
+- **Bug报告**: [GitHub Issues](https://github.com/Tuya/TuyaOpen-Tools/issues)
+- **功能建议**: [GitHub Discussions](https://github.com/Tuya/TuyaOpen-Tools/discussions)
 
 ---
 
