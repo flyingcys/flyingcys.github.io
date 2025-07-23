@@ -25,7 +25,7 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    color: #172d72;  /* 使用主页的主色调 */
+    color: #1e40af;  /* 更鲜艳的蓝色标题 */
     position: relative;
 }
 
@@ -52,23 +52,23 @@ header {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(23, 45, 114, 0.1);
-    border: 2px solid rgba(23, 45, 114, 0.3);
+    background: rgba(30, 64, 175, 0.1);
+    border: 2px solid rgba(30, 64, 175, 0.3);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    color: #172d72;
+    color: #1e40af;
     font-size: 14px;
     font-weight: 500;
     min-width: 100px;
 }
 
 .lang-dropdown-btn:hover {
-    background: rgba(23, 45, 114, 0.2);
-    border-color: rgba(23, 45, 114, 0.5);
+    background: rgba(30, 64, 175, 0.15);
+    border-color: rgba(30, 64, 175, 0.5);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.2);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
 }
 
 .lang-flag {
@@ -314,14 +314,16 @@ header p {
 }
 
 .tab-btn:hover {
-    background: #f8f9fa;
-    color: #172d72;
+    background: rgba(30, 64, 175, 0.1);
+    color: #1e40af;
+    transform: translateY(-1px);
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #172d72, #1a3483);
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
     color: white;
-    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.3);
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 /* Tab内容区域 */
@@ -373,13 +375,15 @@ header p {
 }
 
 .control-header h3 {
-    color: #1a3483;
+    color: #1e40af;
     font-size: 1.2em;
+    font-weight: 600;
     padding: 8px 12px;
-    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-    border-radius: 6px;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(30, 64, 175, 0.1);
 }
 
 .control-header-right {
@@ -516,43 +520,59 @@ header p {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #172d72, #1a3483);
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
     color: white;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.4);
+    box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+    border-color: rgba(37, 99, 235, 0.5);
 }
 
 .btn-secondary {
-    background: #6c757d;
+    background: linear-gradient(135deg, #64748b, #94a3b8);
     color: white;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    font-weight: 600;
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #5a6268;
+    background: linear-gradient(135deg, #475569, #64748b);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+    border-color: rgba(71, 85, 105, 0.5);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #ef4444, #f87171);
     color: white;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    font-weight: 600;
 }
 
 .btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    border-color: rgba(220, 38, 38, 0.5);
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #10a6fa, #0590dd);
+    background: linear-gradient(135deg, #059669, #10b981);
     color: white;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-weight: 600;
 }
 
 .btn-success:hover:not(:disabled) {
+    background: linear-gradient(135deg, #047857, #059669);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 166, 250, 0.4);
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+    border-color: rgba(4, 120, 87, 0.5);
 }
 
 .btn-small {
@@ -599,21 +619,25 @@ header p {
 /* 烧录日志区域标题特殊样式 */
 .flash-log-panel .data-header h3 {
     color: #dc2626;
+    font-weight: 600;
     padding: 8px 12px;
     background: linear-gradient(135deg, #fee2e2, #fecaca);
-    border-radius: 6px;
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(220, 38, 38, 0.1);
 }
 
 /* 接收数据区域标题特殊样式 */
 .receive-data-panel .data-header h3 {
     color: #1e40af;
+    font-weight: 600;
     padding: 8px 12px;
     background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    border-radius: 6px;
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(30, 64, 175, 0.1);
 }
 
 .data-controls {
@@ -760,11 +784,13 @@ header p {
 .flash-header h3 {
     color: #059669;
     font-size: 1.2em;
+    font-weight: 600;
     padding: 8px 12px;
     background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    border-radius: 6px;
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(5, 150, 105, 0.1);
 }
 
 .flash-controls {
@@ -1020,13 +1046,17 @@ div.flash-controls {
 }
 
 .btn-download {
-    background: linear-gradient(135deg, #172d72, #1a3483);
+    background: linear-gradient(135deg, #dc2626, #ef4444);
     color: white;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-weight: 600;
 }
 
 .btn-download:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.4);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    border-color: rgba(185, 28, 28, 0.5);
 }
 
 .btn-download:disabled {
@@ -1122,11 +1152,13 @@ div.flash-controls {
 /* 发送数据区域标题特殊样式 */
 .send-panel .send-header h3 {
     color: #059669;
+    font-weight: 600;
     padding: 8px 12px;
     background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    border-radius: 6px;
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(5, 150, 105, 0.1);
 }
 
 .send-controls {
@@ -1229,15 +1261,17 @@ div.flash-controls {
 }
 
 .btn-manage {
-    background: #10a6fa;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
     color: white;
-    border: none;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    font-weight: 600;
 }
 
 .btn-manage:hover:not(:disabled) {
-    background: #0590dd;
+    background: linear-gradient(135deg, #d97706, #f59e0b);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(16, 166, 250, 0.3);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    border-color: rgba(217, 119, 6, 0.5);
 }
 
 .quick-buttons {
@@ -1987,15 +2021,17 @@ div.flash-controls {
 }
 
 .btn-debug {
-    background: #172d72;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
     color: white;
-    border: none;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    font-weight: 600;
 }
 
 .btn-debug:hover:not(:disabled) {
-    background: #152967;
+    background: linear-gradient(135deg, #6d28d9, #7c3aed);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.3);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    border-color: rgba(109, 40, 217, 0.5);
 }
 
 /* 调试状态栏样式 */
@@ -3067,11 +3103,13 @@ div.flash-controls {
 /* Style for the error analysis panel title to match other panel titles */
 .error-analysis-panel .data-header h3 {
     color: #92400e; /* 琥珀色文字 */
+    font-weight: 600;
     padding: 8px 12px;
     background: linear-gradient(135deg, #fde68a, #fbbf24); /* 琥珀色渐变背景 */
-    border-radius: 6px;
+    border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
+    border: 1px solid rgba(146, 64, 14, 0.1);
 }
 
 /* 错误分析面板的控制按钮布局调整 - 完全重写布局逻辑 */
@@ -3095,14 +3133,16 @@ div.flash-controls {
 
 /* 调试按钮样式 */
 .btn-debug {
-    background-color: #172d72;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
     color: white;
-    border: 1px solid #152967;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    font-weight: 600;
 }
 
 .btn-debug:hover:not(:disabled) {
-    background-color: #152967;
-    border-color: #142661;
+    background: linear-gradient(135deg, #6d28d9, #7c3aed);
+    border-color: rgba(109, 40, 217, 0.5);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 /* 隐藏测试错误分析按钮（保持功能但不显示） */
