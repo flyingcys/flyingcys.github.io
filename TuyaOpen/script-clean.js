@@ -1723,6 +1723,14 @@ class SerialTerminal {
             }
 
             this.addToFlashLog(i18n.t('download_complete'), 'success');
+            
+            // 检查是否需要自动断开串口
+            const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
+            if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
+                this.addToFlashLog('自动断开串口功能已启用，正在断开连接...', 'info');
+                await this.disconnectFlashIndependent();
+                this.addToFlashLog('串口已自动断开', 'success');
+            }
 
         } catch (error) {
             // 检查是否为串口异常断开
@@ -1912,6 +1920,14 @@ class SerialTerminal {
                 
                 if (this.isFlashConnected) {
                     this.addToFlashLog('✅ 固件下载串口连接保持，可以继续下载', 'success');
+                    
+                    // 检查是否需要自动断开串口
+                    const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
+                    if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
+                        this.addToFlashLog('自动断开串口功能已启用，正在断开ESP32连接...', 'info');
+                        await this.disconnectFlashIndependent();
+                        this.addToFlashLog('ESP32串口已自动断开', 'success');
+                    }
                 } else {
                     this.addToFlashLog('⚠️ 固件下载串口连接异常，需要重新连接', 'warning');
                 }
