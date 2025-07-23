@@ -130,12 +130,12 @@ header {
 
 .lang-option:hover {
     background: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
+    color: #172d72;
 }
 
 .lang-option.active {
     background: rgba(79, 70, 229, 0.15);
-    color: #4f46e5;
+    color: #172d72;
     font-weight: 600;
 }
 
@@ -315,13 +315,13 @@ header p {
 
 .tab-btn:hover {
     background: #f8f9fa;
-    color: #4f46e5;
+    color: #172d72;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #172d72, #1a3483);
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.3);
 }
 
 /* Tab内容区域 */
@@ -373,7 +373,7 @@ header p {
 }
 
 .control-header h3 {
-    color: #7c3aed;
+    color: #1a3483;
     font-size: 1.2em;
     padding: 8px 12px;
     background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
@@ -464,7 +464,7 @@ header p {
 }
 
 .config-group select:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
@@ -490,7 +490,7 @@ header p {
 }
 
 .config-group input[type="text"]:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
@@ -516,13 +516,13 @@ header p {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #172d72, #1a3483);
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.4);
 }
 
 .btn-secondary {
@@ -546,13 +546,13 @@ header p {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: linear-gradient(135deg, #10a6fa, #0590dd);
     color: white;
 }
 
 .btn-success:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 166, 250, 0.4);
 }
 
 .btn-small {
@@ -885,7 +885,7 @@ div.flash-controls {
     background: white;
     padding: 0 6px;
     font-size: 14px;
-    color: #4f46e5;
+    color: #172d72;
 }
 */
 
@@ -905,7 +905,7 @@ div.flash-controls {
 }
 
 .esp32-address-group select:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     background: white;
 }
@@ -936,7 +936,7 @@ div.flash-controls {
 }
 
 .custom-address-input:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     background: white;
@@ -986,7 +986,7 @@ div.flash-controls {
 }
 
 .file-select-area.drag-over {
-    border-color: #4f46e5;
+    border-color: #172d72;
     background: #eef2ff;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     transform: scale(1.02);
@@ -1020,13 +1020,13 @@ div.flash-controls {
 }
 
 .btn-download {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #172d72, #1a3483);
     color: white;
 }
 
 .btn-download:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.4);
 }
 
 .btn-download:disabled {
@@ -1155,7 +1155,7 @@ div.flash-controls {
 }
 
 #sendInput:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
 }
 
@@ -1187,7 +1187,7 @@ div.flash-controls {
 }
 
 .checkbox-container input:checked ~ .checkmark {
-    background-color: #4f46e5;
+    background-color: #172d72;
 }
 
 .checkmark:after {
@@ -1229,15 +1229,15 @@ div.flash-controls {
 }
 
 .btn-manage {
-    background: #f59e0b;
+    background: #10a6fa;
     color: white;
     border: none;
 }
 
 .btn-manage:hover:not(:disabled) {
-    background: #d97706;
+    background: #0590dd;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 2px 8px rgba(16, 166, 250, 0.3);
 }
 
 .quick-buttons {
@@ -1257,8 +1257,8 @@ div.flash-controls {
 
 .quick-btn:hover:not(:disabled) {
     background: #edf2f7;
-    border-color: #4f46e5;
-    color: #4f46e5;
+    border-color: #172d72;
+    color: #172d72;
 }
 
 .no-quick-commands {
@@ -1318,7 +1318,7 @@ div.flash-controls {
 }
 
 .form-group input:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
 }
 
@@ -1351,7 +1351,7 @@ div.flash-controls {
 }
 
 .command-item:hover {
-    border-color: #4f46e5;
+    border-color: #172d72;
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
 }
 
@@ -1438,7 +1438,7 @@ div.flash-controls {
 .command-item.editing .command-name,
 .command-item.editing .command-value {
     background: white;
-    border: 2px solid #4f46e5;
+    border: 2px solid #172d72;
     border-radius: 4px;
     padding: 6px;
     font-family: inherit;
@@ -1771,7 +1771,7 @@ div.flash-controls {
 }
 
 .btn-fullscreen:hover {
-    background: #4f46e5;
+    background: #172d72;
     transform: translateY(-1px);
 }
 
@@ -1951,12 +1951,12 @@ div.flash-controls {
 .debug-toggle {
     margin: 0 !important;
     font-weight: 600;
-    color: #4f46e5;
+    color: #172d72;
 }
 
 .debug-toggle .checkmark {
-    background: #4f46e5;
-    border-color: #4f46e5;
+    background: #172d72;
+    border-color: #172d72;
 }
 
 .debug-toggle input:checked ~ .checkmark {
@@ -1982,20 +1982,20 @@ div.flash-controls {
 
 .debug-level-select select:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: #172d72;
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }
 
 .btn-debug {
-    background: #8b5cf6;
+    background: #172d72;
     color: white;
     border: none;
 }
 
 .btn-debug:hover:not(:disabled) {
-    background: #7c3aed;
+    background: #152967;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(23, 45, 114, 0.3);
 }
 
 /* 调试状态栏样式 */
@@ -2048,7 +2048,7 @@ div.flash-controls {
 }
 
 .debug-status-item:nth-child(4) .debug-value {
-    color: #8b5cf6; /* 紫色 - 接收包数 */
+    color: #10a6fa; /* 紫色 - 接收包数 */
 }
 
 /* 调试状态栏在禁用时的样式 */
@@ -2101,7 +2101,7 @@ div.flash-controls {
 
 .flash-log-display .debug-entry.packet {
     background: rgba(139, 92, 246, 0.1);
-    border-left-color: #8b5cf6;
+    border-left-color: #10a6fa;
     color: #6d28d9;
     font-family: 'Courier New', monospace;
 }
@@ -2136,7 +2136,7 @@ div.flash-controls {
 
 .flash-log-display .packet-header {
     font-weight: 700;
-    color: #4f46e5;
+    color: #172d72;
     margin-bottom: 2px;
 }
 
@@ -2523,7 +2523,7 @@ div.flash-controls {
 }
 
 .send-controls input[type="text"]:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
 }
 
@@ -2741,7 +2741,7 @@ div.flash-controls {
 }
 
 .auth-input:focus {
-    border-color: #4f46e5;
+    border-color: #172d72;
     outline: none;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     background: #fafbfc;
@@ -2766,7 +2766,7 @@ div.flash-controls {
 }
 
 .char-count {
-    color: #8b5cf6;
+    color: #10a6fa;
 }
 
 .byte-count {
@@ -3095,14 +3095,14 @@ div.flash-controls {
 
 /* 调试按钮样式 */
 .btn-debug {
-    background-color: #8b5cf6;
+    background-color: #172d72;
     color: white;
-    border: 1px solid #7c3aed;
+    border: 1px solid #152967;
 }
 
 .btn-debug:hover:not(:disabled) {
-    background-color: #7c3aed;
-    border-color: #6d28d9;
+    background-color: #152967;
+    border-color: #142661;
 }
 
 /* 隐藏测试错误分析按钮（保持功能但不显示） */
