@@ -284,7 +284,13 @@ ESP32设备连接提示:
             }
             
             // 下载完成后，智能恢复SerialTerminal的reader/writer
-            await this.intelligentRestore();
+            // 🔧 关键修复：不让恢复流程阻塞主流程，确保按钮状态能正常更新
+            try {
+                await this.intelligentRestore();
+            } catch (restoreError) {
+                this.debugLog(`串口流恢复失败，但不影响下载完成状态: ${restoreError.message}`, null, 'warning');
+                // 不抛出异常，避免阻塞主流程，确保FlashManager的finally块能正常执行
+            }
         }
     }
 
@@ -380,7 +386,9 @@ ESP32设备连接提示:
             }
         } catch (error) {
             this.debugLog(`流恢复失败: ${error.message}`, null, 'error');
-            throw new Error(`无法恢复串口流状态，请刷新页面重新连接: ${error.message}`);
+            // 🔧 关键修复：不抛出异常，避免阻塞主流程
+            // 流恢复失败不应该影响下载完成状态和按钮更新
+            this.debugLog('流恢复失败，但不影响固件下载完成状态', null, 'warning');
         }
     }
 
