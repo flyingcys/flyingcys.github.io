@@ -1950,6 +1950,14 @@ class SerialTerminal {
                 this.isFlashConnected = this.flashPort && this.flashPort.readable;
                 this.updateFlashConnectionStatus(this.isFlashConnected);
             }
+            
+            // 4. 重置按钮状态（与T5AI保持一致）
+            if (this.isFlashConnected) {
+                this.downloadBtn.disabled = !this.selectedFile; // 如果有文件且连接正常，启用下载按钮
+            } else {
+                this.downloadBtn.disabled = true; // 如果连接断开，禁用下载按钮
+            }
+            this.stopDownloadBtn.disabled = true; // 下载完成后总是禁用停止按钮
         }
     }
 
