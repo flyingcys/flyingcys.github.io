@@ -231,6 +231,12 @@ class SerialTerminal {
         this.errorAnalysisContent = document.getElementById('errorAnalysisContent');
         this.detectedErrors = new Set(); // 用于避免重复显示相同错误
         this.isErrorAnalysisCollapsed = true; // 默认折叠状态
+        
+        // 自动断开串口相关元素
+        this.autoDisconnectAfterFlash = document.getElementById('autoDisconnectAfterFlash');
+        
+        // 从localStorage读取并设置自动断开串口选项状态
+        this.loadAutoDisconnectAfterFlashState();
     }
 
     bindEvents() {
@@ -370,6 +376,11 @@ class SerialTerminal {
         // 调试控件事件
         this.flashDebugMode.addEventListener('change', () => {
             this.toggleDebugMode();
+        });
+        
+        // 自动断开串口选项事件
+        this.autoDisconnectAfterFlash.addEventListener('change', () => {
+            this.saveAutoDisconnectAfterFlashState();
         });
 
         // 语言切换事件
@@ -3989,6 +4000,30 @@ class SerialTerminal {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    /**
+     * 从localStorage读取并设置自动断开串口选项状态
+     */
+    loadAutoDisconnectAfterFlashState() {
+        if (this.autoDisconnectAfterFlash) {
+            const saved = localStorage.getItem('autoDisconnectAfterFlash');
+            if (saved !== null) {
+                this.autoDisconnectAfterFlash.checked = saved === 'true';
+            } else {
+                // 默认状态：不勾选
+                this.autoDisconnectAfterFlash.checked = false;
+            }
+        }
+    }
+    
+    /**
+     * 保存自动断开串口选项状态到localStorage
+     */
+    saveAutoDisconnectAfterFlashState() {
+        if (this.autoDisconnectAfterFlash) {
+            localStorage.setItem('autoDisconnectAfterFlash', this.autoDisconnectAfterFlash.checked.toString());
+        }
     }
 }
 
