@@ -71,7 +71,7 @@ const zh = {
     // 固件烧录
     flash_config: "固件烧录配置",
     target_device: "目标设备:",
-    esp32_flash_address: "ESP32 烧录地址:",
+    esp32_flash_address: "ESP32-Series 烧录地址:",
     complete_firmware: "0x0000 (完整固件包)",
     custom_address: "自定义地址...",
     custom_address_placeholder: "0x10000",

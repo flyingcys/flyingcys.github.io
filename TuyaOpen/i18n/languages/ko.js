@@ -63,7 +63,7 @@ const ko = {
     // 펌웨어 플래시
     flash_config: "펌웨어 다운로드 설정",
     target_device: "대상 장치:",
-    esp32_flash_address: "ESP32 플래시 주소:",
+    esp32_flash_address: "ESP32-Series 플래시 주소:",
     complete_firmware: "0x0000 (완전한 펌웨어)",
     custom_address: "사용자 정의 주소...",
     custom_address_placeholder: "0x10000",

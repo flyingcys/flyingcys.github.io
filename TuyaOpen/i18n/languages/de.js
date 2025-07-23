@@ -70,7 +70,7 @@ const de = {
     // Firmware-Flash
     flash_config: "Firmware-Flash-Konfiguration",
     target_device: "Zielgerät:",
-    esp32_flash_address: "ESP32 Flash Adresse:",
+    esp32_flash_address: "ESP32-Series Flash Adresse:",
     complete_firmware: "0x0000 (Vollständige Firmware)",
     custom_address: "Benutzerdefinierte Adresse...",
     custom_address_placeholder: "0x10000",

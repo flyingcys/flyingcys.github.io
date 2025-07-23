@@ -70,7 +70,7 @@ const zhTw = {
     // 韌體燒錄
     flash_config: "韌體燒錄設定",
     target_device: "目標裝置:",
-    esp32_flash_address: "ESP32 燒錄地址:",
+    esp32_flash_address: "ESP32-Series 燒錄地址:",
     complete_firmware: "0x0000 (完整韌體包)",
     custom_address: "自訂地址...",
     custom_address_placeholder: "0x10000",

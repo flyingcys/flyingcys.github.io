@@ -70,7 +70,7 @@ const ja = {
     // ファームウェアフラッシュ
     flash_config: "ファームウェアダウンロード設定",
     target_device: "ターゲットデバイス:",
-    esp32_flash_address: "ESP32 書き込みアドレス:",
+    esp32_flash_address: "ESP32-Series 書き込みアドレス:",
     complete_firmware: "0x0000 (完全なファームウェア)",
     custom_address: "カスタムアドレス...",
     custom_address_placeholder: "0x10000",

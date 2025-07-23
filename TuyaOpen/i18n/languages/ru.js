@@ -70,7 +70,7 @@ const ru = {
     // Прошивка
     flash_config: "Конфигурация загрузки прошивки",
     target_device: "Целевое устройство:",
-    esp32_flash_address: "Адрес ESP32 Flash:",
+    esp32_flash_address: "Адрес ESP32-Series Flash:",
     complete_firmware: "0x0000 (Полная прошивка)",
     custom_address: "Пользовательский адрес...",
     custom_address_placeholder: "0x10000",

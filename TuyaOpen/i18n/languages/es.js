@@ -70,7 +70,7 @@ const es = {
     // Flash de firmware
     flash_config: "Configuración de Flash de Firmware",
     target_device: "Dispositivo Objetivo:",
-    esp32_flash_address: "Dirección ESP32 Flash:",
+    esp32_flash_address: "Dirección ESP32-Series Flash:",
     complete_firmware: "0x0000 (Firmware completo)",
     custom_address: "Dirección personalizada...",
     custom_address_placeholder: "0x10000",
