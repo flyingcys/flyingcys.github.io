@@ -173,7 +173,7 @@ class FlashManager {
                 // 🔧 关键修复：处理下载完成状态回调，与T5AI保持一致
                 // 这确保ESP32和T5AI都能正确触发按钮状态更新和自动断开功能
                 this.eventBus.emit('flash:log-add', {
-                    message: progressData.message || '固件下载完成',
+                    message: progressData.message || '固件烧录完成',
                     type: 'success',
                     isMainProcess: true
                 });

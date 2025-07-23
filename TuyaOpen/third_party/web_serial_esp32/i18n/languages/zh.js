@@ -135,7 +135,7 @@ const zh = {
     // 文件操作
     file_selected: "选择文件: {0} ({1} 字节)",
     start_download_to: "开始下载固件到 {0}...",
-    download_complete: "固件下载完成！",
+    download_complete: "固件烧录完成！",
     user_cancelled: "用户取消下载",
     
     // 固件下载进度消息
@@ -216,14 +216,14 @@ const zh = {
     // 新增：固件下载流程相关
     starting_firmware_download_process: "开始固件下载流程...",
     starting_device_download: "开始{0}固件下载，文件大小: {1} 字节",
-    firmware_download_completed_time: "固件下载完成，总耗时: {0} 秒",
-    device_firmware_download_completed: "{0}固件下载完成",
+    firmware_download_completed_time: "固件烧录完成，总耗时: {0} 秒",
+    device_firmware_download_completed: "{0}固件烧录完成",
     initializing_downloader: "正在初始化{0}下载器...",
     connecting_device: "正在连接{0}设备...",
     cannot_connect_device: "无法连接到{0}设备",
     downloading_firmware_to_device: "开始下载固件到{0}设备...",
-    t5ai_firmware_download_completed: "✅ T5AI固件下载完成",
-    firmware_download_completed_device_restarted: "固件下载完成，设备已重启",
+    t5ai_firmware_download_completed: "✅ T5AI固件烧录完成",
+    firmware_download_completed_device_restarted: "固件烧录完成，设备已重启",
     
     // 新增：串口连接相关
     serial_not_connected_connect_first: "串口未连接，请先连接串口设备",

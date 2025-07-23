@@ -780,7 +780,7 @@ class LN882HDownloader extends BaseDownloader {
                 throw new Error("重启失败");
             }
             
-            this.mainLog("固件下载完成!");
+            this.mainLog("固件烧录完成!");
             return { success: true };
             
         } catch (error) {
@@ -834,4 +834,4 @@ class LN882HDownloader extends BaseDownloader {
 // 确保类在全局范围内可用
 if (typeof window !== 'undefined') {
     window.LN882HDownloader = LN882HDownloader;
-} 
+}

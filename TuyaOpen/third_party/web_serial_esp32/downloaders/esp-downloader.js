@@ -897,7 +897,7 @@ class ESPDownloader extends BaseDownloader {
                 throw new Error("重启失败");
             }
             
-            this.mainLog("ESP固件下载完成!");
+            this.mainLog("ESP固件烧录完成!");
             return { success: true };
             
         } catch (error) {
@@ -1057,4 +1057,4 @@ class ESPDownloader extends BaseDownloader {
         this.mainLog(`断开 ${this.chipName} 连接`);
         this.stopFlag = true;
     }
-} 
+}

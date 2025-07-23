@@ -388,7 +388,7 @@ ESP32设备连接提示:
             this.debugLog(`流恢复失败: ${error.message}`, null, 'error');
             // 🔧 关键修复：不抛出异常，避免阻塞主流程
             // 流恢复失败不应该影响下载完成状态和按钮更新
-            this.debugLog('流恢复失败，但不影响固件下载完成状态', null, 'warning');
+            this.debugLog('流恢复失败，但不影响固件烧录完成状态', null, 'warning');
         }
     }
 

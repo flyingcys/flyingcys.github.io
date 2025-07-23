@@ -870,11 +870,11 @@ class T5Downloader extends BaseDownloader {
             await this.reboot();
             this.infoLog('✅ 设备重启完成');
             
-            this.infoLog('✅ T5AI固件下载完成');
+            this.infoLog('✅ T5AI固件烧录完成');
             if (this.onProgress) {
                 this.onProgress({ 
                     stage: 'completed', 
-                    message: '固件下载完成，设备已重启',
+                    message: '固件烧录完成，设备已重启',
                     progress: fileData.length,
                     total: fileData.length
                 });
@@ -2454,4 +2454,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = T5Downloader;
 } else if (typeof window !== 'undefined') {
     window.T5Downloader = T5Downloader;
-} 
+}

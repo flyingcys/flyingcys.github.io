@@ -1870,7 +1870,7 @@ class SerialTerminal {
             
             // 下载完成，更新进度条到100% - 与T5AI格式保持一致
             this.updateFlashProgress({
-                message: '固件下载完成，设备已重启',
+                message: '固件烧录完成，设备已重启',
                 percent: 100,
                 downloadedSize: fileData.byteLength,
                 totalSize: fileData.byteLength
@@ -1881,14 +1881,14 @@ class SerialTerminal {
                 esp32Downloader.onProgress({
                     stage: 'completed',
                     status: 'completed',
-                    message: '固件下载完成，设备已重启',
+                    message: '固件烧录完成，设备已重启',
                     progress: fileData.byteLength,
                     total: fileData.byteLength,
                     percent: 100
                 });
             }
             
-            this.addToFlashLog('=== ESP32固件下载完成 ===', 'success');
+            this.addToFlashLog('=== ESP32固件烧录完成 ===', 'success');
             
         } finally {
             // 下载完成后的清理处理 - 与T5AI保持一致

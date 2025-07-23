@@ -295,13 +295,13 @@ class ESP32EsptoolJSWrapper {
             await this.espLoader.writeFlash(flashOptions);
             await this.espLoader.after();  // 按照官方示例添加after调用
             
-            this.debugCallback.log('✅ [WRAPPER] 固件下载完成');
+            this.debugCallback.log('✅ [WRAPPER] 固件烧录完成');
             
             // 🔧 关键修复：发送完成状态的进度回调，与T5AI保持一致
             if (this.onProgress) {
                 this.onProgress({
                     stage: 'completed',
-                    message: '固件下载完成，设备已重启',
+                    message: '固件烧录完成，设备已重启',
                     progress: firmwareData.length,
                     total: firmwareData.length,
                     status: 'completed'
