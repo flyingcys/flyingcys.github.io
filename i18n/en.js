@@ -84,7 +84,7 @@ const en = {
     flash_config: '💾 Firmware Flash Config',
     target_device: 'Target Device',
     select_file: 'Select Firmware File',
-    no_file_selected: 'No file selected',
+    no_file_selected: 'No file selected, click "Select Firmware File" to manually open a flash file or drag the flash file to the file box',
     file_size: 'File Size',
     start_download: 'Start Flash',
     stop_download: 'End Flash',

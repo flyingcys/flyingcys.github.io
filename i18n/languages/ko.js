@@ -68,7 +68,7 @@ const ko = {
     custom_address: "사용자 정의 주소...",
     custom_address_placeholder: "0x10000",
     select_file: "펌웨어 파일 선택",
-    no_file_selected: "파일 선택되지 않음",
+    no_file_selected: "파일 선택되지 않음, \"펌웨어 파일 선택\"을 클릭하여 수동으로 플래시 파일을 열거나 플래시 파일을 파일 상자로 드래그하세요",
     file_size: "파일 크기",
     start_download: "플래시 시작",
     stop_download: "플래시 종료",

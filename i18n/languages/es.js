@@ -75,7 +75,7 @@ const es = {
     custom_address: "Dirección personalizada...",
     custom_address_placeholder: "0x10000",
     select_file: "Seleccionar Archivo de Firmware",
-    no_file_selected: "No se ha seleccionado archivo",
+    no_file_selected: "No se ha seleccionado archivo, haz clic en \"Seleccionar Archivo de Firmware\" para abrir manualmente un archivo flash o arrastra el archivo flash al cuadro de archivo",
     file_size: "Tamaño del Archivo",
     start_download: "Iniciar Flash",
     stop_download: "Finalizar Flash",

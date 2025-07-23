@@ -75,7 +75,7 @@ const ja = {
     custom_address: "カスタムアドレス...",
     custom_address_placeholder: "0x10000",
     select_file: "ファームウェアファイル選択",
-    no_file_selected: "ファイル未選択",
+    no_file_selected: "ファイル未選択、\"ファームウェアファイル選択\"をクリックして手動でフラッシュファイルを開くか、フラッシュファイルをファイルボックスにドラッグしてください",
     file_size: "ファイルサイズ",
     start_download: "フラッシュ開始",
     stop_download: "フラッシュ終了",

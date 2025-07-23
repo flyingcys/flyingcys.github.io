@@ -84,7 +84,7 @@ const zh = {
     flash_config: '💾 固件烧录配置',
     target_device: '目标设备',
     select_file: '选择固件文件',
-    no_file_selected: '未选择文件',
+    no_file_selected: '未选择文件，可点击 "选择固件文件"手动打开烧录文件或拖动烧录文件至文件框',
     file_size: '文件大小',
     start_download: '开始烧录',
     stop_download: '结束烧录',

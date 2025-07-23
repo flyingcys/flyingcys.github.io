@@ -75,7 +75,7 @@ const fr = {
     custom_address: "Adresse personnalisée...",
     custom_address_placeholder: "0x10000",
     select_file: "Sélectionner le fichier firmware",
-    no_file_selected: "Aucun fichier sélectionné",
+    no_file_selected: "Aucun fichier sélectionné, cliquez sur \"Sélectionner le fichier firmware\" pour ouvrir manuellement un fichier flash ou faites glisser le fichier flash vers la zone de fichier",
     file_size: "Taille du fichier",
     start_download: "Démarrer le flash",
     stop_download: "Terminer le flash",

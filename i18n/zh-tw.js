@@ -84,7 +84,7 @@ const zhTw = {
     flash_config: '💾 韌體燒錄配置',
     target_device: '目標設備',
     select_file: '選擇韌體檔案',
-    no_file_selected: '未選擇檔案',
+    no_file_selected: '未選擇檔案，可點擊 "選擇韌體檔案"手動開啟燒錄檔案或拖動燒錄檔案至檔案框',
     file_size: '檔案大小',
     start_download: '開始燒錄',
     stop_download: '結束燒錄',

@@ -75,7 +75,7 @@ const de = {
     custom_address: "Benutzerdefinierte Adresse...",
     custom_address_placeholder: "0x10000",
     select_file: "Firmware-Datei auswählen",
-    no_file_selected: "Keine Datei ausgewählt",
+    no_file_selected: "Keine Datei ausgewählt, klicken Sie auf \"Firmware-Datei auswählen\" um eine Flash-Datei manuell zu öffnen oder ziehen Sie die Flash-Datei in das Datei-Feld",
     file_size: "Dateigröße",
     start_download: "Flash starten",
     stop_download: "Flash beenden",

@@ -75,7 +75,7 @@ const zhTw = {
     custom_address: "自訂地址...",
     custom_address_placeholder: "0x10000",
     select_file: "選擇韌體檔案",
-    no_file_selected: "未選擇檔案",
+    no_file_selected: "未選擇檔案，可點擊 \"選擇韌體檔案\"手動開啟燒錄檔案或拖動燒錄檔案至檔案框",
     file_size: "檔案大小",
     start_download: "開始下載",
     stop_download: "停止下載",

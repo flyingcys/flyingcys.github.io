@@ -76,7 +76,7 @@ const en = {
     custom_address: "Custom Address...",
     custom_address_placeholder: "0x10000",
     select_file: "Select Firmware File",
-    no_file_selected: "No file selected",
+    no_file_selected: "No file selected, click \"Select Firmware File\" to manually open a flash file or drag the flash file to the file box",
     file_size: "File Size",
     start_download: "Start Flash",
     stop_download: "End Flash",
