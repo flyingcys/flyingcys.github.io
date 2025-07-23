@@ -316,15 +316,16 @@ class ESP32EsptoolJSWrapper {
         }
     }
 
-    // 断开连接 - 100%按照esptool-js官方示例流程
+    // 断开连接 - 修复死锁问题
     async disconnect() {
         try {
             this.debugCallback.log('🔍 [WRAPPER] 断开连接...');
             
-            // ✅ 100%按照官方示例：transport.disconnect()
+            // 🔧 修复：不调用transport.disconnect()避免与SerialTerminal冲突
+            // transport.disconnect()会尝试关闭SerialTerminal正在使用的串口流，导致死锁
+            // 我们只需要清理引用，让SerialTerminal继续管理串口
             if (this.transport) {
-                await this.transport.disconnect();
-                this.debugCallback.log('✅ [WRAPPER] Transport已断开');
+                this.debugCallback.log('✅ [WRAPPER] 跳过transport.disconnect()避免死锁');
             }
 
             // ✅ 按照官方示例：清理变量引用
