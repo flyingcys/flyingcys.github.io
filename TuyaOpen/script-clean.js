@@ -1,5 +1,8 @@
 class SerialTerminal {
     constructor() {
+        // 调试日志控制
+        this.debugMode = false; // 可通过控制台设置 window.serialTerminal.debugMode = true
+        
         // 串口调试相关的连接状态
         this.serialPort = null;
         this.serialReader = null;
@@ -237,6 +240,13 @@ class SerialTerminal {
         
         // 从localStorage读取并设置自动断开串口选项状态
         this.loadAutoDisconnectAfterFlashState();
+    }
+    
+    // 调试日志方法
+    debugLog(message, ...args) {
+        if (this.debugMode) {
+            console.log(`[SerialTerminal-DEBUG] ${message}`, ...args);
+        }
     }
 
     bindEvents() {
@@ -1891,10 +1901,13 @@ class SerialTerminal {
             this.addToFlashLog('=== ESP32固件烧录完成 ===', 'success');
             
         } finally {
+            console.log('[ESP32-DEBUG] 进入ESP32下载完成finally清理阶段');
             // 下载完成后的清理处理 - 与T5AI保持一致
             try {
                 // 1. 断开ESP32连接
+                console.log('[ESP32-DEBUG] 开始断开ESP32下载器连接');
                 await esp32Downloader.disconnect();
+                console.log('[ESP32-DEBUG] ESP32下载器连接已断开');
                 this.addToFlashLog('✅ ESP32下载器已断开', 'info');
                 
                 // 2. 重置串口波特率到115200（与T5AI一致）
@@ -1926,7 +1939,9 @@ class SerialTerminal {
                 }
                 
                 // 3. 确保固件下载连接状态正确
+                console.log('[ESP32-DEBUG] 检查固件下载连接状态');
                 this.isFlashConnected = this.flashPort && this.flashPort.readable && this.flashPort.writable;
+                console.log('[ESP32-DEBUG] 当前连接状态:', this.isFlashConnected);
                 this.updateFlashConnectionStatus(this.isFlashConnected);
                 
                 if (this.isFlashConnected) {
@@ -1934,10 +1949,15 @@ class SerialTerminal {
                     
                     // 检查是否需要自动断开串口
                     const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
+                    console.log('[ESP32-DEBUG] 检查自动断开选项:', autoDisconnectCheckbox ? autoDisconnectCheckbox.checked : 'null');
                     if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
+                        console.log('[ESP32-DEBUG] 执行自动断开串口');
                         this.addToFlashLog('自动断开串口功能已启用，正在断开ESP32连接...', 'info');
                         await this.disconnectFlashIndependent();
+                        console.log('[ESP32-DEBUG] 自动断开串口完成');
                         this.addToFlashLog('ESP32串口已自动断开', 'success');
+                    } else {
+                        console.log('[ESP32-DEBUG] 不执行自动断开，保持连接状态');
                     }
                 } else {
                     this.addToFlashLog('⚠️ 固件下载串口连接异常，需要重新连接', 'warning');
@@ -1952,12 +1972,19 @@ class SerialTerminal {
             }
             
             // 4. 重置按钮状态（与T5AI保持一致）
+            console.log('[ESP32-DEBUG] 重置按钮状态开始');
+            console.log('[ESP32-DEBUG] 当前连接状态:', this.isFlashConnected);
+            console.log('[ESP32-DEBUG] 是否有选择文件:', !!this.selectedFile);
             if (this.isFlashConnected) {
                 this.downloadBtn.disabled = !this.selectedFile; // 如果有文件且连接正常，启用下载按钮
+                console.log('[ESP32-DEBUG] 下载按钮状态设置为:', this.downloadBtn.disabled ? '禁用' : '启用');
             } else {
                 this.downloadBtn.disabled = true; // 如果连接断开，禁用下载按钮
+                console.log('[ESP32-DEBUG] 连接断开，下载按钮设置为禁用');
             }
             this.stopDownloadBtn.disabled = true; // 下载完成后总是禁用停止按钮
+            console.log('[ESP32-DEBUG] 停止按钮状态设置为禁用');
+            console.log('[ESP32-DEBUG] ESP32下载完成finally清理阶段结束');
         }
     }
 
@@ -2778,7 +2805,7 @@ class SerialTerminal {
                 }
             });
             
-            console.log(i18n.t('console_serial_target_device'), `${selectedDevice}, ${i18n.t('baud_rate')} ${config.baudrate}, 配置锁定: ${isReadonly}`);
+            this.debugLog(i18n.t('console_serial_target_device'), `${selectedDevice}, ${i18n.t('baud_rate')} ${config.baudrate}, 配置锁定: ${isReadonly}`);
         }
     }
 
@@ -3807,7 +3834,7 @@ class SerialTerminal {
                         this.serialTargetDevice.value = savedDevices.serial;
                         // 触发change事件以应用设备配置
                         this.handleSerialTargetDeviceChange();
-                        console.log('已恢复串口调试目标设备:', savedDevices.serial);
+                        this.debugLog('已恢复串口调试目标设备:', savedDevices.serial);
                     }
                 }
                 
@@ -3819,7 +3846,7 @@ class SerialTerminal {
                         this.deviceSelect.value = savedDevices.flash;
                         // 触发change事件以应用设备配置
                         this.handleFlashTargetDeviceChange();
-                        console.log('已恢复固件下载目标设备:', savedDevices.flash);
+                        this.debugLog('已恢复固件下载目标设备:', savedDevices.flash);
                     }
                 }
             }
@@ -3859,7 +3886,7 @@ class SerialTerminal {
             }
         }
         
-        console.log('固件下载目标设备已选择:', selectedDevice);
+        this.debugLog('固件下载目标设备已选择:', selectedDevice);
     }
 
     // 初始化错误分析折叠状态
@@ -3974,7 +4001,7 @@ class SerialTerminal {
             this.downloadBtn.disabled = false;
         }
 
-        console.log('通过拖拽选择文件:', file.name, '大小:', file.size, '字节');
+        this.debugLog('通过拖拽选择文件:', file.name, '大小:', file.size, '字节');
     }
 
     /**
