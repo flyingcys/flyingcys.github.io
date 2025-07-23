@@ -25,7 +25,7 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    color: #1e40af;  /* 更鲜艳的蓝色标题 */
+    color: #7c3aed;  /* 更柔和的紫蓝色标题 */
     position: relative;
 }
 
@@ -52,23 +52,23 @@ header {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(30, 64, 175, 0.1);
-    border: 2px solid rgba(30, 64, 175, 0.3);
+    background: rgba(79, 70, 229, 0.1);
+    border: 2px solid rgba(79, 70, 229, 0.3);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    color: #1e40af;
+    color: #4f46e5;
     font-size: 14px;
     font-weight: 500;
     min-width: 100px;
 }
 
 .lang-dropdown-btn:hover {
-    background: rgba(30, 64, 175, 0.15);
-    border-color: rgba(30, 64, 175, 0.5);
+    background: rgba(79, 70, 229, 0.15);
+    border-color: rgba(79, 70, 229, 0.5);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 .lang-flag {
@@ -130,12 +130,12 @@ header {
 
 .lang-option:hover {
     background: rgba(79, 70, 229, 0.1);
-    color: #172d72;
+    color: #4f46e5;
 }
 
 .lang-option.active {
     background: rgba(79, 70, 229, 0.15);
-    color: #172d72;
+    color: #4f46e5;
     font-weight: 600;
 }
 
@@ -175,7 +175,7 @@ header p {
 
 .system-info-bottom .system-info-text {
     font-size: 14px;
-    color: rgba(23, 45, 114, 0.8);
+    color: rgba(79, 70, 229, 0.8);
     margin: 0;
     font-weight: 400;
     letter-spacing: 0.5px;
@@ -246,8 +246,8 @@ header p {
 
 /* 测试版本说明样式 */
 .beta-notice {
-    background: rgba(255, 193, 7, 0.15);
-    border: 2px solid rgba(255, 193, 7, 0.3);
+    background: rgba(79, 70, 229, 0.1);
+    border: 2px solid rgba(79, 70, 229, 0.2);
     border-radius: 12px;
     margin-top: 20px;
     backdrop-filter: blur(10px);
@@ -268,13 +268,13 @@ header p {
 }
 
 .beta-text {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(79, 70, 229, 0.9);
     font-size: 14px;
     font-weight: 500;
 }
 
 .beta-link {
-    color: #ffd700;
+    color: #7c3aed;
     text-decoration: none;
     font-weight: 600;
     border-bottom: 1px solid transparent;
@@ -282,18 +282,19 @@ header p {
 }
 
 .beta-link:hover {
-    border-bottom-color: #ffd700;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    border-bottom-color: #7c3aed;
+    text-shadow: 0 0 8px rgba(124, 58, 237, 0.5);
 }
 
 /* Tab导航样式 */
 .tab-navigation {
     display: flex;
     margin-bottom: 20px;
-    background: white;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     border-radius: 12px;
     padding: 5px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 2px solid rgba(79, 70, 229, 0.1);
 }
 
 .tab-btn {
@@ -306,7 +307,7 @@ header p {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #666;
+    color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -314,16 +315,16 @@ header p {
 }
 
 .tab-btn:hover {
-    background: rgba(30, 64, 175, 0.1);
-    color: #1e40af;
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
     transform: translateY(-1px);
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
     color: white;
-    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+    border: 1px solid rgba(79, 70, 229, 0.3);
 }
 
 /* Tab内容区域 */
@@ -356,13 +357,13 @@ header p {
 
 /* 控制面板样式 */
 .control-panel {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
     margin-bottom: 20px;
-    border: 2px solid #f0f4f8;
+    border: 2px solid rgba(79, 70, 229, 0.1);
 }
 
 .control-header {
@@ -375,15 +376,15 @@ header p {
 }
 
 .control-header h3 {
-    color: #1e40af;
+    color: #7c3aed;
     font-size: 1.2em;
     font-weight: 600;
     padding: 8px 12px;
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
     border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
-    border: 1px solid rgba(30, 64, 175, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.1);
 }
 
 .control-header-right {
@@ -520,17 +521,17 @@ header p {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    background: linear-gradient(135deg, #172d72, #1e40af);
     color: white;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(23, 45, 114, 0.3);
     font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    background: linear-gradient(135deg, #142661, #172d72);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
-    border-color: rgba(37, 99, 235, 0.5);
+    box-shadow: 0 6px 20px rgba(23, 45, 114, 0.5);
+    border-color: rgba(20, 38, 97, 0.6);
 }
 
 .btn-secondary {
@@ -582,20 +583,21 @@ header p {
 
 /* 数据面板样式 */
 .data-panel {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 2px solid rgba(23, 45, 114, 0.1);
 }
 
 /* 数据接收面板样式 */
 .receive-data-panel {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     margin-bottom: 20px;
-    border: 2px solid #e8f4fd;
+    border: 2px solid rgba(23, 45, 114, 0.15);
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
@@ -630,14 +632,14 @@ header p {
 
 /* 接收数据区域标题特殊样式 */
 .receive-data-panel .data-header h3 {
-    color: #1e40af;
+    color: #172d72;
     font-weight: 600;
     padding: 8px 12px;
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
     border-radius: 8px;
     margin: -5px 0 0 -5px;
     display: inline-block;
-    border: 1px solid rgba(30, 64, 175, 0.1);
+    border: 1px solid rgba(23, 45, 114, 0.2);
 }
 
 .data-controls {
@@ -758,18 +760,20 @@ header p {
 
 /* 发送面板样式 */
 .send-panel {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 2px solid rgba(23, 45, 114, 0.1);
 }
 
 /* 固件下载面板样式 */
 .flash-panel {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 2px solid rgba(23, 45, 114, 0.1);
 }
 
 .flash-header {
@@ -1818,10 +1822,10 @@ div.flash-controls {
 .footer {
     margin-top: 40px;
     padding: 20px 0;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(79, 70, 229, 0.05);
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    border-top: 1px solid rgba(79, 70, 229, 0.2);
+    color: #4f46e5;
 }
 
 /* 页脚内容样式 */
@@ -1845,25 +1849,28 @@ div.flash-controls {
 }
 
 .version {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(79, 70, 229, 0.15);
     padding: 4px 8px;
     border-radius: 4px;
     font-weight: 600;
     font-size: 12px;
+    color: #4f46e5;
 }
 
 .separator {
     opacity: 0.6;
+    color: #4f46e5;
 }
 
 .footer a {
-    color: #a5b4fc;
+    color: #4f46e5;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .footer a:hover {
-    color: #c7d2fe;
+    color: #7c3aed;
     text-decoration: underline;
 }
 
@@ -1893,7 +1900,7 @@ div.flash-controls {
 .project-links {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(79, 70, 229, 0.2);
 }
 
 .project-info {
@@ -1902,7 +1909,7 @@ div.flash-controls {
 }
 
 .project-title {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(79, 70, 229, 0.9);
     font-size: 14px;
     font-weight: 500;
 }
@@ -1919,10 +1926,10 @@ div.flash-controls {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(79, 70, 229, 0.1);
+    border: 1px solid rgba(79, 70, 229, 0.2);
     border-radius: 8px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(79, 70, 229, 0.9);
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -1931,17 +1938,17 @@ div.flash-controls {
 }
 
 .project-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(79, 70, 229, 0.2);
+    border-color: rgba(79, 70, 229, 0.4);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
 }
 
 .project-link.current {
-    background: rgba(255, 215, 0, 0.2);
-    border-color: rgba(255, 215, 0, 0.4);
-    color: #ffd700;
+    background: rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.4);
+    color: #7c3aed;
 }
 
 .project-link.current:hover {
@@ -2306,12 +2313,12 @@ div.flash-controls {
         border-left-color: transparent;
     }
     50% {
-        border-left-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(79, 70, 229, 0.3);
     }
     100% {
         opacity: 1;
         transform: translateX(0);
-        border-left-color: rgba(255, 255, 255, 0.15);
+        border-left-color: rgba(79, 70, 229, 0.15);
     }
 }
 
@@ -2323,7 +2330,7 @@ div.flash-controls {
     margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(79, 70, 229, 0.5);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2357,7 +2364,7 @@ div.flash-controls {
 }
 
 .status-group .status-dot.connected {
-    background: #28a745;
+    background: #4f46e5;
     animation: pulse 2s infinite;
 }
 
@@ -2389,7 +2396,7 @@ div.flash-controls {
     margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(79, 70, 229, 0.5);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
