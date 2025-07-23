@@ -1,12 +1,45 @@
-# TuyaOpen 工具集
+# TuyaOpen-WebSerial
 
-## 可用工具
+[返回主页](README.md) | [English Version](WEBSERIAL.md)
 
-### [TuyaOpen-WebSerial](WEBSERIAL_zh.md)
+**基于 Chrome Web Serial API 的一站式串口开发工具**
 
-一个基于Chrome Web Serial API的强大串口工具。无需安装任何软件，直接在浏览器中完成所有操作。
+## 功能概述
 
-[了解更多关于TuyaOpen-WebSerial的信息](WEBSERIAL_zh.md)
+TuyaOpen-WebSerial 是一个功能强大的现代化 Web 串口工具，支持串口调试、固件烧录和 TuyaOpen 授权，无需安装任何软件，直接在浏览器中完成所有操作。
+
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Chrome](https://img.shields.io/badge/Chrome-89%2B-green.svg)](https://www.google.com/chrome/)
+[![Web Serial API](https://img.shields.io/badge/Web%20Serial%20API-supported-brightgreen.svg)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API)
+
+## 主要功能
+
+### 串口调试
+- **实时串口通信**: 支持多种波特率和串口参数配置
+- **智能数据显示**: 自动时间戳、HEX/ASCII模式切换
+- **错误日志分析**: 自动检测和分析常见错误模式
+- **快捷命令**: 可自定义的快捷发送按钮
+- **数据导出**: 支持日志保存和导出功能
+- **全屏模式**: 专注的调试体验
+
+### 固件烧录
+- **多芯片支持**: 
+  - **T5AI/T3**: TuyaOpen系列芯片
+  - **ESP32系列**: 基于esptool-js，支持全系列ESP32芯片自动检测
+- **智能烧录**: 自动芯片检测和参数配置
+- **进度监控**: 实时显示烧录进度和速度
+- **调试模式**: 详细的烧录日志和错误诊断
+- **断点续传**: 支持烧录中断后的恢复
+
+### TuyaOpen 授权
+- **授权码写入**: 支持TuyaOpen项目的UUID和AUTH_KEY写入
+- **设备授权**: 一键完成设备授权配置
+- **安全验证**: 确保授权信息的正确性和安全性
+
+### 国际化支持
+- **多语言界面**: 支持中文、英文、日文、韩文等10种语言
+- **动态切换**: 无需刷新页面即可切换语言
+- **本地化适配**: 完整的UI文本本地化
 
 ## 技术架构
 
@@ -55,14 +88,14 @@ downloaders/
     └── esp32-esptool-js-wrapper.js # ESP32下载器包装
 ```
 
-## 快速开始
+## 使用方法
 
 ### 系统要求
 - **浏览器**: Chrome 89+ / Edge 89+ / 其他基于Chromium的浏览器
 - **操作系统**: Windows / macOS / Linux
 - **硬件**: 支持USB串口的设备
 
-### 使用方法
+### 快速开始
 
 1. **打开工具**
    ```
@@ -95,28 +128,14 @@ downloaders/
 | T3 | 完全支持 |  |
 | ESP32系列 | 完全支持 | 支持ESP32/ESP32-S2/S3/C3等全系列 |
 
+## 故障排除
 
-## 详细文档
+如果串口连接失败，请检查:
+- 浏览器是否支持Web Serial API
+- 设备驱动是否正确安装
+- 串口是否被其他程序占用
 
-### 故障排除
-- 如果串口连接失败，请检查:
-  - 浏览器是否支持Web Serial API
-  - 设备驱动是否正确安装
-  - 串口是否被其他程序占用
-- 详细故障排除指南: [troubleshooting.html](troubleshooting.html)
-
-### 开发指南
-- 模块化架构说明: [modules/README.md](modules/README.md)
-- 下载器开发指南: [downloaders/README.md](downloaders/README.md)
-- 国际化开发: [i18n/README.md](i18n/README.md)
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 许可证
-
-本项目采用 Apache 2.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+详细故障排除指南: [troubleshooting.html](troubleshooting.html)
 
 ## 致谢
 
@@ -125,21 +144,4 @@ downloaders/
 - **[tyutool](https://github.com/tuya/tyutool)** - 涂鸦官方串口工具，为本项目的功能设计和用户体验提供了重要参考
 - **[esptool-js](https://github.com/espressif/esptool-js)** - Espressif官方的JavaScript版本烧录工具，为ESP32系列芯片的固件烧录功能提供了核心技术支持
 
-感谢这些项目的开发者们为开源社区做出的贡献！
-
-## 相关项目
-
-- [TuyaOpen](https://github.com/tuya/tuya-open-sdk-for-device) - TuyaOpen设备SDK
-- [Arduino-TuyaOpen](https://github.com/tuya/arduino-tuyaopen) - Arduino平台支持
-- [Luanode-TuyaOpen](https://github.com/tuya/luanode-tuyaopen) - Lua开发支持
-
-
-## 支持
-
-- **Bug报告**: [GitHub Issues](https://github.com/Tuya/TuyaOpen-Tools/issues)
-- **功能建议**: [GitHub Discussions](https://github.com/Tuya/TuyaOpen-Tools/discussions)
-
 ---
-
-**由 TuyaOpen 团队开发维护**
-

@@ -1,45 +1,12 @@
 # TuyaOpen Tools
 
+## Available Tools
 
-## TuyaOpen-WebSerial
-**One-stop Developer Toolkit Based on Chrome Web APIs**
+### [TuyaOpen-WebSerial](WEBSERIAL.md)
 
-A powerful modern web toolkit that currently supports serial debugging, firmware flashing, and TuyaOpen authorization. No software installation required - complete all operations directly in your browser. More development tools will be added in future updates.
+A powerful web-based serial tool built on Chrome Web Serial API. No software installation required - complete all operations directly in your browser.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](license.md)
-[![Chrome](https://img.shields.io/badge/Chrome-89%2B-green.svg)](https://www.google.com/chrome/)
-[![Web Serial API](https://img.shields.io/badge/Web%20Serial%20API-supported-brightgreen.svg)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API)
-
-## Key Features
-
-### Current Tools
-
-### Serial Debugging
-- **Real-time Serial Communication**: Support for multiple baud rates and serial parameter configurations
-- **Smart Data Display**: Automatic timestamps, HEX/ASCII mode switching
-- **Error Log Analysis**: Automatic detection and analysis of common error patterns
-- **Quick Commands**: Customizable quick send buttons
-- **Data Export**: Support for log saving and export functionality
-- **Fullscreen Mode**: Focused debugging experience
-
-### Firmware Flashing
-- **Multi-chip Support**: 
-  - **T5AI/T3**: TuyaOpen series chips
-  - **ESP32 Series**: Based on esptool-js, supports automatic detection of all ESP32 chips
-- **Smart Flashing**: Automatic chip detection and parameter configuration
-- **Progress Monitoring**: Real-time display of flashing progress and speed
-- **Debug Mode**: Detailed flashing logs and error diagnostics
-- **Resume Support**: Support for recovery after flashing interruption
-
-### TuyaOpen Authorization
-- **Authorization Code Writing**: Support for UUID and AUTH_KEY writing for TuyaOpen projects
-- **Device Authorization**: One-click device authorization configuration
-- **Security Verification**: Ensure correctness and security of authorization information
-
-### Internationalization Support
-- **Multi-language Interface**: Support for 10 languages including Chinese, English, Japanese, Korean
-- **Dynamic Switching**: Switch languages without page refresh
-- **Localization Adaptation**: Complete UI text localization
+[Learn more about TuyaOpen-WebSerial](WEBSERIAL.md)
 
 ## Technical Architecture
 
