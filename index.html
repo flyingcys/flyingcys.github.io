@@ -119,6 +119,7 @@
                                 <option value="230400">230400</option>
                                 <option value="460800">460800</option>
                                 <option value="921600">921600</option>
+                                <option value="1152000">1152000</option>
                                 <option value="1500000">1500000</option>
                                 <option value="2000000">2000000</option>
                                 <option value="3000000">3000000</option>
@@ -311,6 +312,7 @@
                                 <option value="230400">230400</option>
                                 <option value="460800">460800</option>
                                 <option value="921600" selected>921600</option>
+                                <option value="1152000">1152000</option>
                                 <option value="1500000">1500000</option>
                                 <option value="2000000">2000000</option>
                                 <option value="3000000">3000000</option>
@@ -436,7 +438,7 @@
                         </div>
                         <div class="progress-details">
                             <span><span data-i18n="downloaded">已烧录</span>: <span id="downloadedBytes">0</span> / <span id="totalBytes">0</span> <span data-i18n="bytes">字节</span></span>
-                            <span id="downloadSpeed"></span>
+                            <!-- <span id="downloadSpeed"></span> -->
                         </div>
                     </div>
                 </div>
@@ -444,7 +446,7 @@
                 <!-- 烧录日志显示区域 -->
                 <div class="flash-log-panel">
                     <div class="data-header">
-                        <h3 data-i18n="download_log">📋 烧录日志</h3>
+                        <h3 data-i18n="burn_log">📋 烧录日志</h3>
                         <div class="data-controls">
                             <!-- 调试控制区域 -->
                             <div class="debug-controls-inline">
@@ -710,16 +712,16 @@
         </div>
     </div>
 
-    <!-- 下载日志全屏显示覆盖层 -->
+    <!-- 烧录日志全屏显示覆盖层 -->
     <div id="flashFullscreenOverlay" class="fullscreen-overlay">
         <div class="fullscreen-header">
-            <h3 data-i18n="download_log">📋 下载日志</h3>
+            <h3 data-i18n="burn_log">📋 烧录日志</h3>
             <button id="flashFullscreenCloseBtn" class="fullscreen-close" data-i18n-title="exit_fullscreen">
                 <span class="icon">✕</span>
             </button>
         </div>
         <div id="flashFullscreenDataDisplay" class="fullscreen-data-display">
-            <div class="placeholder" data-i18n="waiting_download">等待下载操作...</div>
+            <div class="placeholder" data-i18n="waiting_download">等待烧录操作...</div>
         </div>
     </div>
 
@@ -1017,14 +1019,22 @@
         window.addEventListener('i18nReady', function(event) {
             const currentLang = event.detail.language;
             updateLanguageDisplay(currentLang);
+            if (window.serialTerminal && typeof window.serialTerminal.updateSystemInfoDisplay === 'function') {
+                window.serialTerminal.updateSystemInfoDisplay();
+            }
             console.log('主页多语言系统就绪，当前语言:', currentLang);
         });
         
         // 监听语言变更事件
         window.addEventListener('languageChanged', function(event) {
-            const newLang = event.detail.language;
-            updateLanguageDisplay(newLang);
-            console.log('主页语言已切换到:', newLang);
+            if (window.serialTerminal && typeof window.serialTerminal.updateSystemInfoDisplay === 'function') {
+                window.serialTerminal.updateSystemInfoDisplay();
+            }
+        });
+        window.addEventListener('globalLanguageChanged', function(event) {
+            if (window.serialTerminal && typeof window.serialTerminal.updateSystemInfoDisplay === 'function') {
+                window.serialTerminal.updateSystemInfoDisplay();
+            }
         });
         
         // ESP32专用固件下载管理器

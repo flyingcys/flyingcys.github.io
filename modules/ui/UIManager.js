@@ -76,7 +76,6 @@ class UIManager {
         this.elements.progressFill = document.getElementById('progressFill');
         this.elements.downloadedBytes = document.getElementById('downloadedBytes');
         this.elements.totalBytes = document.getElementById('totalBytes');
-        this.elements.downloadSpeed = document.getElementById('downloadSpeed');
 
         // 固件下载日志相关元素
         this.elements.flashLogDisplay = document.getElementById('flashLogDisplay');

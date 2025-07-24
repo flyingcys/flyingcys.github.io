@@ -75,7 +75,7 @@ const ko = {
     auto_disconnect_after_flash: "플래시 완료 후 자동 연결 해제",
     preparing: "준비 중...",
     downloaded: "다운로드됨",
-    download_log: "다운로드 로그",
+    download_log: "굽기 로그",
     clear_log: "로그 지우기",
     waiting_download: "다운로드 작업 대기 중...",
     

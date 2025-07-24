@@ -91,7 +91,7 @@ const zh = {
     auto_disconnect_after_flash: '完成烧录后自动断开串口',
     preparing: '准备中...',
     downloaded: '已烧录',
-    download_log: '📋 烧录日志',
+    burn_log: '📋 烧录日志',
     waiting_download: '等待烧录操作...',
     
     // TuyaOpen授权

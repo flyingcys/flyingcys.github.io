@@ -82,7 +82,7 @@ const ru = {
     auto_disconnect_after_flash: "Автоматически отключиться после прошивки",
     preparing: "Подготовка...",
     downloaded: "Загружено",
-    download_log: "Журнал загрузки",
+    burn_log: "Журнал прошивки",
     clear_log: "Очистить журнал",
     waiting_download: "Ожидание операции загрузки...",
     

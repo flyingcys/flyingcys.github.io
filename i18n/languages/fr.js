@@ -82,7 +82,7 @@ const fr = {
     auto_disconnect_after_flash: "Déconnecter automatiquement après le flash",
     preparing: "Préparation...",
     downloaded: "Flashé",
-    download_log: "Journal de flash",
+    burn_log: "Journal de gravure",
     clear_log: "Effacer le journal",
     waiting_download: "En attente d'opération de flash...",
     

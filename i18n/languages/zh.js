@@ -83,7 +83,7 @@ const zh = {
     auto_disconnect_after_flash: "完成烧录后自动断开串口",
     preparing: "准备中...",
     downloaded: "已下载",
-    download_log: "下载日志",
+    burn_log: "烧录日志",
     clear_log: "清空日志",
     waiting_download: "等待下载操作...",
     

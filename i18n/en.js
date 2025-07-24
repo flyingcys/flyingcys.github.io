@@ -91,7 +91,7 @@ const en = {
     auto_disconnect_after_flash: 'Auto disconnect after flash complete',
     preparing: 'Preparing...',
     downloaded: 'Flashed',
-    download_log: '📋 Flash Log',
+    burn_log: '📋 Flash Log',
     waiting_download: 'Waiting for flash operation...',
     
     // TuyaOpen authorization

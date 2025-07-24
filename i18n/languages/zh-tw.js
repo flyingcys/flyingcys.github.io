@@ -81,7 +81,7 @@ const zhTw = {
     stop_download: "停止下載",
     preparing: "準備中...",
     downloaded: "已下載",
-    download_log: "下載日誌",
+    burn_log: "燒錄日誌",
     clear_log: "清空日誌",
     waiting_download: "等待下載操作...",
     

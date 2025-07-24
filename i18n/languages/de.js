@@ -82,7 +82,7 @@ const de = {
     auto_disconnect_after_flash: "Nach Flash-Abschluss automatisch trennen",
     preparing: "Vorbereitung...",
     downloaded: "Geflasht",
-    download_log: "Flash-Log",
+    burn_log: "Flash-Protokoll",
     clear_log: "Log löschen",
     waiting_download: "Warten auf Flash-Operation...",
     

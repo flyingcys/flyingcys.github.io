@@ -83,7 +83,7 @@ const en = {
     auto_disconnect_after_flash: "Auto disconnect after flash complete",
     preparing: "Preparing...",
     downloaded: "Downloaded",
-    download_log: "Download Log",
+    download_log: "Flash Log",
     clear_log: "Clear Log",
     waiting_download: "Waiting for download operation...",
     

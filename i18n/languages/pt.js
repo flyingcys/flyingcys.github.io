@@ -82,7 +82,7 @@ const pt = {
     auto_disconnect_after_flash: "Desconectar automaticamente após o flash",
     preparing: "Preparando...",
     downloaded: "Baixado",
-    download_log: "Log de Download",
+    burn_log: "Log de gravação",
     clear_log: "Limpar Log",
     waiting_download: "Aguardando operação de download...",
     

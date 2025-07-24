@@ -22,7 +22,6 @@ class ProgressTracker {
         this.elements.progressFill = document.getElementById('progressFill');
         this.elements.downloadedBytes = document.getElementById('downloadedBytes');
         this.elements.totalBytes = document.getElementById('totalBytes');
-        this.elements.downloadSpeed = document.getElementById('downloadSpeed');
         
         // 固件下载日志相关元素
         this.elements.flashLogDisplay = document.getElementById('flashLogDisplay');
@@ -116,46 +115,9 @@ class ProgressTracker {
             }
         }
         
-        // 计算和更新下载速度
-        this.updateDownloadSpeed(detail.downloadedSize);
-
         // 添加到日志（如果是进度类型的消息）
         if (detail.message && detail.message.includes('%')) {
             this.addToFlashLog(detail.message, 'progress', false);
-        }
-    }
-    
-    /**
-     * 计算并更新下载速度
-     */
-    updateDownloadSpeed(currentBytes) {
-        if (!this.startTime || !this.elements.downloadSpeed) return;
-        
-        const now = Date.now();
-        const timeDiff = now - this.lastUpdateTime;
-        
-        // 每500ms更新一次速度
-        if (timeDiff >= 500) {
-            const bytesDiff = currentBytes - this.lastBytes;
-            const speed = (bytesDiff / timeDiff) * 1000; // bytes per second
-            
-            this.elements.downloadSpeed.textContent = this.formatSpeed(speed);
-            
-            this.lastUpdateTime = now;
-            this.lastBytes = currentBytes;
-        }
-    }
-    
-    /**
-     * 格式化速度显示
-     */
-    formatSpeed(bytesPerSecond) {
-        if (bytesPerSecond < 1024) {
-            return `${Math.round(bytesPerSecond)} B/s`;
-        } else if (bytesPerSecond < 1024 * 1024) {
-            return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
-        } else {
-            return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
         }
     }
     

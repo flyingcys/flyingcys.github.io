@@ -159,7 +159,6 @@ class SerialTerminal {
         this.progressFill = document.getElementById('progressFill');
         this.downloadedBytes = document.getElementById('downloadedBytes');
         this.totalBytes = document.getElementById('totalBytes');
-        this.downloadSpeed = document.getElementById('downloadSpeed');
 
         // 固件下载日志相关元素
         this.flashLogDisplay = document.getElementById('flashLogDisplay');
@@ -2200,16 +2199,18 @@ class SerialTerminal {
             this.totalBytes.textContent = '0';
         }
         
-        // 重置下载速度
-        if (this.downloadSpeed) {
-            this.downloadSpeed.textContent = '0 KB/s';
-        }
-        
         console.log('固件下载进度条已重置');
     }
 
     // 添加到固件下载日志
     addToFlashLog(text, type = 'info', isMainProcess = false) {
+        // 如果是bin数据内容或DEBUG发送WriteSector，且调试模式开启，则不输出
+        if (this.flashDebugMode && this.flashDebugMode.checked) {
+            const skipKeywords = ['数据块', 'Data block', '0x', 'HEX', 'RAW', '分包', 'chunk', 'raw', 'write data', '写入数据', '写入原始', '写入分包', 'DEBUG发送WriteSector:'];
+            if (typeof text === 'string' && skipKeywords.some(k => text.includes(k))) {
+                return;
+            }
+        }
         // 如果不是调试模式，只显示主流程信息
         if (!this.flashDebugMode.checked && !isMainProcess) {
             return;

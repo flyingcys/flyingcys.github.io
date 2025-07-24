@@ -82,7 +82,7 @@ const es = {
     auto_disconnect_after_flash: "Desconectar automáticamente después del flash",
     preparing: "Preparando...",
     downloaded: "Flasheado",
-    download_log: "Registro de Flash",
+    download_log: "Registro de grabación",
     clear_log: "Limpiar Registro",
     waiting_download: "Esperando operación de flash...",
     

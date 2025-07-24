@@ -521,31 +521,40 @@ header p {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #172d72, #1e40af);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
     color: white;
-    border: 1px solid rgba(23, 45, 114, 0.3);
+    border: 1px solid rgba(37, 99, 235, 0.3);
     font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #142661, #172d72);
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(23, 45, 114, 0.5);
-    border-color: rgba(20, 38, 97, 0.6);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+    border-color: rgba(29, 78, 216, 0.5);
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #64748b, #94a3b8);
+    background: linear-gradient(135deg, #475569, #64748b);
     color: white;
-    border: 1px solid rgba(148, 163, 184, 0.3);
+    border: 1px solid rgba(100, 116, 139, 0.3);
     font-weight: 600;
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #475569, #64748b);
+    background: linear-gradient(135deg, #334155, #475569);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
-    border-color: rgba(71, 85, 105, 0.5);
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3);
+    border-color: rgba(51, 65, 85, 0.5);
+}
+
+.btn-secondary:disabled,
+.btn:disabled.btn-secondary {
+    background: linear-gradient(135deg, #e5e7eb, #f1f5f9) !important;
+    color: #b0b4ba !important;
+    border: 1px solid #e5e7eb !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
 }
 
 .btn-danger {
@@ -1223,7 +1232,7 @@ div.flash-controls {
 }
 
 .checkbox-container input:checked ~ .checkmark {
-    background-color: #172d72;
+    background-color: #4f8cff;
 }
 
 .checkmark:after {
@@ -1809,7 +1818,7 @@ div.flash-controls {
 }
 
 .btn-fullscreen:hover {
-    background: #172d72;
+    background: #2563eb;
     transform: translateY(-1px);
 }
 
@@ -1996,8 +2005,8 @@ div.flash-controls {
 }
 
 .debug-toggle .checkmark {
-    background: #172d72;
-    border-color: #172d72;
+    background: #4f8cff;
+    border-color: #4f8cff;
 }
 
 .debug-toggle input:checked ~ .checkmark {
@@ -2120,8 +2129,8 @@ div.flash-controls {
 
 .flash-log-display .debug-entry.info {
     background: rgba(59, 130, 246, 0.1);
-    border-left-color: #3b82f6;
-    color: #1e40af;
+    border-left-color: #2563eb;
+    color: #2563eb;
 }
 
 .flash-log-display .debug-entry.success {
@@ -2179,7 +2188,7 @@ div.flash-controls {
 
 .flash-log-display .packet-header {
     font-weight: 700;
-    color: #172d72;
+    color: #2563eb;
     margin-bottom: 2px;
 }
 

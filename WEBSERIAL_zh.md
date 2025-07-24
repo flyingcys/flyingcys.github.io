@@ -143,5 +143,3 @@ downloaders/
 
 - **[tyutool](https://github.com/tuya/tyutool)** - 涂鸦官方串口工具，为本项目的功能设计和用户体验提供了重要参考
 - **[esptool-js](https://github.com/espressif/esptool-js)** - Espressif官方的JavaScript版本烧录工具，为ESP32系列芯片的固件烧录功能提供了核心技术支持
-
----

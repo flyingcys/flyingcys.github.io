@@ -2361,6 +2361,14 @@ class T5Downloader extends BaseDownloader {
     getSupportedFlashChips() {
         return this.flashDatabase;
     }
+
+    debug(level, message, data) {
+        // 过滤掉WriteSector相关日志
+        if (typeof message === 'string' && message.includes('WriteSector')) {
+            return;
+        }
+        // ... existing code ...
+    }
 }
 
 // 导出
