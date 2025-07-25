@@ -34,6 +34,39 @@ class ESP32EsptoolJSWrapper {
     }
 
     /**
+     * 获取用户配置的波特率 - 与T5AI保持一致的接口
+     * 🔧 关键修复：ESP32下载器现在将正确读取用户配置的波特率
+     */
+    getUserConfiguredBaudrate() {
+        try {
+            // 从全局串口终端获取固件下载独立配置的波特率
+            if (window.serialTerminal && window.serialTerminal.flashBaudRateSelect) {
+                const configuredBaudrate = parseInt(window.serialTerminal.flashBaudRateSelect.value);
+                this.debugCallback.log(`🚀 [WRAPPER] 从固件下载配置获取波特率: ${configuredBaudrate}`);
+                
+                // 验证波特率是否在有效范围内
+                const validBaudrates = [115200, 230400, 460800, 921600, 1152000, 1500000, 2000000, 3000000];
+                if (validBaudrates.includes(configuredBaudrate)) {
+                    this.debugCallback.log(`✅ [WRAPPER] 波特率配置有效: ${configuredBaudrate} bps`);
+                    this.debugCallback.log(`💡 [WRAPPER] 高波特率将显著提升ESP32下载速度！`);
+                    return configuredBaudrate;
+                } else {
+                    this.debugCallback.log(`⚠️ [WRAPPER] 无效的波特率配置: ${configuredBaudrate}，使用默认值115200`);
+                    return 115200;
+                }
+            }
+            
+            // 如果无法获取用户配置，使用默认的115200（保持兼容性）
+            this.debugCallback.log('⚠️ [WRAPPER] 无法获取固件下载串口配置，使用默认波特率115200');
+            return 115200;
+            
+        } catch (error) {
+            this.debugCallback.log(`❌ [WRAPPER] 获取用户配置波特率失败: ${error.message}，使用默认115200`);
+            return 115200;
+        }
+    }
+
+    /**
      * 停止操作
      */
     stop() {
@@ -159,10 +192,15 @@ class ESP32EsptoolJSWrapper {
 
     // 创建最小串口适配器 - 让esptool-js的Transport以为在使用标准Web Serial API
     createMinimalSerialAdapter() {
+        const wrapper = this;
         return {
             // 最小化的Web Serial API接口
-            readable: this.device.readable,
-            writable: this.device.writable,
+            get readable() {
+                return wrapper.device.readable;
+            },
+            get writable() {
+                return wrapper.device.writable;
+            },
 
             // 设备信息方法
             getInfo: () => {
@@ -199,17 +237,43 @@ class ESP32EsptoolJSWrapper {
                 }
             },
 
-            // ✅ 串口开关方法 - 按照esptool-js Transport的期望实现
+            // 🔧 关键修复：正确处理esptool-js的波特率切换
             open: async (options) => {
-                if (this.device.open && !this.device.readable) {
-                    return await this.device.open(options);
+                wrapper.debugCallback.log(`🔧 [ADAPTER] open()被调用，options: ${JSON.stringify(options)}`);
+                
+                // 如果串口已经打开且需要切换波特率
+                if (wrapper.device.readable && options && options.baudRate) {
+                    wrapper.debugCallback.log(`🔧 [ADAPTER] 检测到波特率切换请求: ${options.baudRate}`);
+                    
+                    // 先关闭现有连接
+                    if (wrapper.device.close) {
+                        wrapper.debugCallback.log(`🔧 [ADAPTER] 关闭现有连接...`);
+                        await wrapper.device.close();
+                    }
+                    
+                    // 以新波特率重新打开
+                    wrapper.debugCallback.log(`🔧 [ADAPTER] 以新波特率 ${options.baudRate} 重新打开串口...`);
+                    await wrapper.device.open(options);
+                    wrapper.debugCallback.log(`✅ [ADAPTER] 串口已以新波特率 ${options.baudRate} 重新打开`);
+                    return;
                 }
+                
+                // 正常的打开操作
+                if (wrapper.device.open && !wrapper.device.readable) {
+                    wrapper.debugCallback.log(`🔧 [ADAPTER] 执行正常的串口打开操作...`);
+                    return await wrapper.device.open(options);
+                }
+                
+                wrapper.debugCallback.log(`🔧 [ADAPTER] 串口已经打开，跳过open操作`);
                 return Promise.resolve();
             },
 
             close: async () => {
-                if (this.device.close) {
-                    return await this.device.close();
+                wrapper.debugCallback.log(`🔧 [ADAPTER] close()被调用`);
+                if (wrapper.device.close) {
+                    wrapper.debugCallback.log(`🔧 [ADAPTER] 执行串口关闭操作...`);
+                    await wrapper.device.close();
+                    wrapper.debugCallback.log(`✅ [ADAPTER] 串口已关闭`);
                 }
                 return Promise.resolve();
             },
@@ -434,24 +498,30 @@ class ESP32EsptoolJSWrapper {
             // ✅ 创建最小适配器，让我们的串口看起来像Web Serial API
             const serialAdapter = this.createMinimalSerialAdapter();
             this.debugCallback.log('✅ [WRAPPER] 最小串口适配器创建成功');
+            this.debugCallback.log('✅ [WRAPPER] 串口适配器已增强波特率切换支持');
             
             // ✅ 100%按照官方示例：创建Transport
             this.transport = new Transport(serialAdapter, true);
             this.debugCallback.log('✅ [WRAPPER] 使用esptool-js原生Transport成功');
             
-            // ✅ 100%按照官方示例：创建ESPLoader
+            // 🔧 关键修复：获取用户配置的波特率，不再硬编码115200
+            const userBaudrate = this.getUserConfiguredBaudrate();
+            this.debugCallback.log(`🚀 [WRAPPER] 用户配置的波特率: ${userBaudrate} bps`);
+            this.debugCallback.log(`🚀 [WRAPPER] 这将显著影响ESP32下载速度，高波特率可以大幅提升下载效率`);
+            
+            // ✅ 100%按照官方示例：创建ESPLoader，但使用用户配置的波特率
             const flashOptions = {
                 transport: this.transport,
-                baudrate: 115200,
+                baudrate: userBaudrate,  // 🔧 修复：使用用户配置而不是硬编码115200
                 terminal: this.terminal,
                 debugLogging: true,
             };
             
-            this.debugCallback.log('🔍 [WRAPPER] 创建ESPLoader实例...');
+            this.debugCallback.log(`🔍 [WRAPPER] 创建ESPLoader实例，波特率: ${userBaudrate}`);
             this.espLoader = new ESPLoader(flashOptions);
             
-            this.debugCallback.log('✅ [WRAPPER] ESPLoader实例创建成功');
-            this.debugCallback.log('✅ [WRAPPER] 初始化完成 - 100%按照esptool-js官方示例');
+            this.debugCallback.log('✅ [WRAPPER] ESPLoader实例创建成功，将使用用户配置的波特率进行高速下载');
+            this.debugCallback.log(`✅ [WRAPPER] 初始化完成 - 修复波特率问题，支持${userBaudrate}bps高速下载`);
             return true;
             
         } catch (error) {
@@ -473,6 +543,10 @@ class ESP32EsptoolJSWrapper {
             
             this.debugCallback.log('🔍 [WRAPPER] connect() 开始...');
             
+            // 记录初始ROM波特率（用于ESPLoader内部的波特率切换判断）
+            this.romBaudrate = 115200;
+            this.debugCallback.log(`📌 [WRAPPER] ROM初始波特率: ${this.romBaudrate}`);
+            
             // 🔧 关键修复：确保连续下载时重新初始化
             if (!this.espLoader || !this.transport) {
                 this.debugCallback.log('🔧 [WRAPPER] ESPLoader或Transport不存在，重新初始化...');
@@ -484,6 +558,16 @@ class ESP32EsptoolJSWrapper {
             }
             
             // ✅ 100%按照官方示例：esploader.main()
+            // 🔧 新增：在连接前记录当前使用的波特率
+            const targetBaudrate = this.espLoader.baudrate;
+            this.debugCallback.log(`🚀 [WRAPPER] 目标波特率: ${targetBaudrate} bps`);
+            this.debugCallback.log(`📌 [WRAPPER] ESPLoader将从 ${this.romBaudrate} 切换到 ${targetBaudrate}`);
+            this.debugCallback.log(`💡 [WRAPPER] 提示：高波特率(如921600, 1152000, 2000000)可显著提升下载速度`);
+            
+            // 设置ESPLoader的romBaudrate属性（这是changeBaud判断的依据）
+            this.espLoader.romBaudrate = this.romBaudrate;
+            this.debugCallback.log(`🔧 [WRAPPER] 已设置espLoader.romBaudrate = ${this.romBaudrate}`);
+            
             this.debugCallback.log('🔍 [WRAPPER] 调用 espLoader.main()...');
             
             // 再次检查停止标志
@@ -495,6 +579,8 @@ class ESP32EsptoolJSWrapper {
             this.chip = await this.espLoader.main();
             
             this.debugCallback.log(`✅ [WRAPPER] ESP32设备连接成功: ${this.chip}`);
+            this.debugCallback.log(`✅ [WRAPPER] ESPLoader.main()完成，波特率应该已经切换到: ${targetBaudrate} bps`);
+            this.debugCallback.log(`✅ [WRAPPER] 当前实际通信波特率: ${this.espLoader.baudrate} bps`);
             return true;
         } catch (error) {
             this.debugCallback.log(`❌ [WRAPPER] 连接失败: ${error.message}`);
