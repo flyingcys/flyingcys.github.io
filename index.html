@@ -20,6 +20,9 @@
 
         <header>
             <div class="header-top">
+                <div class="header-logo">
+                    <img src="images/logo.png" alt="TuyaOpen Logo" class="logo-image">
+                </div>
                 <div class="language-switcher">
                     <div class="lang-dropdown" id="langDropdown">
                         <button class="lang-dropdown-btn" id="langDropdownBtn" title="切换语言 / Switch Language">
@@ -438,7 +441,7 @@
                         </div>
                         <div class="progress-details">
                             <span><span data-i18n="downloaded">已烧录</span>: <span id="downloadedBytes">0</span> / <span id="totalBytes">0</span> <span data-i18n="bytes">字节</span></span>
-                            <!-- <span id="downloadSpeed"></span> -->
+                            <span id="flashTimer" class="flash-timer">00:00</span>
                         </div>
                     </div>
                 </div>
@@ -800,7 +803,57 @@
     <script src="script-clean.js"></script>
     
     <!-- ESP32 esptool-js 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <!-- 🔧 CryptoJS库加载 - CDN + 本地备用方案 -->
+    <script>
+        // 系统性修复CryptoJS加载问题
+        (function() {
+            console.log('🔍 开始加载CryptoJS库...');
+            
+            // 创建CDN脚本标签
+            const cdnScript = document.createElement('script');
+            cdnScript.src = 'https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js';
+            cdnScript.async = false; // 同步加载，确保按顺序执行
+            
+            // CDN加载成功
+            cdnScript.onload = function() {
+                console.log('✅ CryptoJS库CDN加载成功');
+                window.cryptoJSLoaded = true;
+            };
+            
+            // CDN加载失败，使用本地备用
+            cdnScript.onerror = function() {
+                console.warn('⚠️ CryptoJS库CDN加载失败，尝试本地备用库...');
+                
+                const localScript = document.createElement('script');
+                localScript.src = 'third_party/crypto-js.min.js';
+                localScript.async = false;
+                
+                localScript.onload = function() {
+                    console.log('✅ CryptoJS本地备用库加载成功');
+                    window.cryptoJSLoaded = true;
+                };
+                
+                localScript.onerror = function() {
+                    console.error('❌ CryptoJS本地备用库也加载失败');
+                    console.error('💡 ESP32烧录将使用备用哈希算法，不会影响基本功能');
+                    window.cryptoJSLoaded = false;
+                };
+                
+                document.head.appendChild(localScript);
+            };
+            
+            // 开始加载CDN脚本
+            document.head.appendChild(cdnScript);
+            
+            // 设置超时检查
+            setTimeout(function() {
+                if (typeof window.CryptoJS === 'undefined') {
+                    console.warn('⚠️ CryptoJS库加载超时，ESP32烧录将使用备用方案');
+                    window.cryptoJSLoaded = false;
+                }
+            }, 5000);
+        })();
+    </script>
     <script src="third_party/esptool-js-umd.bundle.js"></script>
     
     <!-- 下载器脚本 -->

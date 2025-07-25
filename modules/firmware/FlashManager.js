@@ -319,6 +319,9 @@ class FlashManager {
             this.elements.stopDownloadBtn.disabled = false;
             this.elements.progressArea.style.display = 'block';
 
+            // 发出开始下载事件，用于启动计时器
+            this.eventBus.emit('flash:download-started');
+
             // 读取文件数据
             const fileData = await this.readFileAsArrayBuffer(this.selectedFile);
             const device = this.elements.deviceSelect.value;
@@ -337,6 +340,9 @@ class FlashManager {
                 type: 'success',
                 isMainProcess: true
             });
+
+            // 发出下载完成事件，用于停止计时器
+            this.eventBus.emit('flash:download-finished');
 
             // 检查是否需要自动断开串口
             const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
@@ -380,6 +386,9 @@ class FlashManager {
                 isMainProcess: true
             });
             this.eventBus.emit('error', { message: i18n.t('download_failed', error.message) });
+            
+            // 发出下载完成事件，用于停止计时器
+            this.eventBus.emit('flash:download-finished');
         } finally {
             this.isDownloading = false;
             this.updateDownloadButtonState();
@@ -453,6 +462,9 @@ class FlashManager {
                 }
             }
         }
+        
+        // 发出下载完成事件，用于停止计时器
+        this.eventBus.emit('flash:download-finished');
         
         this.isDownloading = false;
         this.updateDownloadButtonState();

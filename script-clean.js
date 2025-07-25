@@ -159,6 +159,10 @@ class SerialTerminal {
         this.progressFill = document.getElementById('progressFill');
         this.downloadedBytes = document.getElementById('downloadedBytes');
         this.totalBytes = document.getElementById('totalBytes');
+        
+        // 计时器相关
+        this.flashTimer = null;
+        this.flashTimerElement = document.getElementById('flashTimer');
 
         // 固件下载日志相关元素
         this.flashLogDisplay = document.getElementById('flashLogDisplay');
@@ -1738,6 +1742,41 @@ class SerialTerminal {
         }
     }
 
+    // 计时器相关方法
+    startFlashTimer() {
+        // 重置计时器
+        this.stopFlashTimer();
+        
+        // 初始化显示
+        if (this.flashTimerElement) {
+            this.flashTimerElement.textContent = '00:00';
+        }
+        
+        // 记录开始时间
+        const startTime = Date.now();
+        
+        // 每秒更新一次
+        this.flashTimer = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const totalSeconds = Math.floor(elapsed / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (this.flashTimerElement) {
+                this.flashTimerElement.textContent = timeString;
+            }
+        }, 1000);
+    }
+    
+    stopFlashTimer() {
+        if (this.flashTimer) {
+            clearInterval(this.flashTimer);
+            this.flashTimer = null;
+        }
+    }
+
     // 开始固件下载
     async startFlashDownload() {
         if (!this.selectedFile) {
@@ -1754,6 +1793,9 @@ class SerialTerminal {
             this.downloadBtn.disabled = true;
             this.stopDownloadBtn.disabled = false;
             this.progressArea.style.display = 'block';
+            
+            // 启动计时器
+            this.startFlashTimer();
 
             // 读取文件数据
             const fileData = await this.readFileAsArrayBuffer(this.selectedFile);
@@ -1775,6 +1817,9 @@ class SerialTerminal {
 
             this.addToFlashLog(i18n.t('download_complete'), 'success');
             
+            // 停止计时器
+            this.stopFlashTimer();
+            
             // 检查是否需要自动断开串口
             const autoDisconnectCheckbox = document.getElementById('autoDisconnectAfterFlash');
             if (autoDisconnectCheckbox && autoDisconnectCheckbox.checked) {
@@ -1784,6 +1829,9 @@ class SerialTerminal {
             }
 
         } catch (error) {
+            // 停止计时器
+            this.stopFlashTimer();
+            
             // 检查是否为串口异常断开
             if (this.isFlashPortDisconnectionError(error)) {
                 // 串口异常断开，清理固件下载连接状态
@@ -1876,10 +1924,10 @@ class SerialTerminal {
                         totalSize: progressData.total
                     });
                     
-                    // 同时添加到日志（与T5AI一致）
+                    // 同时添加到日志（与T5AI一致，移除百分比显示）
                     if (progressData.percent % 10 === 0 || progressData.percent >= 95) {
                         // 只在特定百分比时记录日志，避免日志过多
-                        this.addToFlashLog(`ESP32固件下载中... ${Math.round(progressData.percent)}%`, 'progress');
+                        this.addToFlashLog('ESP32固件下载中...', 'progress');
                     }
                 }
             });
@@ -1929,6 +1977,9 @@ class SerialTerminal {
             }
             
             this.addToFlashLog('=== ESP32固件烧录完成 ===', 'success');
+            
+            // 停止计时器
+            this.stopFlashTimer();
             
         } finally {
             console.log('[ESP32-DEBUG] 进入ESP32下载完成finally清理阶段');
@@ -2058,6 +2109,9 @@ class SerialTerminal {
 
     // 停止固件下载
     async stopFlashDownload() {
+        // 停止计时器
+        this.stopFlashTimer();
+        
         if (!this.flashDownloader) {
             return;
         }
@@ -2158,17 +2212,28 @@ class SerialTerminal {
 
     // 更新固件下载进度
     updateFlashProgress(detail) {
-        this.progressText.textContent = detail.message;
-        this.progressPercent.textContent = `${Math.round(detail.percent)}%`;
-        this.progressFill.style.width = `${detail.percent}%`;
+        // 更新进度文本（移除其中的百分比，只显示纯文本描述）
+        if (detail.message) {
+            const messageWithoutPercent = detail.message.replace(/\s*\d+%/g, '').trim();
+            this.progressText.textContent = messageWithoutPercent || detail.message;
+        }
+        
+        // 更新右侧的总百分比显示
+        if (typeof detail.percent === 'number') {
+            this.progressPercent.textContent = `${Math.round(detail.percent)}%`;
+            this.progressFill.style.width = `${detail.percent}%`;
+        }
         
         if (detail.totalSize > 0) {
             this.downloadedBytes.textContent = detail.downloadedSize.toLocaleString();
             this.totalBytes.textContent = detail.totalSize.toLocaleString();
         }
 
-        // 添加到日志
-        this.addToFlashLog(detail.message, 'progress');
+        // 添加到日志（移除百分比）
+        if (detail.message) {
+            const messageWithoutPercent = detail.message.replace(/\s*\d+%/g, '').trim();
+            this.addToFlashLog(messageWithoutPercent || detail.message, 'progress');
+        }
     }
 
     // 重置固件下载进度条

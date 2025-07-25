@@ -460,12 +460,26 @@ ESP32设备连接提示:
             try {
                 this.chipDownloader.stop();
                 this.debugLog('已通知芯片下载器停止', null, 'info');
+                
+                // 立即尝试断开芯片下载器，释放串口流资源
+                this.chipDownloader.disconnect().catch(error => {
+                    this.debugLog('快速断开芯片下载器时发生错误: ' + error.message, null, 'warning');
+                });
             } catch (error) {
                 this.debugLog('停止芯片下载器时发生错误: ' + error.message, null, 'warning');
             }
         }
         
         // 注意：不在这里调用cleanup，因为cleanup会在finally块或stopFlashDownload中调用
+        // 但为了防止页面崩溃，设置一个短延迟后触发清理
+        setTimeout(() => {
+            if (this.isDownloading && this.shouldStop) {
+                this.debugLog('执行延迟清理以防止页面崩溃', null, 'info');
+                this.cleanup().catch(error => {
+                    this.debugLog('延迟清理失败: ' + error.message, null, 'warning');
+                });
+            }
+        }, 500);
     }
 
     /**

@@ -120,6 +120,7 @@ class T5Downloader extends BaseDownloader {
      */
     stop() {
         this.stopFlag = true;
+        this.debugLog('收到停止信号，将中断所有正在进行的操作', null);
     }
 
     /**
@@ -153,6 +154,12 @@ class T5Downloader extends BaseDownloader {
      * 发送命令 - 完全按照测试版本的逻辑
      */
     async sendCommand(command, commandName) {
+        // 检查停止标志
+        if (this.stopFlag) {
+            this.debugLog(`检测到停止信号，取消发送${commandName}`, null);
+            throw new Error(`操作已被用户取消`);
+        }
+        
         this.commLog(`发送${commandName}`);
         this.debugLog(`发送${commandName}: ${command.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
         
@@ -190,11 +197,17 @@ class T5Downloader extends BaseDownloader {
             const startTime = Date.now();
             
             // Python式的阻塞读取循环
-            while (responseBuffer.length < expectedLength && Date.now() - startTime < timeout) {
+            while (responseBuffer.length < expectedLength && Date.now() - startTime < timeout && !this.stopFlag) {
                 const remainingBytes = expectedLength - responseBuffer.length;
                 const remainingTime = timeout - (Date.now() - startTime);
                 
                 if (remainingTime <= 0) break;
+                
+                // 检查停止标志
+                if (this.stopFlag) {
+                    this.debugLog('检测到停止信号，中断接收响应操作', null);
+                    break;
+                }
                 
                 try {
                     // 模拟Python的阻塞读取：期望读取remainingBytes，但可能读到更少
@@ -628,9 +641,10 @@ class T5Downloader extends BaseDownloader {
                 if (this.onProgress) {
                     this.onProgress({ 
                         stage: 'downloading', 
-                        message: `擦除Flash... ${Math.round(eraseProgress * 100)}%`,
+                        message: '擦除Flash...',  // 移除消息中的百分比
                         progress: Math.round(fileData.length * (0.3 + eraseProgress)),
-                        total: fileData.length
+                        total: fileData.length,
+                        percent: (0.3 + eraseProgress) * 100  // 将百分比作为单独字段提供
                     });
                 }
             }
@@ -746,9 +760,10 @@ class T5Downloader extends BaseDownloader {
                 if (this.onProgress) {
                     this.onProgress({ 
                         stage: 'downloading', 
-                        message: `写入固件... ${Math.round(writeProgress * 100)}%`,
+                        message: '写入固件...',  // 移除消息中的百分比
                         progress: Math.round(fileData.length * (0.7 + writeProgress)),
-                        total: fileData.length
+                        total: fileData.length,
+                        percent: (0.7 + writeProgress) * 100  // 将百分比作为单独字段提供
                     });
                 }
             }
@@ -1300,6 +1315,10 @@ class T5Downloader extends BaseDownloader {
      */
     async disconnect() {
         this.stopFlag = true;
+        this.debug('info', '开始断开T5AI下载器...');
+        
+        // 首先确保所有正在进行的异步操作被中断
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // 重置串口波特率到115200，为下次连接做准备
         try {
@@ -1325,6 +1344,11 @@ class T5Downloader extends BaseDownloader {
                 this.debug('warning', `直接重置串口也失败: ${directResetError.message}`);
             }
         }
+        
+        // 清理内部状态
+        this.chipId = null;
+        this.flashId = null;
+        this.flashConfig = null;
         
         // 注意：在固件下载场景下，不关闭串口，让主系统管理
         this.debug('info', 'T5AI下载器已断开');
@@ -2234,9 +2258,10 @@ class T5Downloader extends BaseDownloader {
                 if (this.onProgress) {
                     this.onProgress({ 
                         stage: 'reading', 
-                        message: `读取Flash... ${Math.round((currentSector / totalSectors) * 100)}%`,
+                        message: '读取Flash...',  // 移除消息中的百分比
                         progress: currentSector,
-                        total: totalSectors
+                        total: totalSectors,
+                        percent: (currentSector / totalSectors) * 100  // 将百分比作为单独字段提供
                     });
                 }
             }

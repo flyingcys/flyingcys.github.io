@@ -76,12 +76,18 @@ class BaseDownloader {
         let reader = null;
         try {
             reader = this.port.readable.getReader();
-            while (true) {
+            while (true && !this.stopFlag) {
                 const { value, done } = await Promise.race([
                     reader.read(),
                     new Promise(resolve => setTimeout(() => resolve({ done: true }), 5))
                 ]);
                 if (done || !value || value.length === 0) break;
+                
+                // 检查停止标志
+                if (this.stopFlag) {
+                    this.debugLog('检测到停止信号，中断清空缓冲区操作');
+                    break;
+                }
             }
         } catch (error) {
             // 检查是否为串口异常断开
@@ -112,6 +118,12 @@ class BaseDownloader {
      * 子类可以重写此方法以适应不同的命令格式
      */
     async sendCommand(command, commandName) {
+        // 检查停止标志
+        if (this.stopFlag) {
+            this.debugLog(`检测到停止信号，取消发送${commandName}`);
+            throw new Error('操作已被用户取消');
+        }
+        
         this.debugLog(`发送${commandName}: ${command.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`);
         
         let writer = null;
@@ -138,11 +150,17 @@ class BaseDownloader {
             const responseBuffer = [];
             const startTime = Date.now();
             
-            while (responseBuffer.length < expectedLength && Date.now() - startTime < timeout) {
+            while (responseBuffer.length < expectedLength && Date.now() - startTime < timeout && !this.stopFlag) {
                 const remainingBytes = expectedLength - responseBuffer.length;
                 const remainingTime = timeout - (Date.now() - startTime);
                 
                 if (remainingTime <= 0) break;
+                
+                // 检查停止标志
+                if (this.stopFlag) {
+                    this.debugLog('检测到停止信号，中断接收响应操作');
+                    break;
+                }
                 
                 try {
                     const readPromise = reader.read();

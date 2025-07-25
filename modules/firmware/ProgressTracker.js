@@ -9,9 +9,11 @@ class ProgressTracker {
         this.startTime = null;
         this.lastUpdateTime = null;
         this.lastBytes = 0;
+        this.timerManager = null;
         
         this.initializeElements();
         this.bindEvents();
+        this.initializeTimer();
     }
     
     initializeElements() {
@@ -68,12 +70,29 @@ class ProgressTracker {
     }
     
     /**
+     * 初始化计时器
+     */
+    initializeTimer() {
+        if (typeof TimerManager !== 'undefined') {
+            this.timerManager = new TimerManager();
+        } else {
+            console.warn('TimerManager not found, timer functionality will be disabled');
+        }
+    }
+    
+    /**
      * 开始进度跟踪
      */
     startTracking() {
         this.startTime = Date.now();
         this.lastUpdateTime = this.startTime;
         this.lastBytes = 0;
+        
+        // 重置并启动计时器
+        if (this.timerManager) {
+            this.timerManager.reset();
+            this.timerManager.start();
+        }
         
         // 显示进度区域
         if (this.elements.progressArea) {
@@ -85,6 +104,11 @@ class ProgressTracker {
      * 停止进度跟踪
      */
     stopTracking() {
+        // 停止计时器
+        if (this.timerManager) {
+            this.timerManager.stop();
+        }
+        
         this.startTime = null;
         this.lastUpdateTime = null;
         this.lastBytes = 0;
@@ -94,14 +118,20 @@ class ProgressTracker {
      * 更新固件下载进度
      */
     updateProgress(detail) {
-        // 更新进度文本和百分比
-        if (this.elements.progressText) {
-            this.elements.progressText.textContent = detail.message;
+        // 更新进度文本（移除其中的百分比，只显示纯文本描述）
+        if (this.elements.progressText && detail.message) {
+            // 从消息中移除百分比，只显示操作描述
+            const messageWithoutPercent = detail.message.replace(/\s*\d+%/g, '').trim();
+            this.elements.progressText.textContent = messageWithoutPercent || detail.message;
         }
-        if (this.elements.progressPercent) {
+        
+        // 更新右侧的总百分比显示
+        if (this.elements.progressPercent && typeof detail.percent === 'number') {
             this.elements.progressPercent.textContent = `${Math.round(detail.percent)}%`;
         }
-        if (this.elements.progressFill) {
+        
+        // 更新进度条填充
+        if (this.elements.progressFill && typeof detail.percent === 'number') {
             this.elements.progressFill.style.width = `${detail.percent}%`;
         }
         
@@ -115,9 +145,13 @@ class ProgressTracker {
             }
         }
         
-        // 添加到日志（如果是进度类型的消息）
-        if (detail.message && detail.message.includes('%')) {
-            this.addToFlashLog(detail.message, 'progress', false);
+        // 添加到日志（如果是进度类型的消息，移除其中的百分比显示）
+        if (detail.message) {
+            // 从消息中移除百分比，只记录纯文本描述
+            const messageWithoutPercent = detail.message.replace(/\s*\d+%/g, '').trim();
+            if (messageWithoutPercent && detail.message.includes('%')) {
+                this.addToFlashLog(messageWithoutPercent, 'progress', false);
+            }
         }
     }
     
@@ -252,6 +286,12 @@ class ProgressTracker {
      * 销毁模块
      */
     destroy() {
+        // 销毁计时器
+        if (this.timerManager) {
+            this.timerManager.destroy();
+            this.timerManager = null;
+        }
+        
         this.elements = {};
         this.startTime = null;
         this.lastUpdateTime = null;
