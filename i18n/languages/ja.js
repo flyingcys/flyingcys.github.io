@@ -7,14 +7,14 @@ const ja = {
     // ブラウザ要件とベータ版通知
     browser_requirement: "このツールはChromeベースのブラウザが必要です。他のブラウザは正常に動作しません。Chrome、Edge、またはその他のChromiumベースのブラウザをご使用ください。",
     beta_notice: "このツールの使用中に問題が発生した場合は、リポジトリに問題を報告してください",
-    repository_link: "TuyaOpen-Tools リポジトリ",
+    repository_link: "TuyaOpen-WebTools リポジトリ",
     
     // プロジェクト関連リンク
     project_info: "このプロジェクトはTuyaOpenの一部です。関連プロジェクトには以下が含まれます：",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-Tools",
+    tools_project: "TuyaOpen-WebTools",
     
     // タブラベル
     tab_serial: "シリアルデバッグ",

@@ -7,14 +7,14 @@ const es = {
     // Requisitos del navegador y aviso de versión beta
     browser_requirement: "Esta herramienta requiere navegadores basados en Chrome. Otros navegadores no pueden funcionar correctamente. Use Chrome, Edge u otros navegadores basados en Chromium.",
     beta_notice: "Si encuentra algún problema mientras usa esta herramienta, por favor repórtelo en el repositorio en",
-    repository_link: "Repositorio TuyaOpen-Tools",
+    repository_link: "Repositorio TuyaOpen-WebTools",
     
     // Enlaces relacionados con el proyecto
     project_info: "Este proyecto es parte de TuyaOpen. Los proyectos relacionados incluyen:",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-Tools",
+    tools_project: "TuyaOpen-WebTools",
     
     // Etiquetas de pestañas
     tab_serial: "Debug Serial",

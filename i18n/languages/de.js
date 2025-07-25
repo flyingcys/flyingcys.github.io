@@ -7,14 +7,14 @@ const de = {
     // Browser-Anforderungen und Beta-Version-Hinweis
     browser_requirement: "Dieses Tool erfordert Chrome-basierte Browser. Andere Browser können nicht ordnungsgemäß funktionieren. Verwenden Sie Chrome, Edge oder andere Chromium-basierte Browser.",
     beta_notice: "Wenn Sie bei der Verwendung dieses Tools auf Probleme stoßen, melden Sie diese bitte im Repository unter",
-    repository_link: "TuyaOpen-Tools Repository",
+    repository_link: "TuyaOpen-WebTools Repository",
     
     // Projektbezogene Links
     project_info: "Dieses Projekt ist Teil von TuyaOpen. Verwandte Projekte umfassen:",
     tuya_open_project: "TuyaOpen",
     arduino_project: "Arduino-TuyaOpen",
     lua_project: "Luanode-TuyaOpen",
-    tools_project: "TuyaOpen-Tools",
+    tools_project: "TuyaOpen-WebTools",
     
     // Tab-Labels
     tab_serial: "Serial Debug",

@@ -123,11 +123,11 @@ const en = {
     tuya_open_project: 'TuyaOpen',
     arduino_project: 'Arduino-TuyaOpen',
     lua_project: 'Luanode-TuyaOpen',
-    tools_project: 'TuyaOpen-Tools',
+    tools_project: 'TuyaOpen-WebTools',
     
     // Beta notice
     beta_notice: 'Current function is in beta version, please submit issues to',
-    repository_link: 'TuyaOpen-Tools Repository',
+    repository_link: 'TuyaOpen-WebTools Repository',
     
     // Error messages
     error: '❌ Error',
